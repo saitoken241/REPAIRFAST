@@ -20,7 +20,7 @@ def create_user(name: str, email: str, db: Session = Depends(get_db)):
 
 @app.get("/users/")
 def list_users(db: Session = Depends(get_db)):
-    return db.query(User).all()  # Retorna todos os usuários
+    return db.query(User).all() 
 
 @app.get("/users/{user_id}")
 def get_user(user_id: int, db: Session = Depends(get_db)):
