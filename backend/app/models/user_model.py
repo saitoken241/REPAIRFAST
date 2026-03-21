@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Enum
+from sqlalchemy import ForeignKey,Column, Integer, String, Boolean, Enum
 from sqlalchemy.orm import relationship
 from ..database import Base
 
@@ -23,6 +23,12 @@ class User(Base):
     reports = relationship(
         "Report", 
         back_populates="user",
-        cascade = "all, delete"
+        cascade = "all, delete",
+        uselist = True # 1:N
         )
-    
+    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
+
+    department = relationship(
+        "Department",
+        back_populates="department",
+        )
