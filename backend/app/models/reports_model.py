@@ -1,4 +1,5 @@
-from sqlalchemy import Text,Enum,DateTime, Column, Integer, String, Boolean
+from sqlalchemy import Text,Enum,DateTime, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 from ..database import Base
 from datetime import datetime
 
@@ -27,4 +28,8 @@ class Report(Base):
              "high", 
              name="priority_enum"),
           nullable=False, index=True)
-
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user = relationship(
+        "User",
+        back_populates="reports"
+    )
