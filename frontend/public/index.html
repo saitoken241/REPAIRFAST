@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepairFast — Gestão Preventiva Industrial</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #E85C1A;
+    --orange-bright: #FF6B2B;
+    --orange-dim: #C44A10;
+    --dark: #0A0A0A;
+    --dark2: #111111;
+    --dark3: #1A1A1A;
+    --dark4: #222222;
+    --mid: #2E2E2E;
+    --text: #F0EDE8;
+    --text-muted: #888880;
+    --text-dim: #555550;
+    --accent-green: #3DBA7A;
+    --accent-yellow: #F5C842;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--orange);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(232,92,26,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s;
+  }
+  body:has(a:hover) .cursor, body:has(button:hover) .cursor { width: 20px; height: 20px; background: var(--orange-bright); }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 56px; height: 56px; }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  .nav-logo-icon {
+    width: 38px; height: 38px;
+    background: var(--orange);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-logo-icon svg { width: 22px; height: 22px; fill: white; }
+  .nav-logo-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--orange); }
+
+  .nav-cta {
+    background: var(--orange);
+    color: white !important;
+    padding: 8px 22px !important;
+    border-radius: 6px !important;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--orange-bright) !important; color: white !important; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 140px 64px 100px 64px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(232,92,26,0.12);
+    border: 1px solid rgba(232,92,26,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--orange);
+    width: fit-content;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .hero-h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 7vw, 100px);
+    line-height: 0.92;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero-h1 .highlight {
+    color: var(--orange);
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-h1 .highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 4px; left: 0; right: 0;
+    height: 3px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: lineGrow 0.8s 0.8s ease both;
+  }
+
+  @keyframes lineGrow { to { transform: scaleX(1); } }
+
+  .hero-desc {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text-muted);
+    max-width: 440px;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: var(--orange);
+    color: white;
+    padding: 14px 32px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-primary:hover { background: var(--orange-bright); transform: translateY(-2px); }
+  .btn-primary svg { width: 16px; height: 16px; fill: white; }
+
+  .btn-secondary {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+  }
+  .btn-secondary:hover { color: var(--text); }
+  .btn-secondary svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--dark4);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .hero-stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--orange);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .hero-stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+  }
+
+  /* Hero right — mock UI */
+  .hero-right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(232,92,26,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,92,26,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .hero-bg-glow {
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232,92,26,0.15) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: glowPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  }
+
+  .hero-mockup {
+    position: relative;
+    z-index: 2;
+    width: 320px;
+    background: var(--dark2);
+    border: 1px solid var(--dark4);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+    animation: floatCard 6s ease-in-out infinite;
+    margin-top: 80px;
+  }
+
+  @keyframes floatCard {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-12px) rotate(-1deg); }
+  }
+
+  .mockup-header {
+    background: var(--dark3);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--dark4);
+  }
+  .mockup-logo { display: flex; align-items: center; gap: 8px; }
+  .mockup-logo-icon {
+    width: 24px; height: 24px;
+    background: var(--orange);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mockup-logo-icon svg { width: 14px; height: 14px; fill: white; }
+  .mockup-logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+  .mockup-notif {
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+  }
+
+  .mockup-body { padding: 16px; }
+
+  .mockup-kpi-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .mockup-kpi {
+    background: var(--dark3);
+    border-radius: 8px;
+    padding: 10px 10px;
+    border: 1px solid var(--dark4);
+  }
+  .mockup-kpi-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--orange);
+    letter-spacing: 1px;
+  }
+  .mockup-kpi-lbl {
+    font-size: 9px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  .mockup-section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .mockup-report-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    background: var(--dark3);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border: 1px solid var(--dark4);
+  }
+  .mockup-report-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-red { background: #E85C5C; }
+  .dot-yellow { background: var(--accent-yellow); }
+  .dot-green { background: var(--accent-green); }
+
+  .mockup-report-text { flex: 1; }
+  .mockup-report-name { font-size: 11px; color: var(--text); font-weight: 400; }
+  .mockup-report-meta { font-size: 9px; color: var(--text-dim); margin-top: 1px; font-family: 'DM Mono', monospace; }
+
+  .mockup-badge {
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+  .badge-crit { background: rgba(232,92,92,0.15); color: #E85C5C; border: 1px solid rgba(232,92,92,0.3); }
+  .badge-med { background: rgba(245,200,66,0.15); color: var(--accent-yellow); border: 1px solid rgba(245,200,66,0.3); }
+  .badge-ok { background: rgba(61,186,122,0.15); color: var(--accent-green); border: 1px solid rgba(61,186,122,0.3); }
+
+  .mockup-bar-row {
+    margin-top: 14px;
+  }
+  .mockup-bar-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 5px; }
+  .mockup-bar-track { height: 5px; background: var(--dark4); border-radius: 3px; overflow: hidden; }
+  .mockup-bar-fill { height: 100%; border-radius: 3px; }
+  .fill-orange { background: var(--orange); width: 55%; }
+  .fill-green { background: var(--accent-green); width: 87%; }
+  .fill-yellow { background: var(--accent-yellow); width: 46%; }
+
+  /* Floating badges */
+  .hero-float-badge {
+    position: absolute;
+    z-index: 3;
+    background: var(--dark2);
+    border: 1px solid var(--dark4);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  .badge-sla {
+    right: 30px;
+    top: 180px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: floatCard 5s 1s ease-in-out infinite;
+  }
+  .badge-sla-icon { font-size: 20px; }
+  .badge-sla-val { font-family: 'Bebas Neue'; font-size: 22px; color: var(--accent-green); letter-spacing: 1px; }
+  .badge-sla-lbl { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+  .badge-alert {
+    left: 20px;
+    bottom: 160px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: floatCard 7s 0.5s ease-in-out infinite;
+  }
+  .badge-alert-dot { width: 10px; height: 10px; background: var(--orange); border-radius: 50%; animation: pulse 1.5s infinite; flex-shrink: 0; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTION STYLES */
+  section { position: relative; }
+
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--orange);
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+
+  .section-h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 5vw, 68px);
+    line-height: 0.95;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+
+  /* MARQUEE BAND */
+  .marquee-band {
+    background: var(--orange);
+    padding: 14px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .marquee-inner {
+    display: inline-flex;
+    gap: 48px;
+    animation: marquee 20s linear infinite;
+  }
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    gap: 48px;
+  }
+  .marquee-item::after {
+    content: '◆';
+    font-size: 10px;
+    opacity: 0.6;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* FEATURES */
+  .features {
+    padding: 120px 64px;
+    background: var(--dark);
+  }
+  .features-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: end;
+    margin-bottom: 80px;
+  }
+  .features-desc {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text-muted);
+    padding-top: 16px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--dark4);
+    border: 1px solid var(--dark4);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .feature-card {
+    background: var(--dark2);
+    padding: 36px 32px;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .feature-card:hover::before { transform: scaleX(1); }
+  .feature-card:hover { background: var(--dark3); }
+
+  .feature-icon {
+    width: 48px; height: 48px;
+    background: rgba(232,92,26,0.1);
+    border: 1px solid rgba(232,92,26,0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    font-size: 22px;
+  }
+  .feature-name {
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--text);
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+  }
+  .feature-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+
+  /* METRICS */
+  .metrics {
+    padding: 100px 64px;
+    background: var(--dark2);
+    border-top: 1px solid var(--dark4);
+    border-bottom: 1px solid var(--dark4);
+  }
+  .metrics-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .metrics-text .section-h2 { margin-bottom: 24px; }
+  .metrics-text p { font-size: 15px; line-height: 1.8; color: var(--text-muted); max-width: 420px; margin-bottom: 40px; }
+
+  .metrics-table {
+    border: 1px solid var(--dark4);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .metrics-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    padding: 14px 20px;
+    align-items: center;
+    border-bottom: 1px solid var(--dark4);
+    transition: background 0.2s;
+  }
+  .metrics-row:last-child { border-bottom: none; }
+  .metrics-row:hover { background: var(--dark3); }
+  .metrics-row.header {
+    background: var(--dark3);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    cursor: default;
+  }
+  .metrics-row.header:hover { background: var(--dark3); }
+  .metrics-indicator { font-size: 13px; color: var(--text-muted); }
+  .metrics-manual { font-size: 13px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+  .metrics-system { font-size: 13px; color: var(--text); font-family: 'DM Mono', monospace; font-weight: 500; }
+  .metrics-delta {
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    width: fit-content;
+  }
+  .delta-pos { background: rgba(61,186,122,0.12); color: var(--accent-green); }
+  .delta-neg { background: rgba(232,92,26,0.12); color: var(--orange); }
+
+  /* STACK */
+  .stack {
+    padding: 100px 64px;
+  }
+  .stack-header { text-align: center; margin-bottom: 64px; }
+  .stack-header .section-h2 { margin-bottom: 16px; }
+  .stack-header p { font-size: 15px; color: var(--text-muted); max-width: 480px; margin: 0 auto; }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .stack-item {
+    background: var(--dark2);
+    border: 1px solid var(--dark4);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .stack-item:hover { border-color: var(--orange); transform: translateY(-4px); }
+  .stack-item-icon { font-size: 28px; margin-bottom: 8px; }
+  .stack-item-name { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ODS */
+  .ods {
+    padding: 80px 64px;
+    background: var(--dark2);
+    border-top: 1px solid var(--dark4);
+  }
+  .ods-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .ods-header { grid-column: 1 / -1; text-align: center; margin-bottom: 16px; }
+
+  .ods-card {
+    background: var(--dark3);
+    border: 1px solid var(--dark4);
+    border-radius: 16px;
+    padding: 32px;
+    display: flex;
+    gap: 20px;
+    transition: border-color 0.2s;
+  }
+  .ods-card:hover { border-color: var(--orange); }
+  .ods-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 60px;
+    line-height: 1;
+    color: var(--orange);
+    opacity: 0.3;
+    flex-shrink: 0;
+  }
+  .ods-content-title {
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .ods-content-desc { font-size: 13px; line-height: 1.7; color: var(--text-dim); }
+
+  /* CTA */
+  .cta-section {
+    padding: 140px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(232,92,26,0.12) 0%, transparent 70%);
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .cta-section .section-h2 { font-size: clamp(48px, 6vw, 88px); margin-bottom: 24px; position: relative; }
+  .cta-section p { font-size: 16px; color: var(--text-muted); max-width: 500px; margin: 0 auto 48px; position: relative; }
+  .cta-section .btn-primary { margin: 0 auto; font-size: 15px; padding: 16px 40px; position: relative; }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark2);
+    border-top: 1px solid var(--dark4);
+    padding: 48px 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo { display: flex; align-items: center; gap: 10px; }
+  .footer-logo-icon {
+    width: 32px; height: 32px;
+    background: var(--orange);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .footer-logo-icon svg { width: 18px; height: 18px; fill: white; }
+  .footer-logo-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+  .footer-copy { font-size: 12px; color: var(--text-dim); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--orange); }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+    </div>
+    <span class="nav-logo-name">RepairFast</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Funcionalidades</a></li>
+    <li><a href="#metrics">Resultados</a></li>
+    <li><a href="#stack">Tecnologia</a></li>
+    <li><a href="#" class="nav-cta">Acessar Sistema</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Plataforma Industrial Inteligente</div>
+
+    <h1 class="hero-h1">
+      GESTÃO<br>
+      <span class="highlight">PREVENTIVA</span><br>
+      INDUSTRIAL
+    </h1>
+
+    <p class="hero-desc">
+      Centralização de reportes, rastreabilidade completa e cultura de segurança — tudo integrado em uma plataforma construída para ambientes de alto risco.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        Ver Demonstração
+      </a>
+      <a href="#features" class="btn-secondary">
+        <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        Saiba Mais
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">−46.7%</div>
+        <div class="hero-stat-label">Tempo de resposta</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">+27.9%</div>
+        <div class="hero-stat-label">Planos executados</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-label">Setores integrados</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-bg-glow"></div>
+
+    <!-- Floating SLA badge -->
+    <div class="hero-float-badge badge-sla">
+      <div>
+        <div class="badge-sla-val">55.3%</div>
+        <div class="badge-sla-lbl">SLA Cumprido</div>
+      </div>
+    </div>
+
+    <!-- Floating alert badge -->
+    <div class="hero-float-badge badge-alert">
+      <div class="badge-alert-dot"></div>
+      <span style="font-size:12px;color:var(--text-muted);">3 reportes críticos ativos</span>
+    </div>
+
+    <!-- Mockup card -->
+    <div class="hero-mockup">
+      <div class="mockup-header">
+        <div class="mockup-logo">
+          <div class="mockup-logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+          </div>
+          <span class="mockup-logo-text">RepairFast</span>
+        </div>
+        <div class="mockup-notif"></div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-kpi-row">
+          <div class="mockup-kpi">
+            <div class="mockup-kpi-num">850</div>
+            <div class="mockup-kpi-lbl">Reportes</div>
+          </div>
+          <div class="mockup-kpi">
+            <div class="mockup-kpi-num">58.6h</div>
+            <div class="mockup-kpi-lbl">Resolução</div>
+          </div>
+          <div class="mockup-kpi">
+            <div class="mockup-kpi-num">55%</div>
+            <div class="mockup-kpi-lbl">SLA</div>
+          </div>
+        </div>
+
+        <div class="mockup-section-title">Reportes Recentes</div>
+
+        <div class="mockup-report-item">
+          <div class="mockup-report-dot dot-red"></div>
+          <div class="mockup-report-text">
+            <div class="mockup-report-name">Falta de EPI</div>
+            <div class="mockup-report-meta">Segurança · #1248</div>
+          </div>
+          <span class="mockup-badge badge-crit">Crítico</span>
+        </div>
+        <div class="mockup-report-item">
+          <div class="mockup-report-dot dot-yellow"></div>
+          <div class="mockup-report-text">
+            <div class="mockup-report-name">Sinalização ausente</div>
+            <div class="mockup-report-meta">Logística · #1247</div>
+          </div>
+          <span class="mockup-badge badge-med">Média</span>
+        </div>
+        <div class="mockup-report-item">
+          <div class="mockup-report-dot dot-green"></div>
+          <div class="mockup-report-text">
+            <div class="mockup-report-name">Equipamento revisado</div>
+            <div class="mockup-report-meta">Manutenção · #1246</div>
+          </div>
+          <span class="mockup-badge badge-ok">Ok</span>
+        </div>
+
+        <div class="mockup-bar-row">
+          <div style="margin-bottom:10px">
+            <div class="mockup-bar-label"><span>Produção</span><span>55%</span></div>
+            <div class="mockup-bar-track"><div class="mockup-bar-fill fill-orange"></div></div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div class="mockup-bar-label"><span>Ações executadas</span><span>87%</span></div>
+            <div class="mockup-bar-track"><div class="mockup-bar-fill fill-green"></div></div>
+          </div>
+          <div>
+            <div class="mockup-bar-label"><span>Qualidade</span><span>46%</span></div>
+            <div class="mockup-bar-track"><div class="mockup-bar-fill fill-yellow"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-band">
+  <div class="marquee-inner">
+    <div class="marquee-item">Rastreabilidade Total</div>
+    <div class="marquee-item">Gestão de Riscos</div>
+    <div class="marquee-item">Monitoramento Contínuo</div>
+    <div class="marquee-item">Dashboard em Tempo Real</div>
+    <div class="marquee-item">IA Conversacional</div>
+    <div class="marquee-item">Prevenção de Acidentes</div>
+    <div class="marquee-item">ODS 8 & 9</div>
+    <div class="marquee-item">Rastreabilidade Total</div>
+    <div class="marquee-item">Gestão de Riscos</div>
+    <div class="marquee-item">Monitoramento Contínuo</div>
+    <div class="marquee-item">Dashboard em Tempo Real</div>
+    <div class="marquee-item">IA Conversacional</div>
+    <div class="marquee-item">Prevenção de Acidentes</div>
+    <div class="marquee-item">ODS 8 & 9</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-header reveal">
+    <div>
+      <div class="section-label">Funcionalidades</div>
+      <h2 class="section-h2">TUDO QUE<br>VOCÊ PRECISA</h2>
+    </div>
+    <p class="features-desc">
+      Do registro inicial até a resolução completa, o RepairFast cobre cada etapa do ciclo de vida do reporte com precisão e rastreabilidade total.
+    </p>
+  </div>
+
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <div class="feature-name">Formulários Dinâmicos</div>
+      <div class="feature-desc">Coleta estruturada que varia conforme o tipo de ocorrência, garantindo consistência e completude dos dados.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🗺️</div>
+      <div class="feature-name">Mapa Interativo</div>
+      <div class="feature-desc">Visualização geoespacial de ocorrências por área, setor e criticidade para decisões mais rápidas.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-name">Dashboard Power BI</div>
+      <div class="feature-desc">Indicadores consolidados em tempo real com triagem, priorização e suporte à tomada de decisão.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <div class="feature-name">Notificações Automáticas</div>
+      <div class="feature-desc">Alertas em tempo real para atrasos, pendências e mudanças de status em cada reporte.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-name">IA Conversacional</div>
+      <div class="feature-desc">Assistente inteligente para orientação, engajamento e consultas à base de conhecimento.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏆</div>
+      <div class="feature-name">Reconhecer+</div>
+      <div class="feature-desc">Rankings, pontuações e badges que incentivam comportamentos seguros e cultura preventiva.</div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section class="metrics" id="metrics">
+  <div class="metrics-inner">
+    <div class="metrics-text reveal">
+      <div class="section-label">Resultados Comprovados</div>
+      <h2 class="section-h2">NÚMEROS<br>QUE FALAM</h2>
+      <p>Comparando o método manual com o sistema RepairFast, os dados demonstram melhorias expressivas em todos os indicadores de desempenho operacional.</p>
+      <a href="#" class="btn-primary" style="display:inline-flex">
+        Ver Relatório Completo
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:white"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </a>
+    </div>
+
+    <div class="metrics-table reveal">
+      <div class="metrics-row header">
+        <span>Indicador</span>
+        <span>Manual</span>
+        <span>RepairFast</span>
+        <span>Variação</span>
+      </div>
+      <div class="metrics-row">
+        <span class="metrics-indicator">Tempo de resposta ao risco</span>
+        <span class="metrics-manual">3 dias</span>
+        <span class="metrics-system">1,6 dias</span>
+        <span class="metrics-delta delta-neg">−46,7%</span>
+      </div>
+      <div class="metrics-row">
+        <span class="metrics-indicator">Taxa de execução de ações</span>
+        <span class="metrics-manual">68%</span>
+        <span class="metrics-system">87%</span>
+        <span class="metrics-delta delta-pos">+27,9%</span>
+      </div>
+      <div class="metrics-row">
+        <span class="metrics-indicator">Atualização dos dados</span>
+        <span class="metrics-manual">Semanal</span>
+        <span class="metrics-system">Tempo real</span>
+        <span class="metrics-delta delta-pos">✓</span>
+      </div>
+      <div class="metrics-row">
+        <span class="metrics-indicator">Detalhamento dos relatórios</span>
+        <span class="metrics-manual">Baixo</span>
+        <span class="metrics-system">Alto</span>
+        <span class="metrics-delta delta-pos">✓</span>
+      </div>
+      <div class="metrics-row">
+        <span class="metrics-indicator">Participação dos setores</span>
+        <span class="metrics-manual">Parcial</span>
+        <span class="metrics-system">Integral</span>
+        <span class="metrics-delta delta-pos">✓</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section class="stack" id="stack">
+  <div class="stack-header reveal">
+    <div class="section-label">Tecnologia</div>
+    <h2 class="section-h2">STACK ROBUSTO<br>E CONFIÁVEL</h2>
+    <p>Construído com tecnologias modernas para garantir performance, segurança e escalabilidade industrial.</p>
+  </div>
+  <div class="stack-grid reveal">
+    <div class="stack-item">
+      <div class="stack-item-icon">🐍</div>
+      <div class="stack-item-name">Python</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-icon">⚡</div>
+      <div class="stack-item-name">FastAPI</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-icon">🗄️</div>
+      <div class="stack-item-name">MySQL</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-icon">📱</div>
+      <div class="stack-item-name">Figma</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-icon">📊</div>
+      <div class="stack-item-name">Power BI</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-item-icon">🌐</div>
+      <div class="stack-item-name">HTML/CSS/JS</div>
+    </div>
+  </div>
+</section>
+
+<!-- ODS -->
+<section class="ods">
+  <div class="ods-inner">
+    <div class="ods-header reveal">
+      <div class="section-label">Impacto Social</div>
+      <h2 class="section-h2">ALINHADO ÀS ODS DA ONU</h2>
+    </div>
+    <div class="ods-card reveal">
+      <div class="ods-num">8</div>
+      <div>
+        <div class="ods-content-title">Trabalho Decente e Crescimento Econômico</div>
+        <div class="ods-content-desc">O RepairFast promove ambientes de trabalho seguros, reduz acidentes e contribui para maior produtividade e bem-estar dos trabalhadores.</div>
+      </div>
+    </div>
+    <div class="ods-card reveal">
+      <div class="ods-num">9</div>
+      <div>
+        <div class="ods-content-title">Indústria, Inovação e Infraestrutura</div>
+        <div class="ods-content-desc">Solução tecnológica que moderniza a infraestrutura de segurança industrial com inovação, dados e inteligência artificial.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="section-label reveal" style="justify-content:center;display:flex">Comece Agora</div>
+  <h2 class="section-h2 reveal">SEGURANÇA<br><span style="color:var(--orange)">É DECISÃO</span></h2>
+  <p class="reveal">Implante o RepairFast na sua planta industrial e transforme como a sua equipe gerencia riscos e comunicação operacional.</p>
+  <a href="#" class="btn-primary reveal" style="font-size:15px;padding:16px 40px">
+    Solicitar Acesso
+    <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:white"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+    </div>
+    <span class="footer-logo-name">RepairFast</span>
+  </div>
+  <div class="footer-copy">© 2025 RepairFast</div>
+  <div class="footer-links">
+    <a href="#">Sobre</a>
+    <a href="#">Contato</a>
+    <a href="#">Privacidade</a>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0;
+  let ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    cursorRing.style.left = ringX + 'px';
+    cursorRing.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
