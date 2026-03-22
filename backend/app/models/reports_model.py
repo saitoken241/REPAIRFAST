@@ -33,3 +33,5 @@ class Report(Base):
         "User",
         back_populates="reports"
     )
+    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
+    department = relationship("Department", back_populates="reports")

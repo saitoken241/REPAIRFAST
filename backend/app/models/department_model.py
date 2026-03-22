@@ -10,12 +10,19 @@ class Department(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False, unique=True)
-    manager = Column(String(50), nullable=False, index=True)
+    manager_id = Column(Integer, ForeignKey("users.id"))
     
 
+    reports = relationship(
+        "Report",
+        back_populates="department"
+    )
     users = relationship(
         "User",
-        back_populates="department"
+        back_populates="department",
         
+
 )
+    
+
     
