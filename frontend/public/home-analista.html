@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepairFast — Analista</title>
+
+<!-- Compartilhados -->
+<link rel="stylesheet" href="../src/css/global.css">
+<link rel="stylesheet" href="../src/css/components.css">
+<script src="../src/js/api.js"></script>
+<script src="../src/js/utils.js"></script>
+
+<style>
+/* ══════════════════════════════════════════
+   Estilos específicos do Analista
+══════════════════════════════════════════ */
+
+/* Avatar azul */
+.sb-av { background: linear-gradient(135deg, var(--blue), #2980b9); }
+.sb-user-role { color: var(--blue); }
+
+/* Summary */
+.summary-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+.sum-card { background: var(--dark2); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; animation: fadeUp 0.35s ease both; }
+.sum-card:nth-child(1){animation-delay:.04s} .sum-card:nth-child(2){animation-delay:.08s}
+.sum-card:nth-child(3){animation-delay:.12s} .sum-card:nth-child(4){animation-delay:.16s}
+.sum-card:hover { transform: translateY(-2px); border-color: var(--c, var(--border)); }
+.sum-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--c, var(--border)); }
+.sum-icon { font-size: 20px; margin-bottom: 8px; }
+.sum-val  { font-family: var(--fd); font-size: clamp(24px,3vw,32px); letter-spacing: 1px; line-height: 1; color: var(--c, var(--text)); }
+.sum-lbl  { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* Críticos */
+.critical-section { margin-bottom: 22px; }
+.section-hd    { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-family: var(--fd); font-size: 15px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+.section-title .pulse { width: 8px; height: 8px; background: var(--red); border-radius: 50%; animation: pulseRed 1.5s infinite; }
+.section-link  { font-size: 11px; color: var(--text-muted); cursor: pointer; }
+@keyframes pulseRed { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
+
+.critical-list { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.critical-card { background: var(--dark2); border: 1px solid var(--red-b); border-left: 3px solid var(--red); border-radius: var(--r); padding: 14px 16px; cursor: pointer; transition: all 0.15s; animation: fadeUp 0.3s ease both; }
+.critical-card:hover { background: var(--dark3); border-color: var(--red); }
+.cc-top      { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.cc-title    { font-size: 13px; font-weight: 500; line-height: 1.35; flex: 1; }
+.cc-id       { font-family: var(--fm); font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+.cc-meta     { display: flex; gap: 6px; flex-wrap: wrap; }
+.cc-reporter { font-size: 11px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 5px; }
+.cc-reporter-av { width: 16px; height: 16px; border-radius: 50%; background: var(--mid); display:inline-flex; align-items:center; justify-content:center; font-size: 9px; font-weight: 700; }
+
+/* Tabela */
+.report-table { width: 100%; border-collapse: collapse; }
+.report-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); padding: 0 12px 10px; text-align: left; font-weight: 500; font-family: var(--fb); white-space: nowrap; }
+.report-table td { padding: 10px 12px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+.report-table tr.report-row { cursor: pointer; transition: background 0.15s; }
+.report-table tr.report-row:hover { background: var(--dark3); }
+.report-table tr.report-row:hover .row-actions { opacity: 1; }
+.row-title    { font-weight: 500; max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-id       { font-family: var(--fm); font-size: 11px; color: var(--text-dim); }
+.row-reporter { display: flex; align-items: center; gap: 7px; }
+.row-av       { width: 22px; height: 22px; border-radius: 50%; background: var(--mid); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+.row-date     { font-family: var(--fm); font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+.row-actions  { display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; }
+.action-btn   { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; border: 1px solid var(--border); background: var(--dark4); color: var(--text-muted); cursor: pointer; font-family: var(--fb); transition: all 0.15s; white-space: nowrap; }
+.action-btn:hover         { color: var(--text);   border-color: rgba(255,255,255,.15); background: var(--mid); }
+.action-btn.assign:hover  { color: var(--blue);   border-color: var(--blue-b);         background: var(--blue-dim); }
+.action-btn.status:hover  { color: var(--yellow); border-color: var(--yellow-b);       background: var(--yellow-dim); }
+.action-btn.comment:hover { color: var(--green);  border-color: var(--green-b);        background: var(--green-dim); }
+
+/* Paginação */
+.pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; flex-wrap: wrap; gap: 10px; }
+.page-info  { font-size: 12px; color: var(--text-muted); }
+.page-btns  { display: flex; gap: 4px; }
+.page-btn   { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-family: var(--fb); }
+.page-btn:hover  { background: var(--dark3); color: var(--text); }
+.page-btn.active { background: var(--orange-dim); border-color: var(--orange-border); color: var(--orange); font-weight: 600; }
+
+/* Search + Filtros */
+.filter-row   { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-sep   { width: 1px; background: var(--border); align-self: stretch; }
+.search-box   { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--dark3); border: 1px solid var(--border); border-radius: 8px; flex: 1; min-width: 180px; transition: border-color 0.2s; }
+.search-box:focus-within { border-color: var(--orange-border); }
+.search-box input { background: none; border: none; outline: none; color: var(--text); font-family: var(--fb); font-size: 13px; flex: 1; min-width: 0; }
+.search-box input::placeholder { color: var(--text-dim); }
+.search-icon  { font-size: 14px; opacity: .5; flex-shrink: 0; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 800; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal-overlay.open { display: flex; }
+.modal        { background: var(--dark3); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 90%; max-width: 420px; animation: fadeUp 0.25s ease both; position: relative; }
+.modal-close  { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; line-height: 1; }
+.modal-title  { font-family: var(--fd); font-size: 22px; letter-spacing: 1px; margin-bottom: 6px; }
+.modal-sub    { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+.modal-label  { font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; display: block; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+.modal-select, .modal-textarea { width: 100%; padding: 10px 12px; background: var(--dark4); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--fb); font-size: 13px; outline: none; transition: border-color 0.2s; margin-bottom: 14px; }
+.modal-select:focus, .modal-textarea:focus { border-color: var(--orange-border); }
+.modal-textarea { resize: vertical; min-height: 80px; }
+.btn-cancel  { padding: 9px 18px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-family: var(--fb); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+.btn-cancel:hover { background: var(--dark4); color: var(--text); }
+.btn-confirm { padding: 9px 20px; background: var(--orange); border: none; border-radius: 8px; color: white; font-family: var(--fb); font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+.btn-confirm:hover { background: var(--orange-bright); }
+
+/* Tags */
+.tag { padding: 2px 8px; border-radius: 6px; font-size: 11px; white-space: nowrap; }
+
+/* Responsive específico */
+@media (max-width: 1024px) { .hide-md { display: none; } }
+@media (max-width: 1280px) { .critical-list { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px)  { .critical-list { grid-template-columns: 1fr; } .summary-row { grid-template-columns: 1fr 1fr; } .row-actions { opacity: 1; } .hide-sm { display: none; } }
+@media (max-width: 480px)  { .summary-row { grid-template-columns: 1fr 1fr; gap: 10px; } .filter-row { gap: 8px; } .fab { display: flex; } }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <a href="login.html" class="sb-logo-row">
+        <div class="sb-logo-icon">🔧</div>
+        <span class="sb-logo-name">RepairFast</span>
+      </a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Principal</div>
+      <a class="sb-item active"><span class="sb-icon">🏠</span><span>Início</span></a>
+      <a class="sb-item">
+        <span class="sb-icon">📋</span><span>Todos os Reportes</span>
+        <span class="sb-badge" id="sb-badge-abertos">—</span>
+      </a>
+      <a class="sb-item"><span class="sb-icon">⚠️</span><span>Críticos</span></a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Análise</div>
+      <a class="sb-item"><span class="sb-icon">📊</span><span>Dashboard</span></a>
+      <a class="sb-item"><span class="sb-icon">🗺️</span><span>Mapa de Riscos</span></a>
+      <a class="sb-item"><span class="sb-icon">📚</span><span>Base de Conhecimento</span></a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Conta</div>
+      <a class="sb-item"><span class="sb-icon">⚙️</span><span>Configurações</span></a>
+      <a class="sb-item" href="login.html" onclick="logout()"><span class="sb-icon">🚪</span><span>Sair</span></a>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="sb-av" id="sb-av">?</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name" id="sb-name">—</div>
+          <div class="sb-user-role">Analista</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="topbar-titles">
+        <div class="greeting" id="greeting">—</div>
+        <div class="sub-greeting" id="sub-greeting">Carregando...</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="notif-btn">🔔<div class="notif-dot" id="notif-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-row">
+      <div class="sum-card" style="--c:var(--text-muted)">
+        <div class="sum-icon">📋</div>
+        <div class="sum-val" id="sum-total">—</div>
+        <div class="sum-lbl">Total no Setor</div>
+      </div>
+      <div class="sum-card" style="--c:var(--orange)">
+        <div class="sum-icon">🔓</div>
+        <div class="sum-val" id="sum-aberto">—</div>
+        <div class="sum-lbl">Em Aberto</div>
+      </div>
+      <div class="sum-card" style="--c:var(--red)">
+        <div class="sum-icon">🚨</div>
+        <div class="sum-val" id="sum-critico">—</div>
+        <div class="sum-lbl">Críticos</div>
+      </div>
+      <div class="sum-card" style="--c:var(--green)">
+        <div class="sum-icon">✅</div>
+        <div class="sum-val" id="sum-resolvido">—</div>
+        <div class="sum-lbl">Resolvidos</div>
+      </div>
+    </div>
+
+    <!-- CRÍTICOS EM DESTAQUE -->
+    <div class="critical-section">
+      <div class="section-hd">
+        <div class="section-title"><div class="pulse"></div>CRÍTICOS EM ABERTO</div>
+        <span class="section-link">Ver todos</span>
+      </div>
+      <div class="critical-list" id="criticalList"></div>
+    </div>
+
+    <!-- TODOS OS REPORTES -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div>
+          <div class="panel-title">REPORTES DO SETOR — <span id="setor-nome" style="color:var(--orange)">—</span></div>
+          <div class="panel-sub" id="panel-sub">Carregando...</div>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Buscar por título, ID ou colaborador..." oninput="aplicarFiltros()">
+        </div>
+        <div class="filter-group" id="filterStatus">
+          <button class="filter-pill active" onclick="setFiltro('status','todos',this)">Todos</button>
+          <button class="filter-pill" onclick="setFiltro('status','aberto',this)">Abertos</button>
+          <button class="filter-pill" onclick="setFiltro('status','andamento',this)">Andamento</button>
+          <button class="filter-pill" onclick="setFiltro('status','pendente',this)">Pendentes</button>
+          <button class="filter-pill" onclick="setFiltro('status','resolvido',this)">Resolvidos</button>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-group" id="filterPrio">
+          <button class="filter-pill active" onclick="setFiltro('prio','todos',this)">Todas</button>
+          <button class="filter-pill" onclick="setFiltro('prio','critica',this)" style="color:var(--red)">Crítica</button>
+          <button class="filter-pill" onclick="setFiltro('prio','alta',this)">Alta</button>
+          <button class="filter-pill" onclick="setFiltro('prio','media',this)">Média</button>
+          <button class="filter-pill" onclick="setFiltro('prio','baixa',this)">Baixa</button>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Título</th>
+              <th class="hide-md">Colaborador</th>
+              <th>Prioridade</th><th>Status</th>
+              <th class="hide-sm">Data</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="reportTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <div class="page-info" id="pageInfo">—</div>
+        <div class="page-btns" id="pageBtns"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- FAB mobile -->
+<button class="fab">🔍</button>
+
+<!-- MODAL AÇÃO RÁPIDA -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharModal()">×</button>
+    <div class="modal-title" id="modalTitle">—</div>
+    <div class="modal-sub"   id="modalSub">—</div>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel"  onclick="fecharModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmarAcao()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   ANALISTA — lógica específica desta página
+   Config, mock e utilitários vêm de api.js e utils.js
+══════════════════════════════════════════════════ */
+
+/* ── Render ── */
+function renderAnalista(a) {
+  document.getElementById("greeting").innerHTML =
+    `${saudacao()}, <span>${a.nome.toUpperCase()}</span> 👋`;
+  setText("sub-greeting", `${diaSemana()}, ${dataHoje()} · Analista · ${a.setor}`);
+  setText("sb-av",     `${a.nome[0]}${a.sobrenome[0]}`);
+  setText("sb-name",   `${a.nome} ${a.sobrenome}`);
+  setText("setor-nome", a.setor);
+}
+
+function renderResumo(r) {
+  setText("sum-total",        r.total);
+  setText("sum-aberto",       r.aberto);
+  setText("sum-critico",      r.critico);
+  setText("sum-resolvido",    r.resolvido);
+  setText("sb-badge-abertos", r.aberto);
+  setText("panel-sub",        `${r.total} reportes no setor · ${r.aberto} aguardando atenção`);
+}
+
+function renderCriticos(lista) {
+  const el = document.getElementById("criticalList");
+  if (!lista.length) {
+    el.innerHTML = `<div style="color:var(--text-muted);font-size:13px">Nenhum reporte crítico em aberto. 🎉</div>`;
+    return;
+  }
+  el.innerHTML = lista.map((r, i) => {
+    const st  = STATUS_MAP[r.status] || { cls:"", label:r.status };
+    const ini = r.reporter.split(" ").map(w => w[0]).join("").slice(0,2);
+    return `
+    <div class="critical-card" style="animation-delay:${i*.06}s" onclick="abrirReporte(${r.id})">
+      <div class="cc-top">
+        <div class="cc-title">${r.titulo}</div>
+        <div class="cc-id">#${r.id}</div>
+      </div>
+      <div class="cc-meta">
+        <span class="tag s-aberto" style="background:var(--red-dim);color:var(--red);border-color:var(--red-b)">Crítica</span>
+        <span class="tag ${st.cls}">${st.label}</span>
+      </div>
+      <div class="cc-reporter">
+        <div class="cc-reporter-av">${ini}</div>
+        ${r.reporter} · ${r.data}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Tabela + Paginação ── */
+const PER_PAGE = 8;
+let _reportes = [], _filtrados = [], _pagina = 1;
+let _filtroStatus = 'todos', _filtrosPrio = 'todos';
+
+function renderReportes(lista) { _reportes = lista; aplicarFiltros(); }
+
+function aplicarFiltros() {
+  const busca = document.getElementById("searchInput").value.toLowerCase();
+  _filtrados = _reportes.filter(r => {
+    const okStatus = _filtroStatus === 'todos' || r.status === _filtroStatus;
+    const okPrio   = _filtrosPrio  === 'todos' || r.prioridade === _filtrosPrio;
+    const okBusca  = !busca || r.titulo.toLowerCase().includes(busca)
+                            || String(r.id).includes(busca)
+                            || r.reporter.toLowerCase().includes(busca);
+    return okStatus && okPrio && okBusca;
+  });
+  _pagina = 1;
+  _drawTabela();
+}
+
+function _drawTabela() {
+  const body   = document.getElementById("reportTableBody");
+  const total  = _filtrados.length;
+  const inicio = (_pagina - 1) * PER_PAGE;
+  const pagina = _filtrados.slice(inicio, inicio + PER_PAGE);
+
+  if (!pagina.length) {
+    body.innerHTML = `<tr><td colspan="7">
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">Nenhum reporte encontrado</div>
+        <div class="empty-desc">Tente ajustar os filtros ou a busca.</div>
+      </div></td></tr>`;
+  } else {
+    body.innerHTML = pagina.map(r => {
+      const st  = STATUS_MAP[r.status]         || { cls:"", label:r.status };
+      const pr  = PRIORIDADE_MAP[r.prioridade] || { cls:"", label:r.prioridade };
+      const ini = r.reporter.split(" ").map(w => w[0]).join("").slice(0,2);
+      return `
+      <tr class="report-row" onclick="abrirReporte(${r.id})">
+        <td><span class="row-id">#${r.id}</span></td>
+        <td><div class="row-title">${r.titulo}</div></td>
+        <td class="hide-md">
+          <div class="row-reporter">
+            <div class="row-av">${ini}</div>${r.reporter}
+          </div>
+        </td>
+        <td><span class="tag ${pr.cls}">${pr.label}</span></td>
+        <td><span class="tag ${st.cls}">${st.label}</span></td>
+        <td class="hide-sm"><span class="row-date">${r.data}</span></td>
+        <td>
+          <div class="row-actions" onclick="event.stopPropagation()">
+            <button class="action-btn assign"  onclick="abrirModal('atribuir',${r.id},'${r.titulo.replace(/'/g,"\\'")}')">Atribuir</button>
+            <button class="action-btn status"  onclick="abrirModal('status',${r.id},'${r.titulo.replace(/'/g,"\\'")}')">Status</button>
+            <button class="action-btn comment" onclick="abrirModal('comentar',${r.id},'${r.titulo.replace(/'/g,"\\'")}')">Comentar</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  const totalPags = Math.ceil(total / PER_PAGE);
+  setText("pageInfo", `Mostrando ${Math.min(inicio+1,total)}–${Math.min(inicio+PER_PAGE,total)} de ${total} reportes`);
+  document.getElementById("pageBtns").innerHTML = Array.from({length: totalPags}, (_,i) =>
+    `<button class="page-btn${i+1===_pagina?' active':''}" onclick="irPagina(${i+1})">${i+1}</button>`
+  ).join('');
+}
+
+function irPagina(n) { _pagina = n; _drawTabela(); }
+
+function setFiltro(tipo, val, btn) {
+  const grupo = tipo === 'status' ? '#filterStatus' : '#filterPrio';
+  document.querySelectorAll(`${grupo} .filter-pill`).forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  if (tipo === 'status') _filtroStatus = val;
+  else _filtrosPrio = val;
+  aplicarFiltros();
+}
+
+/* ── Modal ── */
+let _modalTipo = '', _modalId = null;
+
+function abrirModal(tipo, id, titulo) {
+  _modalTipo = tipo; _modalId = id;
+  setText("modalSub", `Reporte #${id} — ${titulo}`);
+  const body = document.getElementById("modalBody");
+
+  if (tipo === 'atribuir') {
+    setText("modalTitle", "ATRIBUIR REPORTE");
+    body.innerHTML = `
+      <label class="modal-label">Responsável</label>
+      <select class="modal-select" id="modalInput">
+        <option value="">Selecione um colaborador</option>
+        <option>Ricardo Santos (você)</option>
+        <option>Ana Paula Ferreira</option>
+        <option>ken</option>
+        <option>Marcos Vinícius</option>
+      </select>`;
+  } else if (tipo === 'status') {
+    setText("modalTitle", "ATUALIZAR STATUS");
+    body.innerHTML = `
+      <label class="modal-label">Novo Status</label>
+      <select class="modal-select" id="modalInput">
+        <option value="aberto">Aberto</option>
+        <option value="andamento">Em andamento</option>
+        <option value="pendente">Pendente</option>
+        <option value="resolvido">Resolvido</option>
+      </select>`;
+  } else if (tipo === 'comentar') {
+    setText("modalTitle", "ADICIONAR COMENTÁRIO");
+    body.innerHTML = `
+      <label class="modal-label">Comentário</label>
+      <textarea class="modal-textarea" id="modalInput" placeholder="Descreva a atualização ou observação..."></textarea>`;
+  }
+
+  document.getElementById("modalOverlay").classList.add('open');
+}
+
+function fecharModal() {
+  document.getElementById("modalOverlay").classList.remove('open');
+}
+
+function confirmarAcao() {
+  const val = document.getElementById("modalInput")?.value;
+  if (!val) return;
+  if (_modalTipo === 'status')   patchReporteStatus(_modalId, val);
+  if (_modalTipo === 'atribuir') patchReporteAtribuir(_modalId, val);
+  if (_modalTipo === 'comentar') postComentario(_modalId, val);
+  // atualiza localmente no mock
+  if (_modalTipo === 'status') {
+    const r = MOCK.reportesAnalista.find(r => r.id === _modalId);
+    if (r) { r.status = val; aplicarFiltros(); }
+  }
+  fecharModal();
+}
+
+// fechar modal clicando fora
+document.getElementById("modalOverlay").addEventListener('click', function(e) {
+  if (e.target === this) fecharModal();
+});
+
+/* ── Init ── */
+async function init() {
+  try {
+    showSkeleton("criticalList", 3, "90px");
+    showSkeleton("reportTableBody", 5, "40px");
+    const [analista, resumo, criticos, reportes] = await Promise.all([
+      getAnalistaMe(), getResumoSetor(), getReportesCriticos(), getReportesSetor()
+    ]);
+    renderAnalista(analista);
+    renderResumo(resumo);
+    renderCriticos(criticos);
+    renderReportes(reportes);
+  } catch(err) {
+    console.error(err);
+    showError("reportTableBody", 7);
+  }
+}
+
+initSidebar();
+init();
+</script>
+</body>
+</html>
