@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepairFast — Início</title>
+
+<!-- Compartilhados -->
+<link rel="stylesheet" href="../src/css/global.css">
+<link rel="stylesheet" href="../src/css/components.css">
+<script src="../src/js/api.js"></script>
+<script src="../src/js/utils.js"></script>
+
+<style>
+/* ══════════════════════════════════════════
+   Estilos específicos do Funcionário
+══════════════════════════════════════════ */
+
+/* Avatar laranja (padrão do funcionário) */
+.sb-av { background: linear-gradient(135deg, var(--orange), #ff8c00); }
+
+/* Summary cards */
+.summary-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+.sum-card { background: var(--dark2); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; animation: fadeUp 0.35s ease both; }
+.sum-card:nth-child(1){animation-delay:.04s} .sum-card:nth-child(2){animation-delay:.08s}
+.sum-card:nth-child(3){animation-delay:.12s} .sum-card:nth-child(4){animation-delay:.16s}
+.sum-card:hover { transform: translateY(-2px); border-color: var(--c, var(--border)); }
+.sum-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--c, var(--border)); }
+.sum-icon { font-size: 20px; margin-bottom: 8px; }
+.sum-val  { font-family: var(--fd); font-size: clamp(24px,3vw,32px); letter-spacing: 1px; line-height: 1; color: var(--c, var(--text)); }
+.sum-lbl  { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* Botão novo reporte */
+.btn-new { display: flex; align-items: center; gap: 8px; padding: 10px 18px; background: var(--orange); color: white; border: none; border-radius: 10px; font-family: var(--fb); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.2s, transform 0.15s; }
+.btn-new:hover { background: var(--orange-bright); transform: translateY(-1px); }
+.btn-new svg { width: 15px; height: 15px; fill: white; flex-shrink: 0; }
+
+/* Content grid */
+.content-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+/* Report card */
+.report-list  { display: flex; flex-direction: column; gap: 10px; }
+.report-card  { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; background: var(--dark3); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.15s; animation: fadeUp 0.3s ease both; }
+.report-card:hover { border-color: var(--orange-border); background: var(--dark4); }
+.rc-icon  { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.rc-body  { min-width: 0; }
+.rc-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-meta  { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.rc-tag   { padding: 2px 8px; border-radius: 6px; font-size: 11px; white-space: nowrap; }
+.rc-setor { background: var(--dark4); color: var(--text-muted); border: 1px solid var(--border); }
+.rc-date  { font-size: 11px; color: var(--text-dim); font-family: var(--fm); }
+.rc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.rc-id    { font-family: var(--fm); font-size: 11px; color: var(--text-dim); }
+.rc-arrow { font-size: 18px; color: var(--text-muted); }
+
+/* Responsive específico */
+@media (max-width: 768px) {
+  .summary-row { grid-template-columns: 1fr 1fr; }
+  .btn-new span { display: none; }
+  .btn-new { padding: 10px 12px; }
+}
+@media (max-width: 480px) {
+  .summary-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .report-card { grid-template-columns: auto 1fr; }
+  .rc-right { display: none; }
+  .topbar-actions .btn-new { display: none; }
+  .content-grid { gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <a href="login.html" class="sb-logo-row">
+        <div class="sb-logo-icon">🔧</div>
+        <span class="sb-logo-name">RepairFast</span>
+      </a>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Principal</div>
+      <a class="sb-item active"><span class="sb-icon">🏠</span><span>Início</span></a>
+      <a class="sb-item">
+        <span class="sb-icon">📋</span><span>Meus Reportes</span>
+        <span class="sb-badge">4</span>
+      </a>
+      <a class="sb-item"><span class="sb-icon">➕</span><span>Novo Reporte</span></a>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Recursos</div>
+      <a class="sb-item"><span class="sb-icon">📚</span><span>Base de Conhecimento</span></a>
+      <a class="sb-item"><span class="sb-icon">🏅</span><span>Reconhecer+</span></a>
+      <a class="sb-item"><span class="sb-icon">🗺️</span><span>Mapa de Riscos</span></a>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Conta</div>
+      <a class="sb-item"><span class="sb-icon">⚙️</span><span>Configurações</span></a>
+      <a class="sb-item" href="login.html" onclick="logout()"><span class="sb-icon">🚪</span><span>Sair</span></a>
+    </div>
+
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="sb-av" id="sb-av">?</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name" id="sb-name">—</div>
+          <div class="sb-user-role" id="sb-role">—</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="topbar-titles">
+        <div class="greeting" id="greeting">—</div>
+        <div class="sub-greeting" id="sub-greeting">Carregando...</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="notif-btn">
+          🔔<div class="notif-dot" id="notif-dot"></div>
+        </div>
+        <button class="btn-new" onclick="abrirNovoReporte()">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <span>Novo Reporte</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-row">
+      <div class="sum-card" style="--c:var(--orange)">
+        <div class="sum-icon">📋</div>
+        <div class="sum-val" id="sum-total">—</div>
+        <div class="sum-lbl">Total de Reportes</div>
+      </div>
+      <div class="sum-card" style="--c:var(--orange)">
+        <div class="sum-icon">🔓</div>
+        <div class="sum-val" id="sum-aberto">—</div>
+        <div class="sum-lbl">Em Aberto</div>
+      </div>
+      <div class="sum-card" style="--c:var(--blue)">
+        <div class="sum-icon">⚙️</div>
+        <div class="sum-val" id="sum-andamento">—</div>
+        <div class="sum-lbl">Em Andamento</div>
+      </div>
+      <div class="sum-card" style="--c:var(--green)">
+        <div class="sum-icon">✅</div>
+        <div class="sum-val" id="sum-resolvido">—</div>
+        <div class="sum-lbl">Resolvidos</div>
+      </div>
+    </div>
+
+    <!-- CONTENT GRID -->
+    <div class="content-grid">
+      <div class="panel">
+        <div class="panel-hd">
+          <div>
+            <div class="panel-title">MEUS REPORTES</div>
+            <div class="panel-sub">Últimos registros enviados por você</div>
+          </div>
+          <a class="panel-link">Ver todos</a>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-pill active" onclick="filtrar('todos',this)">Todos</button>
+          <button class="filter-pill" onclick="filtrar('aberto',this)">Abertos</button>
+          <button class="filter-pill" onclick="filtrar('andamento',this)">Em andamento</button>
+          <button class="filter-pill" onclick="filtrar('resolvido',this)">Resolvidos</button>
+          <button class="filter-pill" onclick="filtrar('pendente',this)">Pendentes</button>
+        </div>
+        <div class="report-list" id="reportList"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- FAB mobile -->
+<button class="fab" onclick="abrirNovoReporte()">＋</button>
+
+<script>
+/* ══════════════════════════════════════════════════
+   FUNCIONÁRIO — lógica específica desta página
+   Config, mock e utilitários vêm de api.js e utils.js
+══════════════════════════════════════════════════ */
+
+function renderUsuario(u) {
+  document.getElementById("greeting").innerHTML =
+    `${saudacao()}, <span>${u.nome.toUpperCase()}</span> 👋`;
+  setText("sub-greeting", `${diaSemana()}, ${dataHoje()} · ${u.turno} · ${u.setor}`);
+  setText("sb-av",   `${u.nome[0]}${u.sobrenome[0]}`);
+  setText("sb-name", `${u.nome} ${u.sobrenome}`);
+  setText("sb-role", `${u.cargo} · ${u.setor}`);
+}
+
+function renderResumo(r) {
+  setText("sum-total",     r.total);
+  setText("sum-aberto",    r.aberto);
+  setText("sum-andamento", r.andamento);
+  setText("sum-resolvido", r.resolvido);
+}
+
+let _reportes = [];
+function renderReportes(lista) { _reportes = lista; _drawList(lista); }
+
+function _drawList(lista) {
+  const el = document.getElementById("reportList");
+  if (!lista.length) {
+    showEmpty("reportList", "Nenhum reporte encontrado", "Nenhuma ocorrência registrada ainda.");
+    return;
+  }
+  el.innerHTML = lista.map((r, i) => {
+    const st = STATUS_MAP[r.status]         || { cls:"", label:r.status, bg:"var(--dark4)", emoji:"📋" };
+    const pr = PRIORIDADE_MAP[r.prioridade] || { cls:"", label:r.prioridade };
+    return `
+    <div class="report-card" style="animation-delay:${i * .05}s" onclick="abrirReporte(${r.id})">
+      <div class="rc-icon" style="background:${st.bg}">${st.emoji}</div>
+      <div class="rc-body">
+        <div class="rc-title">${r.titulo}</div>
+        <div class="rc-meta">
+          <span class="rc-tag ${st.cls}">${st.label}</span>
+          <span class="rc-tag ${pr.cls}">${pr.label}</span>
+          <span class="rc-tag rc-setor">${r.setor}</span>
+          <span class="rc-date">${r.data}</span>
+        </div>
+      </div>
+      <div class="rc-right">
+        <span class="rc-id">#${r.id}</span>
+        <span class="rc-arrow">›</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderNotificacoes(lista) {
+  const nl  = lista.filter(n => !n.lida).length;
+  const dot = document.getElementById("notif-dot");
+  if (dot) dot.style.display = nl > 0 ? "block" : "none";
+}
+
+function filtrar(status, btn) {
+  ativarFiltro(btn);
+  _drawList(status === 'todos' ? _reportes : _reportes.filter(r => r.status === status));
+}
+
+/* Init */
+async function init() {
+  try {
+    showSkeleton("reportList");
+    const [usuario, resumo, reportes, notificacoes] = await Promise.all([
+      getUsuarioMe(), getResumoFuncionario(), getReportesFuncionario(), getNotificacoes()
+    ]);
+    renderUsuario(usuario);
+    renderResumo(resumo);
+    renderReportes(reportes);
+    renderNotificacoes(notificacoes);
+  } catch(err) {
+    console.error(err);
+    showError("reportList");
+  }
+}
+
+initSidebar();
+init();
+</script>
+</body>
+</html>
