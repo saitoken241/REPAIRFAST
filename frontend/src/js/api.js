@@ -1,0 +1,344 @@
+/* ════════════════════════════════════════════════════
+   api.js — RepairFast
+   Camada de comunicação com o backend FastAPI.
+   Centraliza config, mock e todos os endpoints.
+
+   Importar antes do script da página:
+   <script src="../src/js/api.js"></script>
+
+   ─────────────────────────────────────────────────
+   Para ativar a API real:
+     1. Mude USE_MOCK para false
+     2. Defina API_BASE com a URL do seu FastAPI
+   ─────────────────────────────────────────────────
+════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════ */
+const USE_MOCK = true;
+const API_BASE = "http://localhost:8000";
+
+/** Headers padrão — inclui token JWT salvo no login */
+const authHeaders = () => ({
+  "Content-Type": "application/json",
+  "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
+});
+
+/* ══════════════════════════════════════════
+   MOCK DATA
+   Espelha exatamente o contrato de resposta
+   que a API real vai retornar.
+══════════════════════════════════════════ */
+const MOCK = {
+
+  /* ── Funcionário ── */
+  funcionario: {
+    nome: "João", sobrenome: "Lima",
+    cargo: "Operador", setor: "Produção", turno: "Turno A"
+  },
+
+  resumoFuncionario: {
+    total: 12, aberto: 4, andamento: 5, resolvido: 3
+  },
+
+  reportesFuncionario: [
+    { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B",       setor:"Segurança",  prioridade:"alta",    status:"aberto",    data:"21/03/2025" },
+    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             setor:"Produção",   prioridade:"critica", status:"andamento", data:"19/03/2025" },
+    { id:1227, titulo:"EPI ausente no posto de laminação — Linha 3",               setor:"Qualidade",  prioridade:"media",   status:"resolvido", data:"15/03/2025" },
+    { id:1219, titulo:"Vazamento de óleo próximo à máquina CNC-04",                setor:"Manutenção", prioridade:"alta",    status:"pendente",  data:"12/03/2025" },
+    { id:1210, titulo:"Iluminação insuficiente no corredor de saída emergencial",   setor:"Segurança",  prioridade:"baixa",   status:"resolvido", data:"08/03/2025" }
+  ],
+
+  notificacoes: [
+    { id:1, emoji:"💬", msg:"Seu reporte <strong>#1241</strong> foi atualizado para <em>Em andamento</em>.", tempo:"há 2h",     lida:false, cor:"var(--blue)"   },
+    { id:2, emoji:"✅", msg:"Reporte <strong>#1227</strong> foi resolvido pelo técnico responsável.",        tempo:"há 1 dia",  lida:false, cor:"var(--green)"  },
+    { id:3, emoji:"🏅", msg:"Você ganhou a conquista <strong>Vigilante</strong> por 10 reportes!",           tempo:"há 2 dias", lida:false, cor:"var(--yellow)" },
+    { id:4, emoji:"⚠️", msg:"Reporte <strong>#1219</strong> aguarda sua confirmação de ação.",              tempo:"há 3 dias", lida:true,  cor:"var(--orange)" }
+  ],
+
+  /* ── Analista ── */
+  analista: {
+    nome: "Ricardo", sobrenome: "Santos", setor: "Segurança do Trabalho"
+  },
+
+  resumoAnalista: {
+    total: 38, aberto: 12, critico: 4, resolvido: 18
+  },
+
+  criticos: [
+    { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B", setor:"Segurança", status:"aberto",    reporter:"João Lima",  data:"21/03/2025" },
+    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",       setor:"Segurança", status:"aberto",    reporter:"Carlos F.",  data:"19/03/2025" },
+    { id:1235, titulo:"Vazamento de produto químico na Linha 2",             setor:"Segurança", status:"aberto",    reporter:"Ana Paula",  data:"17/03/2025" },
+    { id:1230, titulo:"Bloqueio de rota de fuga no Galpão C",                setor:"Segurança", status:"andamento", reporter:"Marcos V.",  data:"15/03/2025" },
+  ],
+
+  reportesAnalista: [
+    { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B",        reporter:"João Lima",   prioridade:"critica", status:"aberto",    data:"21/03/2025" },
+    { id:1247, titulo:"EPI ausente no posto de laminação — Linha 3",               reporter:"Ana Paula",   prioridade:"alta",    status:"aberto",    data:"21/03/2025" },
+    { id:1245, titulo:"Iluminação inadequada no corredor de saída emergencial",     reporter:"Pedro R.",    prioridade:"media",   status:"andamento", data:"20/03/2025" },
+    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             reporter:"Carlos F.",   prioridade:"critica", status:"aberto",    data:"19/03/2025" },
+    { id:1238, titulo:"Ruído excessivo próximo à área de manutenção",              reporter:"Marcos V.",   prioridade:"media",   status:"pendente",  data:"18/03/2025" },
+    { id:1235, titulo:"Vazamento de produto químico na Linha 2",                   reporter:"Ana Paula",   prioridade:"critica", status:"aberto",    data:"17/03/2025" },
+    { id:1232, titulo:"Falta de equipamento de combate a incêndio no Galpão A",    reporter:"João Lima",   prioridade:"alta",    status:"andamento", data:"16/03/2025" },
+    { id:1230, titulo:"Bloqueio de rota de fuga no Galpão C",                      reporter:"Marcos V.",   prioridade:"critica", status:"andamento", data:"15/03/2025" },
+    { id:1227, titulo:"Piso escorregadio na entrada do refeitório",                reporter:"Fernanda S.", prioridade:"media",   status:"resolvido", data:"15/03/2025" },
+    { id:1224, titulo:"Ausência de protetor auricular na área de britagem",        reporter:"Pedro R.",    prioridade:"alta",    status:"resolvido", data:"14/03/2025" },
+    { id:1220, titulo:"Risco de queda em plataforma elevada — Setor B2",           reporter:"João Lima",   prioridade:"alta",    status:"pendente",  data:"13/03/2025" },
+    { id:1218, titulo:"Descarte irregular de resíduos químicos",                   reporter:"Carlos F.",   prioridade:"media",   status:"resolvido", data:"12/03/2025" },
+  ],
+
+  /* ── Gestor ── */
+  gestor: {
+    nome: "Felipe", sobrenome: "Moura", setor: "Operações"
+  },
+
+  dashboardEmpresa: {
+    kpis: { total:850, totalDelta:"+12%", tempo:58.6, sla:55.3, slaN:470, slaD:850, criticos:12, criticosSub:"em 4 setores" },
+    setor: [
+      { nome:"Produção",   val:270, pct:100, cor:"#E85C1A" },
+      { nome:"Manutenção", val:216, pct:80,  cor:"#4A9EE8" },
+      { nome:"Logística",  val:155, pct:57,  cor:"#2EC4B6" },
+      { nome:"Qualidade",  val:85,  pct:31,  cor:"#9B6FE8" },
+      { nome:"Segurança",  val:74,  pct:27,  cor:"#E8504A" },
+      { nome:"TI",         val:50,  pct:18,  cor:"#F5C842" },
+    ],
+    prio:    { critica:67, alta:241, media:357, baixa:185 },
+    mensal:  [161, 76, 142, 155, 157, 159],
+    meses:   ["Mai","Jun","Jul","Ago","Set","Out"],
+    ranking: [
+      { nome:"Logística",  reportes:155, sla:91, slaClass:"sla-ok"   },
+      { nome:"Qualidade",  reportes:85,  sla:84, slaClass:"sla-ok"   },
+      { nome:"Manutenção", reportes:216, sla:71, slaClass:"sla-warn" },
+      { nome:"Produção",   reportes:270, sla:58, slaClass:"sla-warn" },
+      { nome:"Segurança",  reportes:74,  sla:42, slaClass:"sla-bad"  },
+      { nome:"TI",         reportes:50,  sla:38, slaClass:"sla-bad"  },
+    ],
+    recentes: [
+      { id:1248, titulo:"Falta de sinalização — Corredor B",            setor:"Segurança",  prioridade:"critica", status:"aberto",    data:"21/03" },
+      { id:1247, titulo:"EPI ausente no posto de laminação",            setor:"Qualidade",  prioridade:"alta",    status:"aberto",    data:"21/03" },
+      { id:1245, titulo:"Iluminação inadequada no corredor emergencial", setor:"Segurança",  prioridade:"media",   status:"andamento", data:"20/03" },
+      { id:1241, titulo:"Esteira com trepidação anormal",               setor:"Produção",   prioridade:"critica", status:"aberto",    data:"19/03" },
+      { id:1238, titulo:"Ruído excessivo — área de manutenção",         setor:"Manutenção", prioridade:"media",   status:"pendente",  data:"18/03" },
+    ]
+  },
+
+  dashboardSetor: {
+    kpis: { total:74, totalDelta:"+5%", tempo:52.1, sla:42, slaN:31, slaD:74, criticos:4, criticosSub:"todos em aberto" },
+    setor: [
+      { nome:"NR-35 — Altura",   val:28, pct:100, cor:"#E85C1A" },
+      { nome:"NR-10 — Elétrica", val:19, pct:68,  cor:"#4A9EE8" },
+      { nome:"NR-12 — Máquinas", val:15, pct:54,  cor:"#2EC4B6" },
+      { nome:"NR-6 — EPI",       val:12, pct:43,  cor:"#9B6FE8" },
+    ],
+    prio:    { critica:4, alta:18, media:32, baixa:20 },
+    mensal:  [14, 8, 11, 13, 15, 13],
+    meses:   ["Mai","Jun","Jul","Ago","Set","Out"],
+    ranking: [
+      { nome:"Subsetor A", reportes:28, sla:55, slaClass:"sla-warn" },
+      { nome:"Subsetor B", reportes:19, sla:42, slaClass:"sla-bad"  },
+      { nome:"Subsetor C", reportes:27, sla:30, slaClass:"sla-bad"  },
+    ],
+    recentes: [
+      { id:1248, titulo:"Falta de sinalização — Corredor B",    setor:"Segurança", prioridade:"critica", status:"aberto",    data:"21/03" },
+      { id:1235, titulo:"Vazamento de produto químico Linha 2", setor:"Segurança", prioridade:"critica", status:"aberto",    data:"17/03" },
+      { id:1230, titulo:"Bloqueio de rota de fuga Galpão C",    setor:"Segurança", prioridade:"critica", status:"andamento", data:"15/03" },
+    ]
+  }
+};
+
+/* ══════════════════════════════════════════
+   ENDPOINTS — USUÁRIO
+══════════════════════════════════════════ */
+
+/** GET /usuarios/me — dados do usuário logado */
+async function getUsuarioMe() {
+  if (USE_MOCK) return MOCK.funcionario;
+  const res = await fetch(`${API_BASE}/usuarios/me`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar usuário");
+  return res.json();
+}
+
+/** GET /usuarios/me — dados do analista logado */
+async function getAnalistaMe() {
+  if (USE_MOCK) return MOCK.analista;
+  const res = await fetch(`${API_BASE}/usuarios/me`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar analista");
+  return res.json();
+}
+
+/** GET /usuarios/me — dados do gestor logado */
+async function getGestorMe() {
+  if (USE_MOCK) return MOCK.gestor;
+  const res = await fetch(`${API_BASE}/usuarios/me`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar gestor");
+  return res.json();
+}
+
+/* ══════════════════════════════════════════
+   ENDPOINTS — FUNCIONÁRIO
+══════════════════════════════════════════ */
+
+/** GET /reportes/me/resumo — resumo dos reportes do funcionário */
+async function getResumoFuncionario() {
+  if (USE_MOCK) return MOCK.resumoFuncionario;
+  const res = await fetch(`${API_BASE}/reportes/me/resumo`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar resumo");
+  return res.json();
+}
+
+/** GET /reportes/me — lista de reportes do funcionário */
+async function getReportesFuncionario() {
+  if (USE_MOCK) return MOCK.reportesFuncionario;
+  const res = await fetch(`${API_BASE}/reportes/me`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar reportes");
+  return res.json();
+}
+
+/** GET /notificacoes/me — notificações do usuário */
+async function getNotificacoes() {
+  if (USE_MOCK) return MOCK.notificacoes;
+  const res = await fetch(`${API_BASE}/notificacoes/me`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar notificações");
+  return res.json();
+}
+
+/** PATCH /notificacoes/:id/lida — marca notificação como lida */
+async function patchNotificacaoLida(id) {
+  if (USE_MOCK) return;
+  await fetch(`${API_BASE}/notificacoes/${id}/lida`, {
+    method: "PATCH",
+    headers: authHeaders()
+  });
+}
+
+/* ══════════════════════════════════════════
+   ENDPOINTS — ANALISTA
+══════════════════════════════════════════ */
+
+/** GET /reportes/setor/resumo — resumo do setor */
+async function getResumoSetor() {
+  if (USE_MOCK) return MOCK.resumoAnalista;
+  const res = await fetch(`${API_BASE}/reportes/setor/resumo`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar resumo do setor");
+  return res.json();
+}
+
+/** GET /reportes/setor/criticos — reportes críticos do setor */
+async function getReportesCriticos() {
+  if (USE_MOCK) return MOCK.criticos;
+  const res = await fetch(`${API_BASE}/reportes/setor/criticos`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar críticos");
+  return res.json();
+}
+
+/** GET /reportes/setor — todos os reportes do setor */
+async function getReportesSetor() {
+  if (USE_MOCK) return MOCK.reportesAnalista;
+  const res = await fetch(`${API_BASE}/reportes/setor`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar reportes do setor");
+  return res.json();
+}
+
+/** PATCH /reportes/:id/status — atualiza status de um reporte */
+async function patchReporteStatus(id, status) {
+  if (USE_MOCK) return;
+  await fetch(`${API_BASE}/reportes/${id}/status`, {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify({ status })
+  });
+}
+
+/** PATCH /reportes/:id/atribuir — atribui reporte a um responsável */
+async function patchReporteAtribuir(id, usuario) {
+  if (USE_MOCK) return;
+  await fetch(`${API_BASE}/reportes/${id}/atribuir`, {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify({ usuario })
+  });
+}
+
+/** POST /reportes/:id/comentarios — adiciona comentário a um reporte */
+async function postComentario(id, texto) {
+  if (USE_MOCK) return;
+  await fetch(`${API_BASE}/reportes/${id}/comentarios`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ texto })
+  });
+}
+
+/* ══════════════════════════════════════════
+   ENDPOINTS — GESTOR
+══════════════════════════════════════════ */
+
+/**
+ * GET /dashboard/empresa | /dashboard/setor
+ * Retorna todos os dados do dashboard do gestor.
+ * @param {'empresa'|'setor'} escopo
+ */
+async function getDashboard(escopo = 'empresa') {
+  if (USE_MOCK) {
+    return escopo === 'empresa'
+      ? MOCK.dashboardEmpresa
+      : MOCK.dashboardSetor;
+  }
+  const endpoint = escopo === 'empresa'
+    ? '/dashboard/empresa'
+    : '/dashboard/setor';
+  const res = await fetch(`${API_BASE}${endpoint}`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar dashboard");
+  return res.json();
+}
+
+/* ══════════════════════════════════════════
+   ENDPOINTS — AUTH
+══════════════════════════════════════════ */
+
+/**
+ * POST /auth/login — autentica o usuário.
+ * Salva o token no localStorage ao receber resposta.
+ * @param {string} email
+ * @param {string} senha
+ */
+async function postLogin(email, senha) {
+  if (USE_MOCK) {
+    // ── Perfis de teste (mock) ──────────────────────────
+    // funcionario@teste.com  → home_funcionario.html
+    // analista@teste.com     → home_analista.html
+    // gestor@teste.com       → home_gestor.html
+    // qualquer outro e-mail  → home_funcionario.html
+    // ────────────────────────────────────────────────────
+    await new Promise(r => setTimeout(r, 1200)); // simula latência
+    const perfis = {
+      'funcionario@teste.com': 'funcionario',
+      'analista@teste.com':    'analista',
+      'gestor@teste.com':      'gestor'
+    };
+    const perfil = perfis[email.toLowerCase()] || 'funcionario';
+    const token  = `mock-token-${perfil}-12345`;
+    localStorage.setItem('token',  token);
+    localStorage.setItem('perfil', perfil);
+    return { token, perfil };
+  }
+
+  // ── API real ──
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, senha })
+  });
+  if (!res.ok) throw new Error('Credenciais inválidas');
+  const data = await res.json();
+  localStorage.setItem('token',  data.token);
+  localStorage.setItem('perfil', data.perfil);
+  return data;
+}
+
+/** Remove o token e redireciona para o login */
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+}
