@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepairFast — Acesso ao Sistema</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../src/js/api.js"></script>
+<script src="../src/js/utils.js"></script>
+<style>
+  :root {
+    --orange: #E85C1A;
+    --orange-bright: #FF6B2B;
+    --orange-dim: #C44A10;
+    --dark: #0A0A0A;
+    --dark2: #111111;
+    --dark3: #1A1A1A;
+    --dark4: #222222;
+    --mid: #2E2E2E;
+    --text: #F0EDE8;
+    --text-muted: #888880;
+    --text-dim: #555550;
+    --accent-green: #3DBA7A;
+    --accent-yellow: #F5C842;
+    --border: rgba(255,255,255,0.07);
+    --border-focus: rgba(232,92,26,0.5);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── CURSOR ── */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--orange);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(232,92,26,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s;
+  }
+  body:has(a:hover) .cursor,
+  body:has(button:hover) .cursor,
+  body:has(input:focus) .cursor { width: 20px; height: 20px; background: var(--orange-bright); }
+  body:has(a:hover) .cursor-ring,
+  body:has(button:hover) .cursor-ring { width: 56px; height: 56px; }
+
+  /* ── NOISE ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.4;
+  }
+
+  /* ── BACKGROUND GLOW ── */
+  .bg-glow {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .bg-glow::before {
+    content: '';
+    position: absolute;
+    top: -20%; left: -10%;
+    width: 60vw; height: 60vw;
+    background: radial-gradient(circle, rgba(232,92,26,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .bg-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -20%; right: -10%;
+    width: 50vw; height: 50vw;
+    background: radial-gradient(circle, rgba(232,92,26,0.04) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* ── GRID LINES ── */
+  .grid-lines {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: relative; z-index: 10;
+    padding: 22px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,10,0.8);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none;
+  }
+  .nav-logo-icon {
+    width: 36px; height: 36px;
+    background: var(--orange);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-logo-icon svg { width: 20px; height: 20px; fill: white; }
+  .nav-logo-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 2px; color: var(--text);
+  }
+
+  .nav-back {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--orange); }
+  .nav-back svg { width: 16px; height: 16px; fill: currentColor; }
+
+  /* ── MAIN LAYOUT ── */
+  .page {
+    flex: 1;
+    position: relative; z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: calc(100vh - 73px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    display: flex; flex-direction: column;
+    justify-content: center;
+    padding: 80px 64px;
+    position: relative;
+    border-right: 1px solid var(--border);
+  }
+
+  .left-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(232,92,26,0.1);
+    border: 1px solid rgba(232,92,26,0.25);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--orange);
+    width: fit-content;
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease both;
+  }
+  .left-tag::before {
+    content: ''; width: 5px; height: 5px;
+    background: var(--orange); border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.6); }
+  }
+
+  .left-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 5.5vw, 80px);
+    line-height: 0.92;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.5s 0.08s ease both;
+  }
+  .left-heading .hl { color: var(--orange); }
+
+  .left-desc {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-muted);
+    max-width: 380px;
+    margin-bottom: 48px;
+    animation: fadeUp 0.5s 0.16s ease both;
+  }
+
+  /* STATS STRIP */
+  .stats-strip {
+    display: flex; gap: 32px;
+    animation: fadeUp 0.5s 0.24s ease both;
+  }
+  .stat { display: flex; flex-direction: column; gap: 3px; }
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px; letter-spacing: 1px; line-height: 1;
+    color: var(--text);
+  }
+  .stat-val span { color: var(--orange); }
+  .stat-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
+
+  .stats-divider { width: 1px; background: var(--border); align-self: stretch; }
+
+  /* TRUST BADGES */
+  .trust-badges {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 48px;
+    animation: fadeUp 0.5s 0.32s ease both;
+  }
+  .trust-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .trust-badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-green); }
+
+  /* ── RIGHT PANEL (FORM) ── */
+  .right-panel {
+    display: flex; flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 64px;
+  }
+
+  .form-card {
+    width: 100%; max-width: 400px;
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+
+  .form-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px; letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .form-subtitle {
+    font-size: 14px; color: var(--text-muted);
+    margin-bottom: 36px;
+  }
+
+  /* TABS */
+  .form-tabs {
+    display: flex;
+    background: var(--dark3);
+    border-radius: 8px;
+    padding: 4px; gap: 4px;
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+  }
+  .tab-btn {
+    flex: 1; padding: 9px;
+    background: transparent;
+    border: none; outline: none;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 400;
+    color: var(--text-muted);
+    cursor: none;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--orange);
+    color: white; font-weight: 500;
+  }
+
+  /* FORM */
+  .form-group { margin-bottom: 18px; }
+
+  .form-label {
+    display: block;
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+  .input-icon {
+    position: absolute;
+    left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 15px; pointer-events: none;
+    opacity: 0.5;
+  }
+  .form-input {
+    width: 100%;
+    padding: 12px 14px 12px 40px;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: text;
+  }
+  .form-input::placeholder { color: var(--text-dim); }
+  .form-input:focus {
+    border-color: var(--border-focus);
+    background: var(--dark4);
+  }
+  .form-input:focus + .input-border { transform: scaleX(1); }
+
+  /* password toggle */
+  .pw-toggle {
+    position: absolute;
+    right: 14px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; outline: none;
+    font-size: 15px; color: var(--text-muted);
+    cursor: none; padding: 2px;
+    transition: color 0.2s;
+  }
+  .pw-toggle:hover { color: var(--orange); }
+  .form-input.with-toggle { padding-right: 42px; }
+
+  /* SELECT */
+  .form-select {
+    width: 100%;
+    padding: 12px 14px 12px 40px;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 300;
+    outline: none;
+    appearance: none;
+    cursor: none;
+    transition: border-color 0.2s;
+  }
+  .form-select:focus { border-color: var(--border-focus); }
+  .select-arrow {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    pointer-events: none; opacity: 0.5; font-size: 12px;
+  }
+
+  /* ROW */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* EXTRAS */
+  .form-extras {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .remember-wrap { display: flex; align-items: center; gap: 8px; cursor: none; }
+  .remember-check {
+    width: 16px; height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--dark3);
+    appearance: none;
+    cursor: none;
+    transition: background 0.2s, border-color 0.2s;
+    position: relative;
+  }
+  .remember-check:checked { background: var(--orange); border-color: var(--orange); }
+  .remember-check:checked::after {
+    content: '✓';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: white; font-weight: 700;
+  }
+  .remember-label { font-size: 13px; color: var(--text-muted); cursor: none; }
+  .forgot-link {
+    font-size: 13px; color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .forgot-link:hover { color: var(--orange); }
+
+  /* SUBMIT BTN */
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--orange);
+    border: none; outline: none;
+    border-radius: 8px;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: none;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background 0.2s, transform 0.2s;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-submit:hover { background: var(--orange-bright); transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit svg { width: 16px; height: 16px; fill: white; transition: transform 0.2s; }
+  .btn-submit:hover svg { transform: translateX(3px); }
+
+  /* RIPPLE */
+  .btn-submit .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transform: scale(0);
+    animation: ripple 0.5s ease-out;
+    pointer-events: none;
+  }
+  @keyframes ripple {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* DIVIDER */
+  .form-divider {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 18px;
+  }
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-text { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+
+  /* SSO BTN */
+  .btn-sso {
+    width: 100%;
+    padding: 12px;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 400;
+    cursor: none;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    text-decoration: none;
+    margin-bottom: 8px;
+  }
+  .btn-sso:hover { border-color: rgba(255,255,255,0.15); color: var(--text); background: var(--dark4); }
+  .btn-sso-icon { font-size: 16px; }
+
+  /* SWITCH LINK */
+  .form-switch {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 13px; color: var(--text-muted);
+  }
+  .form-switch a {
+    color: var(--orange); text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .form-switch a:hover { color: var(--orange-bright); }
+
+  /* ACCESS NOTICE */
+  .access-notice {
+    display: flex; align-items: flex-start; gap: 12px;
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: rgba(232,92,26,0.06);
+    border: 1px solid rgba(232,92,26,0.18);
+    border-radius: 10px;
+  }
+  .access-notice-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .access-notice-title {
+    font-size: 12px; font-weight: 500;
+    color: var(--orange);
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+  }
+  .access-notice-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  /* SECURITY NOTE */
+  .security-note {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 20px; padding: 10px 14px;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 11px; color: var(--text-dim);
+  }
+  .security-note span { font-size: 14px; }
+
+  /* ERROR / SUCCESS */
+  .field-error {
+    font-size: 11px; color: #e74c3c;
+    margin-top: 5px; display: none;
+  }
+  .form-input.error { border-color: rgba(231,76,60,0.5); }
+
+  .toast {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px;
+    z-index: 9990;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: rgba(61,186,122,0.3); }
+  .toast.error-toast { border-color: rgba(231,76,60,0.3); }
+  .toast-icon { font-size: 18px; }
+
+  /* LOADER */
+  .btn-loader {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* PANEL: register (hidden by default) */
+  .panel-register { display: none; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .page { grid-template-columns: 1fr; }
+    .left-panel { display: none; }
+    .right-panel { padding: 40px 32px; }
+    nav { padding: 18px 24px; }
+  }
+  @media (max-width: 480px) {
+    .right-panel { padding: 32px 20px; }
+    .form-row { grid-template-columns: 1fr; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="bg-glow"></div>
+<div class="grid-lines"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+    </div>
+    <span class="nav-logo-name">RepairFast</span>
+  </a>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    Voltar ao site
+  </a>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- LEFT -->
+  <div class="left-panel">
+    <div class="left-tag">Plataforma Industrial</div>
+
+    <h1 class="left-heading">
+      ACESSE<br>
+      SEU <span class="hl">PAINEL</span><br>
+      DE CONTROLE
+    </h1>
+
+    <p class="left-desc">
+      Registre ocorrências, acompanhe riscos e tome decisões baseadas em dados — tudo em um único ambiente seguro e rastreável.
+    </p>
+
+    <div class="stats-strip">
+      <div class="stat">
+        <div class="stat-val">850<span>+</span></div>
+        <div class="stat-label">Reportes Ativos</div>
+      </div>
+      <div class="stats-divider"></div>
+      <div class="stat">
+        <div class="stat-val">55<span>%</span></div>
+        <div class="stat-label">SLA Cumprido</div>
+      </div>
+      <div class="stats-divider"></div>
+      <div class="stat">
+        <div class="stat-val">−46<span>%</span></div>
+        <div class="stat-label">Tempo de Resposta</div>
+      </div>
+    </div>
+
+    <div class="trust-badges">
+      <div class="trust-badge"><div class="dot"></div>Conexão criptografada</div>
+      <div class="trust-badge"><div class="dot"></div>Dados auditáveis</div>
+      <div class="trust-badge"><div class="dot"></div>ISO 45001 alinhado</div>
+      <div class="trust-badge"><div class="dot"></div>ODS 8 &amp; 9</div>
+    </div>
+  </div>
+
+  <!-- RIGHT (FORM) -->
+  <div class="right-panel">
+    <div class="form-card">
+
+      <div class="form-title">ENTRAR</div>
+      <div class="form-subtitle">Bem-vindo de volta. Acesse sua conta.</div>
+
+      <div style="margin-bottom:28px"></div>
+
+      <div class="form-group">
+        <label class="form-label">E-mail corporativo</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input type="email" class="form-input" id="loginEmail" placeholder="voce@empresa.com.br" autocomplete="email">
+        </div>
+        <div class="field-error" id="errEmail">Informe um e-mail válido.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" class="form-input with-toggle" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+          <button class="pw-toggle" type="button" onclick="togglePw('loginPassword', this)" tabindex="-1">👁️</button>
+        </div>
+        <div class="field-error" id="errPassword">Informe sua senha.</div>
+      </div>
+
+      <div class="form-extras">
+        <label class="remember-wrap">
+          <input type="checkbox" class="remember-check" id="rememberMe">
+          <span class="remember-label">Lembrar acesso</span>
+        </label>
+        <a href="#" class="forgot-link" onclick="showForgot(event)">Esqueci a senha</a>
+      </div>
+
+      <button class="btn-submit" id="btnLogin" onclick="handleLogin(event)">
+        <span id="btnLoginText">Acessar o sistema</span>
+        <div class="btn-loader" id="btnLoginLoader"></div>
+        <svg id="btnLoginArrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </button>
+
+      <div class="form-divider">
+        <div class="divider-line"></div>
+        <div class="divider-text">ou acesse com</div>
+        <div class="divider-line"></div>
+      </div>
+
+      <a href="#" class="btn-sso">
+        <span class="btn-sso-icon">🏢</span>
+        Entrar com SSO corporativo
+      </a>
+      <a href="#" class="btn-sso">
+        <span class="btn-sso-icon">🔑</span>
+        Entrar com Microsoft
+      </a>
+
+      <!-- AVISO INSTITUCIONAL -->
+      <div class="access-notice">
+        <div class="access-notice-icon">🏭</div>
+        <div>
+          <div class="access-notice-title">Acesso gerenciado pela empresa</div>
+          <div class="access-notice-desc">Novos cadastros são criados pelo administrador da sua organização. Entre em contato com o gestor responsável para solicitar suas credenciais.</div>
+        </div>
+      </div>
+
+      <!-- SECURITY -->
+      <div class="security-note">
+        <span>🔐</span>
+        Conexão segura — seus dados são protegidos com criptografia TLS 1.3
+      </div>
+
+    </div><!-- /form-card -->
+  </div><!-- /right-panel -->
+
+</div><!-- /page -->
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div id="forgotOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:800;backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--dark3);border:1px solid var(--border);border-radius:16px;padding:36px;max-width:380px;width:90%;animation:fadeUp 0.3s ease both;position:relative">
+    <button onclick="closeForgot()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-muted);font-size:20px;cursor:none;line-height:1">×</button>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:8px">RECUPERAR ACESSO</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6">Informe seu e-mail corporativo. Enviaremos um link para redefinição de senha.</p>
+    <div class="input-wrap" style="margin-bottom:18px">
+      <span class="input-icon">✉️</span>
+      <input type="email" class="form-input" id="forgotEmail" placeholder="voce@empresa.com.br">
+    </div>
+    <button class="btn-submit" style="margin-bottom:0" onclick="handleForgot(event)">
+      <span>Enviar link de recuperação</span>
+      <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  /* ── CURSOR ── */
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+  });
+  (function tick() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(tick);
+  })();
+
+  /* ── PASSWORD TOGGLE ── */
+  function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁️';
+  }
+
+  /* ── RIPPLE ── */
+  function addRipple(btn, e) {
+    const rect = btn.getBoundingClientRect();
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const size = Math.max(rect.width, rect.height);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px`;
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  }
+
+  /* ── TOAST ── */
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    document.getElementById('toastIcon').textContent = type === 'success' ? '✅' : '⚠️';
+    t.className = 'toast show ' + (type === 'success' ? 'success' : 'error-toast');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  /* ── LOADING STATE ── */
+  function setLoading(state) {
+    document.getElementById('btnLogin').disabled = state;
+    document.getElementById('btnLoginLoader').style.display = state ? 'block' : 'none';
+    document.getElementById('btnLoginArrow').style.display  = state ? 'none'  : 'block';
+  }
+
+  /* ── LOGIN ── */
+  async function handleLogin(e) {
+    addRipple(document.getElementById('btnLogin'), e);
+    const email = document.getElementById('loginEmail').value.trim();
+    const pw    = document.getElementById('loginPassword').value;
+    let valid = true;
+
+    // limpa erros anteriores
+    document.getElementById('errEmail').style.display = 'none';
+    document.getElementById('errPassword').style.display = 'none';
+    document.getElementById('loginEmail').classList.remove('error');
+    document.getElementById('loginPassword').classList.remove('error');
+
+    // validação
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('errEmail').style.display = 'block';
+      document.getElementById('loginEmail').classList.add('error');
+      valid = false;
+    }
+    if (!pw) {
+      document.getElementById('errPassword').style.display = 'block';
+      document.getElementById('loginPassword').classList.add('error');
+      valid = false;
+    }
+    if (!valid) return;
+
+    setLoading(true);
+    document.getElementById('btnLoginText').textContent = 'Autenticando...';
+
+    try {
+      // chama postLogin do api.js — usa mock ou API real conforme USE_MOCK
+      const data = await postLogin(email, pw);
+
+      showToast('Acesso autorizado! Redirecionando…', 'success');
+
+      // redireciona conforme o perfil retornado pela API
+      setTimeout(() => {
+        const rotas = {
+          funcionario: 'home_funcionario.html',
+          analista:    'home_analista.html',
+          gestor:      'home_gestor.html'
+        };
+        window.location.href = rotas[data.perfil] || 'home_funcionario.html';
+      }, 1400);
+
+    } catch (err) {
+      setLoading(false);
+      document.getElementById('btnLoginText').textContent = 'Acessar o sistema';
+      showToast('E-mail ou senha incorretos.', 'error');
+    }
+  }
+
+  /* ── FORGOT PASSWORD ── */
+  function showForgot(e) {
+    e.preventDefault();
+    document.getElementById('forgotOverlay').style.display = 'flex';
+  }
+  function closeForgot() {
+    document.getElementById('forgotOverlay').style.display = 'none';
+  }
+  function handleForgot(e) {
+    addRipple(e.currentTarget, e);
+    const email = document.getElementById('forgotEmail').value.trim();
+    if (!email) return;
+    setTimeout(() => {
+      closeForgot();
+      showToast('Link enviado! Verifique sua caixa de entrada.', 'success');
+    }, 1200);
+  }
+
+  document.getElementById('forgotOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeForgot();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btnLogin').click();
+  });
+</script>
+</body>
+</html>

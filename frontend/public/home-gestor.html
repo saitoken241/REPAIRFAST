@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepairFast — Gestor</title>
+
+<!-- Compartilhados -->
+<link rel="stylesheet" href="../src/css/global.css">
+<link rel="stylesheet" href="../src/css/components.css">
+<script src="../src/js/api.js"></script>
+<script src="../src/js/utils.js"></script>
+
+<style>
+/* ══════════════════════════════════════════
+   Estilos específicos do Gestor
+══════════════════════════════════════════ */
+
+.sb-av { background: linear-gradient(135deg, var(--purple), #7b4fd4); }
+.sb-user-role { color: var(--purple); }
+
+.scope-toggle { display:flex; background:var(--dark3); border:1px solid var(--border); border-radius:8px; padding:3px; gap:3px; }
+.scope-btn { padding:6px 14px; border-radius:6px; font-size:12px; font-weight:500; border:none; cursor:pointer; font-family:var(--fb); color:var(--text-muted); background:transparent; transition:all .2s; white-space:nowrap; }
+.scope-btn.active { background:var(--orange); color:white; }
+
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.kpi-card { background:var(--dark2); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; position:relative; overflow:hidden; transition:transform .2s,border-color .2s; animation:fadeUp .35s ease both; }
+.kpi-card:nth-child(1){animation-delay:.04s} .kpi-card:nth-child(2){animation-delay:.08s}
+.kpi-card:nth-child(3){animation-delay:.12s} .kpi-card:nth-child(4){animation-delay:.16s}
+.kpi-card:hover { transform:translateY(-2px); border-color:var(--c,var(--border)); }
+.kpi-card::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; background:var(--c,var(--border)); }
+.kpi-label { font-size:11px; color:var(--text-muted); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.kpi-val   { font-family:var(--fd); font-size:clamp(26px,3vw,36px); letter-spacing:1px; line-height:1; color:var(--c,var(--text)); margin-bottom:6px; }
+.kpi-sub   { font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.kpi-badge    { padding:2px 7px; border-radius:6px; font-size:10px; font-weight:600; }
+.badge-green  { background:var(--green-dim); color:var(--green); }
+.badge-red    { background:var(--red-dim);   color:var(--red); }
+.badge-yellow { background:var(--yellow-dim);color:var(--yellow); }
+
+.grid-2   { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.grid-3-1 { display:grid; grid-template-columns:3fr 1fr; gap:16px; margin-bottom:16px; }
+
+.hbar-list   { display:flex; flex-direction:column; gap:10px; }
+.hbar-row    { display:flex; flex-direction:column; gap:4px; }
+.hbar-header { display:flex; justify-content:space-between; font-size:12px; }
+.hbar-val    { font-weight:600; }
+.hbar-track  { height:6px; background:var(--mid); border-radius:10px; overflow:hidden; }
+.hbar-fill   { height:100%; border-radius:10px; transition:width 1s ease; }
+
+.rank-list { display:flex; flex-direction:column; gap:8px; }
+.rank-item { display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--dark3); border-radius:10px; border:1px solid var(--border); transition:border-color .15s; }
+.rank-item:hover { border-color:var(--orange-border); }
+.rank-num        { font-family:var(--fd); font-size:18px; width:24px; text-align:center; flex-shrink:0; }
+.rank-num.gold   { color:var(--yellow); }
+.rank-num.silver { color:#BDC3C7; }
+.rank-num.bronze { color:#CD7F32; }
+.rank-num.other  { color:var(--text-dim); }
+.rank-icon { font-size:20px; flex-shrink:0; }
+.rank-info { flex:1; min-width:0; }
+.rank-name { font-size:13px; font-weight:500; }
+.rank-meta { font-size:11px; color:var(--text-muted); margin-top:2px; }
+.rank-sla  { font-size:10px; padding:2px 7px; border-radius:6px; }
+.sla-ok    { background:var(--green-dim);  color:var(--green); }
+.sla-warn  { background:var(--yellow-dim); color:var(--yellow); }
+.sla-bad   { background:var(--red-dim);    color:var(--red); }
+
+.recent-list { display:flex; flex-direction:column; gap:8px; }
+.recent-item { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:12px 14px; background:var(--dark3); border:1px solid var(--border); border-radius:10px; cursor:pointer; transition:all .15s; }
+.recent-item:hover { border-color:var(--orange-border); background:var(--dark4); }
+.ri-icon  { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.ri-body  { min-width:0; }
+.ri-title { font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
+.ri-meta  { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.ri-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+.ri-id    { font-family:var(--fm); font-size:11px; color:var(--text-dim); }
+.ri-date  { font-family:var(--fm); font-size:10px; color:var(--text-dim); }
+
+.pbi-wrap      { background:var(--dark2); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+.pbi-toolbar   { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:10px; }
+.pbi-title     { font-family:var(--fd); font-size:16px; letter-spacing:1px; display:flex; align-items:center; gap:10px; }
+.pbi-badge     { font-size:10px; background:var(--blue-dim); color:var(--blue); border:1px solid var(--blue-b); border-radius:6px; padding:2px 8px; font-family:var(--fb); font-weight:500; }
+.pbi-actions   { display:flex; gap:8px; }
+.pbi-btn       { display:flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; font-family:var(--fb); border:1px solid var(--border); background:var(--dark3); color:var(--text-muted); }
+.pbi-btn:hover { color:var(--text); border-color:rgba(255,255,255,.15); background:var(--dark4); }
+.pbi-iframe-wrap     { position:relative; width:100%; padding-bottom:56.25%; background:var(--dark3); min-height:500px; }
+.pbi-iframe-wrap iframe { position:absolute; inset:0; width:100%; height:100%; border:none; }
+.pbi-placeholder       { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+.pbi-placeholder-icon  { font-size:48px; opacity:.4; }
+.pbi-placeholder-title { font-family:var(--fd); font-size:22px; letter-spacing:1px; color:var(--text-dim); }
+.pbi-placeholder-desc  { font-size:13px; color:var(--text-dim); text-align:center; max-width:360px; line-height:1.6; }
+
+@media (max-width:1200px) { .grid-3-1 { grid-template-columns:1fr; } }
+@media (max-width:1024px) { .kpi-row { grid-template-columns:1fr 1fr; } .grid-2 { grid-template-columns:1fr; } }
+@media (max-width:768px)  { .kpi-row { grid-template-columns:1fr 1fr; } .scope-toggle { flex-wrap:wrap; } }
+@media (max-width:480px)  { .kpi-row { grid-template-columns:1fr 1fr; gap:10px; } .recent-item { grid-template-columns:auto 1fr; } .ri-right { display:none; } }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <a href="login.html" class="sb-logo-row">
+        <div class="sb-logo-icon">🔧</div>
+        <span class="sb-logo-name">RepairFast</span>
+      </a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Gestão</div>
+      <a class="sb-item active"><span class="sb-icon">🏠</span><span>Início</span></a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Operacional</div>
+      <a class="sb-item"><span class="sb-icon">📋</span><span>Todos os Reportes</span></a>
+      <a class="sb-item"><span class="sb-icon">🗺️</span><span>Mapa de Riscos</span></a>
+      <a class="sb-item"><span class="sb-icon">📚</span><span>Base de Conhecimento</span></a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Conta</div>
+      <a class="sb-item"><span class="sb-icon">⚙️</span><span>Configurações</span></a>
+      <a class="sb-item" href="login.html" onclick="logout()"><span class="sb-icon">🚪</span><span>Sair</span></a>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="sb-av" id="sb-av">?</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name" id="sb-name">—</div>
+          <div class="sb-user-role">Gestor</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="topbar">
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="topbar-titles">
+        <div class="greeting" id="greeting">—</div>
+        <div class="sub-greeting" id="sub-greeting">Carregando...</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="scope-toggle">
+          <button class="scope-btn active" onclick="setEscopo('empresa',this)">🏭 Toda a empresa</button>
+          <button class="scope-btn" onclick="setEscopo('setor',this)">🔬 Meu setor</button>
+        </div>
+        <div class="notif-btn">🔔<div class="notif-dot" id="notif-dot"></div></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('overview')"><span class="tab-icon">📊</span> Visão Geral</button>
+      <button class="tab" onclick="setTab('powerbi')"><span class="tab-icon">⚡</span> Power BI</button>
+    </div>
+
+    <!-- ABA: VISÃO GERAL -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="kpi-row">
+        <div class="kpi-card" style="--c:var(--text-muted)">
+          <div class="kpi-label">📋 Total de Reportes</div>
+          <div class="kpi-val" id="kpi-total">—</div>
+          <div class="kpi-sub"><span class="kpi-badge badge-green" id="kpi-total-delta">—</span> vs mês anterior</div>
+        </div>
+        <div class="kpi-card" style="--c:var(--blue)">
+          <div class="kpi-label">⏱️ Tempo Médio de Resolução</div>
+          <div class="kpi-val" id="kpi-tempo">—<span style="font-size:18px;font-weight:400;color:var(--text-muted)"> h</span></div>
+          <div class="kpi-sub">Meta: 60h &nbsp;<span class="kpi-badge" id="kpi-tempo-badge">—</span></div>
+        </div>
+        <div class="kpi-card" style="--c:var(--green)">
+          <div class="kpi-label">🎯 Cumprimento de SLA</div>
+          <div class="kpi-val" id="kpi-sla">—<span style="font-size:18px;font-weight:400;color:var(--text-muted)">%</span></div>
+          <div class="kpi-sub" id="kpi-sla-sub">— de — reportes no prazo</div>
+        </div>
+        <div class="kpi-card" style="--c:var(--red)">
+          <div class="kpi-label">🚨 Críticos em Aberto</div>
+          <div class="kpi-val" id="kpi-criticos">—</div>
+          <div class="kpi-sub" id="kpi-criticos-sub">—</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-hd">
+            <div><div class="panel-title">REPORTES POR SETOR</div><div class="panel-sub">Distribuição acumulada</div></div>
+          </div>
+          <div class="hbar-list" id="chartSetor"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd">
+            <div><div class="panel-title">REPORTES POR PRIORIDADE</div><div class="panel-sub">Volume por nível</div></div>
+          </div>
+          <canvas id="chartPrioridade" height="160"></canvas>
+        </div>
+      </div>
+
+      <div class="grid-3-1">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="panel">
+            <div class="panel-hd">
+              <div><div class="panel-title">VOLUME MENSAL</div><div class="panel-sub">Últimos 6 meses</div></div>
+            </div>
+            <canvas id="chartMensal" height="110"></canvas>
+          </div>
+          <div class="panel">
+            <div class="panel-hd">
+              <div><div class="panel-title">REPORTES RECENTES</div><div class="panel-sub">Últimas ocorrências registradas</div></div>
+              <a class="panel-link">Ver todos</a>
+            </div>
+            <div class="recent-list" id="recentList"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd">
+            <div><div class="panel-title">RANKING</div><div class="panel-sub">Setores por SLA</div></div>
+          </div>
+          <div class="rank-list" id="rankList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA: POWER BI -->
+    <div class="tab-content" id="tab-powerbi">
+      <div class="pbi-wrap">
+        <div class="pbi-toolbar">
+          <div class="pbi-title">⚡ Power BI <span class="pbi-badge">Relatório Embed</span></div>
+          <div class="pbi-actions">
+            <button class="pbi-btn" onclick="abrirFullscreen()">⛶ Tela cheia</button>
+            <button class="pbi-btn" onclick="exportarPDF()">⬇️ Exportar PDF</button>
+          </div>
+        </div>
+        <div class="pbi-iframe-wrap" id="pbiFrame">
+          <div class="pbi-placeholder" id="pbiPlaceholder">
+            <div class="pbi-placeholder-icon">⚡</div>
+            <div class="pbi-placeholder-title">RELATÓRIO INDISPONÍVEL</div>
+            <div class="pbi-placeholder-desc">
+              O dashboard analítico está temporariamente indisponível.<br>
+              Tente novamente mais tarde ou contate o suporte.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let _escopo = 'empresa';
+
+function setEscopo(esc, btn) {
+  _escopo = esc;
+  document.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  carregarDados();
+}
+
+function setTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[onclick="setTab('${id}')"]`).classList.add('active');
+  document.getElementById(`tab-${id}`).classList.add('active');
+  if (id === 'powerbi') iniciarPBI();
+}
+
+function renderGestor(g) {
+  document.getElementById("greeting").innerHTML = `${saudacao()}, <span>${g.nome.toUpperCase()}</span> 👋`;
+  setText("sub-greeting", `${diaSemana()}, ${dataHoje()} · Gestor · ${g.setor}`);
+  setText("sb-av",   `${g.nome[0]}${g.sobrenome[0]}`);
+  setText("sb-name", `${g.nome} ${g.sobrenome}`);
+}
+
+function renderDados(d) {
+  renderKPIs(d.kpis);
+  renderSetor(d.setor);
+  renderPrioridade(d.prio);
+  renderMensal(d.mensal, d.meses);
+  renderRanking(d.ranking);
+  renderRecentes(d.recentes);
+}
+
+function renderKPIs(k) {
+  setText("kpi-total", k.total);
+  setText("kpi-total-delta", k.totalDelta);
+  document.getElementById("kpi-total-delta").className = `kpi-badge ${k.totalDelta.startsWith('+') ? 'badge-green' : 'badge-red'}`;
+  setValComUnidade("kpi-tempo", k.tempo);
+  const badge = document.getElementById("kpi-tempo-badge");
+  badge.textContent = k.tempo <= 60 ? "✓ Dentro da meta" : "⚠ Acima da meta";
+  badge.className   = `kpi-badge ${k.tempo <= 60 ? 'badge-green' : 'badge-red'}`;
+  setValComUnidade("kpi-sla", k.sla);
+  setText("kpi-sla-sub",      `${k.slaN} de ${k.slaD} reportes no prazo`);
+  setText("kpi-criticos",     k.criticos);
+  setText("kpi-criticos-sub", k.criticosSub);
+}
+
+function renderSetor(lista) {
+  document.getElementById("chartSetor").innerHTML = lista.map(s => `
+    <div class="hbar-row">
+      <div class="hbar-header"><span>${s.nome}</span><span class="hbar-val" style="color:${s.cor}">${s.val}</span></div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${s.pct}%;background:${s.cor}"></div></div>
+    </div>`).join('');
+}
+
+let _chartPrio = null, _chartMensal = null;
+
+function renderPrioridade(p) {
+  const ctx = document.getElementById("chartPrioridade").getContext("2d");
+  if (_chartPrio) _chartPrio.destroy();
+  _chartPrio = new Chart(ctx, {
+    type: 'bar',
+    data: { labels:['Média','Alta','Baixa','Crítica'], datasets:[{ data:[p.media,p.alta,p.baixa,p.critica], backgroundColor:['rgba(245,200,66,.7)','rgba(232,92,26,.7)','rgba(74,158,232,.7)','rgba(232,80,74,.8)'], borderRadius:6, borderSkipped:false }] },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#888880',font:{size:11}}}, y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#888880',font:{size:11}}} } }
+  });
+}
+
+function renderMensal(vals, meses) {
+  const ctx = document.getElementById("chartMensal").getContext("2d");
+  if (_chartMensal) _chartMensal.destroy();
+  _chartMensal = new Chart(ctx, {
+    type: 'line',
+    data: { labels:meses, datasets:[{ data:vals, borderColor:'#E85C1A', backgroundColor:'rgba(232,92,26,.1)', pointBackgroundColor:'#E85C1A', pointRadius:4, tension:.4, fill:true, borderWidth:2 }] },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#888880',font:{size:11}}}, y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#888880',font:{size:11}}} } }
+  });
+}
+
+const RANK_ICONS = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
+const RANK_CLS   = ['gold','silver','bronze','other','other','other'];
+
+function renderRanking(lista) {
+  document.getElementById("rankList").innerHTML = lista.map((r,i) => `
+    <div class="rank-item">
+      <div class="rank-num ${RANK_CLS[i]||'other'}">${i+1}</div>
+      <div class="rank-icon">${RANK_ICONS[i]||'🏅'}</div>
+      <div class="rank-info"><div class="rank-name">${r.nome}</div><div class="rank-meta">${r.reportes} reportes</div></div>
+      <span class="rank-sla ${r.slaClass}">${r.sla}% SLA</span>
+    </div>`).join('');
+}
+
+function renderRecentes(lista) {
+  document.getElementById("recentList").innerHTML = lista.map(r => {
+    const st = STATUS_MAP[r.status]         || { cls:"", label:r.status };
+    const pr = PRIORIDADE_MAP[r.prioridade] || { cls:"", label:r.prioridade, bg:"var(--dark4)" };
+    return `
+    <div class="recent-item" onclick="abrirReporte(${r.id})">
+      <div class="ri-icon" style="background:${pr.bg}">${r.prioridade==='critica'?'🚨':r.prioridade==='alta'?'⚠️':'📋'}</div>
+      <div class="ri-body">
+        <div class="ri-title">${r.titulo}</div>
+        <div class="ri-meta">
+          <span class="tag ${st.cls}">${st.label}</span>
+          <span class="tag ${pr.cls}">${pr.label}</span>
+          <span class="tag" style="background:var(--dark4);color:var(--text-muted);border:1px solid var(--border)">${r.setor}</span>
+        </div>
+      </div>
+      <div class="ri-right"><span class="ri-id">#${r.id}</span><span class="ri-date">${r.data}</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* Power BI */
+const PBI_EMBED_URL = ""; // ← cole a URL de embed aqui quando disponível
+
+function iniciarPBI() {
+  if (!PBI_EMBED_URL) return;
+  const frame = document.getElementById("pbiFrame");
+  const ph    = document.getElementById("pbiPlaceholder");
+  if (ph) ph.remove();
+  const old = frame.querySelector("iframe"); if (old) old.remove();
+  const iframe = document.createElement("iframe");
+  iframe.src = PBI_EMBED_URL;
+  iframe.allowFullscreen = true;
+  iframe.setAttribute("allow","fullscreen");
+  frame.appendChild(iframe);
+}
+function abrirFullscreen() {
+  const iframe = document.getElementById("pbiFrame").querySelector("iframe");
+  if (!iframe) { alert("Nenhum relatório carregado."); return; }
+  if (iframe.requestFullscreen) iframe.requestFullscreen();
+}
+function exportarPDF() {
+  alert("Para exportar em PDF, utilize o botão de exportação dentro do próprio relatório Power BI.\n\nNo relatório: Arquivo → Exportar → PDF.");
+}
+
+/* Init */
+async function carregarDados() {
+  const dados = await getDashboard(_escopo);
+  renderDados(dados);
+}
+
+async function init() {
+  try {
+    const gestor = await getGestorMe();
+    renderGestor(gestor);
+    await carregarDados();
+  } catch(err) { console.error(err); }
+}
+
+initSidebar();
+
+const _chartScript = document.createElement('script');
+_chartScript.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js";
+_chartScript.onload = init;
+document.head.appendChild(_chartScript);
+</script>
+</body>
+</html>
