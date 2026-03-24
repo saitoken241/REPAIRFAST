@@ -11,6 +11,7 @@ class Report(Base):
     description = Column(Text, nullable=False)
     attachment = Column(String(255), nullable=True)
     category = Column(String(20), nullable=False, index=True)
+    
     status = Column(
         Enum("open", 
              "closed", 
@@ -34,4 +35,4 @@ class Report(Base):
         back_populates="reports"
     )
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
-    department = relationship("Department", back_populates="reports")
+    department = relationship("Department", back_populates="reports", foreign_keys=[department_id])
