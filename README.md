@@ -1,174 +1,207 @@
-#  RepairFast API
+# RepairFast
 
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
 ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)
 ![Uvicorn](https://img.shields.io/badge/uvicorn-FF9900?style=for-the-badge&logo=fastapi&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
-The **RepairFast API** is the backend of a digital platform designed for **preventive risk management and incident communication in industrial environments**.
-
-The goal of the platform is to **improve communication between operational teams**, record incidents with traceability, and enable continuous monitoring of risks in order to **reduce accidents and improve operational safety**.
-
-This API was built using **FastAPI + SQLAlchemy + MySQL**, focusing on:
-
-- ⚡ High performance
-- 🧹 Clean code
-- 🏗️ Scalable architecture
-- 📚 Automatic API documentation
-- 🔎 Data traceability
+**RepairFast** is a digital platform for **preventive risk management and incident communication in industrial environments**. It connects employees, analysts, and managers through a structured workflow for reporting, triaging, and resolving operational incidents — ensuring full traceability and promoting a strong safety culture.
 
 ---
 
-#  About the RepairFast Project
+## 📌 About the Project
 
-**RepairFast** is a digital solution designed for **industrial environments**, where proper communication of risks and accurate incident records are essential to prevent accidents.
+In industrial environments, poor communication between teams and the lack of structured incident records can directly compromise operational safety. RepairFast centralizes the entire incident management lifecycle into a single platform, with role-based interfaces tailored for each type of user.
 
-In many industrial scenarios, problems such as:
+### Problems addressed:
 
-- poor communication between teams
-- fragmented incident reports
-- lack of structured historical data
-- difficulty tracking operational events
-
-can negatively impact **operational safety**.
-
-RepairFast aims to solve these problems by providing:
-
-- structured incident reporting
-- full historical event tracking
-- continuous risk monitoring
-- improved communication between teams
-
-This API represents the **core backend component of the RepairFast platform**.
+- Fragmented communication between operational teams  
+- Lack of traceability in incident records  
+- Absence of structured historical data for analysis  
+- Difficulty in continuously monitoring risks  
 
 ---
 
-#  API Features
-
-- ✅ Full **CRUD** for user management
-- ✅ Structure prepared for **incident management systems**
-- ✅ Automatic API documentation using **Swagger UI** and **ReDoc**
-- ✅ Error handling with `HTTPException`
-- ✅ Secure **MySQL database connection via SQLAlchemy**
-- ✅ Modular architecture ready for scaling
-- ✅ Data validation following backend best practices
-
----
-
-#  System Architecture
-
-The API follows **Separation of Concerns** principles to improve maintainability and scalability.
+## 📁 Project Structure
 
 ```
 
-repair-fast/
+repairfast/
 │
-├── main.py
-│   ├── Application entry point
-│   └── Main API routes
+├── backend/
+│   └── app/
+│       ├── main.py               # API entry point and main routes
+│       ├── database.py           # MySQL connection via SQLAlchemy
+│       ├── models/
+│       │   └── user_model.py     # ORM model for the users table
+│       ├── schemas/              # (in development) Pydantic validation
+│       └── routers/              # (in development) Route modularization
 │
-├── database.py
-│   ├── MySQL connection configuration
-│   └── SQLAlchemy engine
-│
-├── models/
-│   └── user_model.py
-│       └── ORM model for the users table
-│
-├── schemas/        # (under development)
-│   └── Pydantic data validation
-│
-├── routers/        # (under development)
-│   └── Route modularization
+├── frontend/
+│   └── public/
+│       ├── index.html            # Institutional landing page
+│       ├── login.html            # User authentication
+│       ├── home_funcionario.html # Employee dashboard
+│       ├── home_analista.html    # Analyst dashboard
+│       └── home_gestor.html      # Manager dashboard
+│   └── src/
+│       ├── css/
+│       │   ├── global.css        # Global styles and CSS variables
+│       │   └── components.css    # Reusable UI components
+│       └── js/
+│           ├── api.js            # API integration and data mocks
+│           └── utils.js          # Utilities (dates, greetings, DOM helpers)
 │
 └── requirements.txt
 
 ````
 
-The architecture was designed to support future expansion such as:
+---
 
-- authentication systems
-- analytics dashboards
-- microservices architecture
-- integrations with external systems
+## 👥 User Roles
+
+The system has three distinct roles, each with its own dashboard and feature set.
+
+### 👷 Employee
+Focused on creating and tracking individual incident reports.
+
+- Summary panel with report counts (total, open, in progress, resolved)  
+- Personal report list with status filters  
+- New report creation flow  
+- Access to the Knowledge Base and Risk Map  
 
 ---
 
-#  Running the Project
+### 🧪 Analyst
+Designed for technical triage and incident analysis.
 
-## Prerequisites
-
-- Python **3.9+**
-- MySQL **8.0+** or MariaDB
-- Git
+- Consolidated report table with pagination  
+- Critical incidents panel with visual highlights  
+- Advanced filters by sector, priority, and status  
+- Inline row actions (assign, change status, comment)  
+- Analytical dashboard and Risk Map  
 
 ---
 
-## 1️⃣ Clone the repository
+### 📊 Manager
+Strategic interface with full operational visibility.
+
+- Operational KPIs with trend indicators  
+- Scope toggle: global view or by sector  
+- Sector ranking with SLA metrics  
+- Distribution charts by category and priority  
+- Power BI integration for executive dashboards  
+- Recent reports with full traceability  
+
+---
+
+## 🎨 Frontend
+
+The interface was built using **HTML5, CSS3, and vanilla JavaScript**, with no external frameworks. The design follows a dark theme with orange accents (`#E85C1A`), prioritizing readability and information density.
+
+### Highlights:
+
+- Design system with global CSS variables and reusable components  
+- Custom cursor with interaction animations  
+- Responsive sidebar with mobile hamburger menu  
+- Animated cards with smooth transitions  
+- Fully responsive layout (desktop, tablet, and mobile)  
+- Skeleton loading states and empty/error feedback  
+- Typography: Bebas Neue, DM Sans, and DM Mono (Google Fonts)  
+
+---
+
+## ⚙️ Backend — REST API
+
+Built with **FastAPI + SQLAlchemy + MySQL**, following Separation of Concerns principles and designed for scalability.
+
+### Available Endpoints
+
+| Method | Endpoint           | Description          |
+|--------|--------------------|----------------------|
+| GET    | `/`                | Welcome message      |
+| POST   | `/users/`          | Create a new user    |
+| GET    | `/users/`          | List all users       |
+| GET    | `/users/{user_id}` | Get user by ID       |
+| PUT    | `/users/{user_id}` | Update user          |
+| DELETE | `/users/{user_id}` | Delete user          |
+
+---
+
+## 📚 API Documentation
+
+| Interface  | URL                            |
+|------------|--------------------------------|
+| Swagger UI | http://127.0.0.1:8000/docs     |
+| ReDoc      | http://127.0.0.1:8000/redoc    |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.9+  
+- MySQL 8.0+ or MariaDB  
+- Git  
+
+---
+
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-user/repair-fast.git
-cd repair-fast
+git clone https://github.com/your-user/repairfast.git
+cd repairfast
 ````
 
 ---
 
-## 2️⃣ Create a virtual environment
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv venv
-```
 
-### Linux / macOS
-
-```bash
+# Linux / macOS
 source venv/bin/activate
-```
 
-### Windows
-
-```bash
+# Windows
 venv\Scripts\activate
 ```
 
 ---
 
-## 3️⃣ Install dependencies
+### 3. Install dependencies
 
 ```bash
-pip install fastapi uvicorn sqlalchemy pymysql
+pip install -r requirements.txt
 ```
 
 ---
 
-## 4️⃣ Configure the database
+### 4. Configure the database
 
-Create a MySQL database:
+Create the database:
 
-```
-meubanco
-```
-
-Default credentials in the project:
-
-```
-User: root
-Password: root
+```sql
+CREATE DATABASE meubanco;
 ```
 
-If necessary, modify the `DATABASE_URL` in:
+Create a `.env` file in the root directory:
 
-```
-database.py
+```env
+DATABASE_URL=mysql+pymysql://root:root@localhost/meubanco
 ```
 
 ---
 
-## 5️⃣ Start the API server
+### 5. Run the API server
 
 ```bash
-uvicorn main:app --reload
+uvicorn backend.app.main:app --reload
 ```
 
 The API will be available at:
@@ -179,104 +212,64 @@ http://127.0.0.1:8000
 
 ---
 
-#  Automatic Documentation
+### 6. Run the frontend
 
-One of the advantages of **FastAPI** is automatic interactive documentation.
+```bash
+# Using Python
+python -m http.server 3000 --directory frontend/public
 
-### Swagger UI
-
-```
-http://127.0.0.1:8000/docs
-```
-
-### ReDoc
-
-```
-http://127.0.0.1:8000/redoc
+# Using Node.js
+npx serve frontend/public
 ```
 
 ---
 
-#  API Endpoints
+## 🛠️ Technologies
 
-| Method | Endpoint           | Description         |
-| ------ | ------------------ | ------------------- |
-| GET    | `/`                | Welcome message     |
-| POST   | `/users/`          | Create a new user   |
-| GET    | `/users/`          | List all users      |
-| GET    | `/users/{user_id}` | Retrieve user by ID |
-| PUT    | `/users/{user_id}` | Update user         |
-| DELETE | `/users/{user_id}` | Delete user         |
-
----
-
-#  Future Platform Integrations
-
-RepairFast was designed as part of a larger ecosystem that may include:
-
-* 📊 Analytical dashboards (**Power BI**)
-* 📱 Mobile application for incident reporting
-* 🗺️ Interactive risk maps
-* 🧾 Dynamic incident forms
-* 📚 Safety knowledge base
-* 📈 Operational performance monitoring
+| Technology        | Purpose               |
+| ----------------- | --------------------- |
+| Python            | Backend language      |
+| FastAPI           | REST API framework    |
+| SQLAlchemy        | ORM                   |
+| MySQL             | Relational database   |
+| PyMySQL           | Database driver       |
+| Uvicorn           | ASGI server           |
+| Pydantic          | Data validation       |
+| python-dotenv     | Environment variables |
+| HTML5 / CSS3 / JS | Frontend              |
+| Google Fonts      | Typography            |
 
 ---
 
-#  Roadmap
+## 🗺️ Roadmap
 
-* [ ] Pydantic schemas for request validation
-* [ ] Modular routing (`routers/users.py`)
-* [ ] Authentication with **JWT**
-* [ ] Password hashing with **bcrypt**
-* [ ] Automated testing with **pytest**
+* [ ] Pydantic schemas for validation
+* [ ] Route modularization (`routers/users.py`)
+* [ ] JWT authentication
+* [ ] Password hashing with bcrypt
+* [ ] Full incident management endpoints
+* [ ] Frontend integration with real API
+* [ ] Automated tests with pytest
 * [ ] Docker + Docker Compose
-* [ ] Cloud deployment on **AWS**
-* [ ] Log storage and monitoring integration
+* [ ] Cloud deployment (AWS or Railway)
+* [ ] Power BI integration
+* [ ] Mobile app for field reporting
+* [ ] Interactive risk map
+* [ ] Real-time notifications
 
 ---
 
-#  Technologies Used
-
-| Technology      | Purpose                   |
-| --------------- | ------------------------- |
-| Python          | Main programming language |
-| FastAPI         | Backend web framework     |
-| SQLAlchemy      | ORM                       |
-| MySQL           | Relational database       |
-| Uvicorn         | ASGI server               |
-| Swagger / ReDoc | API documentation         |
-
----
-
-#  Project Goal
-
-This project was developed as an applied study focused on **operational safety and risk management in industrial environments**.
-
-The objective is to demonstrate how digital solutions can:
-
-* improve incident communication
-* increase data traceability
-* reduce operational failures
-* support safety culture in organizations
-
----
-
-# 📄 License
+## 📄 License
 
 This project is licensed under the **MIT License**.
 
 ---
 
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 **ken**
-
 Backend Developer | Cybersecurity Enthusiast
 
 📧 []()
-🔗 LinkedIn: 
-
-
-
+🔗 []()
 
