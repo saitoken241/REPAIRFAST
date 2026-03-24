@@ -184,21 +184,34 @@ pip install -r requirements.txt
 
 ### 4. Configure the database
 
-Create the database:
-
-```sql
-CREATE DATABASE meubanco;
-```
-
 Create a `.env` file in the root directory:
 
 ```env
-DATABASE_URL=mysql+pymysql://root:root@localhost/meubanco
+DATABASE_URL=sqlite:///./test.db
+
 ```
 
 ---
 
-### 5. Run the API server
+### 5. Run the migrations 
+```bash
+alembic upgrade head
+```
+
+if the database exists, run:
+```bash
+alembic stamp head   
+alembic upgrade head
+```
+---
+
+### 6. Test the database:
+```bash
+sqlite3 test.db
+.tables
+```
+---
+### 7. Run the API server
 
 ```bash
 uvicorn backend.app.main:app --reload
@@ -212,7 +225,7 @@ http://127.0.0.1:8000
 
 ---
 
-### 6. Run the frontend
+### 8. Run the frontend
 
 ```bash
 # Using Python
@@ -243,10 +256,10 @@ npx serve frontend/public
 
 ## 🗺️ Roadmap
 
-* [ ] Pydantic schemas for validation
-* [ ] Route modularization (`routers/users.py`)
+* [x] Pydantic schemas for validation
+* [x] Route modularization (`routers/users.py`)
 * [ ] JWT authentication
-* [ ] Password hashing with bcrypt
+* [x] Password hashing with bcrypt
 * [ ] Full incident management endpoints
 * [ ] Frontend integration with real API
 * [ ] Automated tests with pytest
