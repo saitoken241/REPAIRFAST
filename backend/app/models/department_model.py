@@ -1,6 +1,6 @@
 from sqlalchemy import ForeignKey, Column, Integer, String, Boolean, Enum
 from sqlalchemy.orm import relationship
-from ..database import Base
+from app.database import Base
 
 #department of "employee","analyst","manager",
 
