@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from ..database import Base
 
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -10,13 +11,16 @@ class User(Base):
     cpf = Column(String(11), unique=True, nullable=False, index=True)
     name = Column(String(100), index=True)
     email = Column(String(100), unique=True, nullable=False)
+    password = Column(String(255), nullable=False)
+    company = Column(String(100), nullable=False)
     role = Column(
     Enum(
         "employee",
         "analyst",
         "manager",
         name="role_enum"),
-        nullable=False
+        nullable=False,
+        default="manager"
         ) 
     number = Column(String(20), index=True, nullable=True)
     status_usuario = Column(Boolean, nullable=False, default=False) # False = off/True = On
@@ -26,9 +30,10 @@ class User(Base):
         cascade = "all, delete",
         uselist = True # 1:N
         )
-    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
+    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False, default="0")
 
     department = relationship(
         "Department",
-        back_populates="department",
+        back_populates="users",
+        foreign_keys=[department_id],
         )

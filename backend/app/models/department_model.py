@@ -15,11 +15,13 @@ class Department(Base):
 
     reports = relationship(
         "Report",
-        back_populates="department"
+        back_populates="department",
+        foreign_keys="Report.department_id"
     )
     users = relationship(
         "User",
         back_populates="department",
+        foreign_keys="User.department_id"
         
 
 )
