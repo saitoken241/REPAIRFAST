@@ -16,8 +16,40 @@
    Estilos específicos do Funcionário
 ══════════════════════════════════════════ */
 
-/* Avatar laranja (padrão do funcionário) */
-.sb-av { background: linear-gradient(135deg, var(--orange), #ff8c00); }
+/* Page header */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.greeting { font-family: var(--fd); font-size: clamp(20px, 2.5vw, 28px); letter-spacing: 1px; line-height: 1; }
+.greeting span { color: var(--orange); }
+.sub-greeting { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+
+/* Botão notificação */
+.notif-btn {
+  position: relative; width: 38px; height: 38px;
+  background: var(--dark3); border: 1px solid var(--border);
+  border-radius: 10px; display: flex; align-items: center;
+  justify-content: center; font-size: 17px; cursor: pointer;
+  transition: border-color 0.2s;
+}
+.notif-btn:hover { border-color: var(--orange-border); }
+.notif-dot {
+  position: absolute; top: 7px; right: 7px;
+  width: 7px; height: 7px;
+  background: var(--orange); border-radius: 50%;
+  border: 2px solid var(--dark3); display: none;
+}
+
+/* Botão novo reporte */
+.btn-new { display: flex; align-items: center; gap: 8px; padding: 10px 18px; background: var(--orange); color: white; border: none; border-radius: 10px; font-family: var(--fb); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.2s, transform 0.15s; }
+.btn-new:hover { background: var(--orange-bright); transform: translateY(-1px); }
+.btn-new svg { width: 15px; height: 15px; fill: white; flex-shrink: 0; }
 
 /* Summary cards */
 .summary-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
@@ -29,11 +61,6 @@
 .sum-icon { font-size: 20px; margin-bottom: 8px; }
 .sum-val  { font-family: var(--fd); font-size: clamp(24px,3vw,32px); letter-spacing: 1px; line-height: 1; color: var(--c, var(--text)); }
 .sum-lbl  { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-
-/* Botão novo reporte */
-.btn-new { display: flex; align-items: center; gap: 8px; padding: 10px 18px; background: var(--orange); color: white; border: none; border-radius: 10px; font-family: var(--fb); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.2s, transform 0.15s; }
-.btn-new:hover { background: var(--orange-bright); transform: translateY(-1px); }
-.btn-new svg { width: 15px; height: 15px; fill: white; flex-shrink: 0; }
 
 /* Content grid */
 .content-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
@@ -63,71 +90,23 @@
   .summary-row { grid-template-columns: 1fr 1fr; gap: 10px; }
   .report-card { grid-template-columns: auto 1fr; }
   .rc-right { display: none; }
-  .topbar-actions .btn-new { display: none; }
+  .header-actions .btn-new { display: none; }
   .content-grid { gap: 12px; }
 }
 </style>
 </head>
 <body>
 
-<div class="overlay" id="overlay"></div>
-
 <div class="app">
-
-  <!-- SIDEBAR -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sb-logo">
-      <a href="login.html" class="sb-logo-row">
-        <div class="sb-logo-icon">🔧</div>
-        <span class="sb-logo-name">RepairFast</span>
-      </a>
-    </div>
-
-    <div class="sb-section">
-      <div class="sb-label">Principal</div>
-      <a class="sb-item active"><span class="sb-icon">🏠</span><span>Início</span></a>
-      <a class="sb-item">
-        <span class="sb-icon">📋</span><span>Meus Reportes</span>
-        <span class="sb-badge">4</span>
-      </a>
-      <a class="sb-item"><span class="sb-icon">➕</span><span>Novo Reporte</span></a>
-    </div>
-
-    <div class="sb-section">
-      <div class="sb-label">Recursos</div>
-      <a class="sb-item"><span class="sb-icon">📚</span><span>Base de Conhecimento</span></a>
-      <a class="sb-item"><span class="sb-icon">🏅</span><span>Reconhecer+</span></a>
-      <a class="sb-item"><span class="sb-icon">🗺️</span><span>Mapa de Riscos</span></a>
-    </div>
-
-    <div class="sb-section">
-      <div class="sb-label">Conta</div>
-      <a class="sb-item"><span class="sb-icon">⚙️</span><span>Configurações</span></a>
-      <a class="sb-item" href="login.html" onclick="logout()"><span class="sb-icon">🚪</span><span>Sair</span></a>
-    </div>
-
-    <div class="sb-bottom">
-      <div class="sb-user">
-        <div class="sb-av" id="sb-av">?</div>
-        <div class="sb-user-info">
-          <div class="sb-user-name" id="sb-name">—</div>
-          <div class="sb-user-role" id="sb-role">—</div>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- MAIN -->
   <main class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-      <button class="hamburger" id="hamburger">☰</button>
-      <div class="topbar-titles">
+    <!-- CABEÇALHO -->
+    <div class="page-header">
+      <div>
         <div class="greeting" id="greeting">—</div>
         <div class="sub-greeting" id="sub-greeting">Carregando...</div>
       </div>
-      <div class="topbar-actions">
+      <div class="header-actions">
         <div class="notif-btn">
           🔔<div class="notif-dot" id="notif-dot"></div>
         </div>
@@ -170,7 +149,7 @@
             <div class="panel-title">MEUS REPORTES</div>
             <div class="panel-sub">Últimos registros enviados por você</div>
           </div>
-          <a class="panel-link">Ver todos</a>
+
         </div>
         <div class="filter-bar">
           <button class="filter-pill active" onclick="filtrar('todos',this)">Todos</button>
@@ -199,9 +178,6 @@ function renderUsuario(u) {
   document.getElementById("greeting").innerHTML =
     `${saudacao()}, <span>${u.nome.toUpperCase()}</span> 👋`;
   setText("sub-greeting", `${diaSemana()}, ${dataHoje()} · ${u.turno} · ${u.setor}`);
-  setText("sb-av",   `${u.nome[0]}${u.sobrenome[0]}`);
-  setText("sb-name", `${u.nome} ${u.sobrenome}`);
-  setText("sb-role", `${u.cargo} · ${u.setor}`);
 }
 
 function renderResumo(r) {
@@ -271,7 +247,6 @@ async function init() {
   }
 }
 
-initSidebar();
 init();
 </script>
 </body>
