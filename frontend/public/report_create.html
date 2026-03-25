@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepairFast — Novo Reporte</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #0e0f11;
+    --bg2:     #161719;
+    --bg3:     #1e1f22;
+    --bg4:     #252629;
+    --border:  rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text:    #f0f0f0;
+    --muted:   #8a8c91;
+    --muted2:  #555860;
+    --accent:  #e8550a;
+    --accent2: #ff7a3d;
+    --teal:    #0fb884;
+    --red:     #ef4444;
+    --amber:   #f59e0b;
+    --blue:    #3b82f6;
+    --font:    'DM Sans', sans-serif;
+    --mono:    'Space Mono', monospace;
+    --r:       10px;
+    --r2:      14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px 60px;
+  }
+
+  .page-wrap {
+    width: 100%;
+    max-width: 680px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .logo-icon {
+    width: 34px; height: 34px;
+    background: var(--accent);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 18px; height: 18px; fill: white; }
+  .logo-name { font-size: 16px; font-weight: 600; color: var(--text); }
+
+  .page-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap; gap: 12px;
+  }
+
+  .breadcrumb {
+    font-size: 12px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .breadcrumb a { color: var(--muted); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--text); }
+  .breadcrumb span { color: var(--muted2); }
+
+  .page-title { font-size: 22px; font-weight: 600; }
+  .page-sub   { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .cancel-btn {
+    padding: 9px 18px;
+    border-radius: var(--r);
+    border: 1px solid var(--border2);
+    background: transparent; color: var(--muted);
+    font-size: 13px; font-family: var(--font);
+    cursor: pointer; transition: all .15s;
+    align-self: flex-end;
+  }
+  .cancel-btn:hover { background: var(--bg2); color: var(--text); }
+
+  .info-banner {
+    background: rgba(59,130,246,.08);
+    border: 1px solid rgba(59,130,246,.2);
+    border-radius: var(--r);
+    padding: 10px 14px;
+    font-size: 12px; color: #60a5fa;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 20px; line-height: 1.5;
+  }
+  .info-banner svg { width: 15px; height: 15px; stroke: #60a5fa; fill: none; flex-shrink: 0; }
+
+  .form-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    overflow: hidden;
+  }
+
+  .form-section {
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-section:last-child { border-bottom: none; }
+
+  .form-section-title {
+    font-size: 11px; font-weight: 600;
+    color: var(--muted2);
+    text-transform: uppercase; letter-spacing: .07em;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .form-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .location-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: var(--muted); margin-bottom: 7px; letter-spacing: .02em;
+  }
+  .required::after { content: ' *'; color: var(--accent2); }
+
+  input[type="text"], textarea, select {
+    width: 100%; background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--r); color: var(--text);
+    font-family: var(--font); font-size: 13px;
+    padding: 10px 14px; outline: none;
+    transition: border-color .15s;
+    appearance: none; -webkit-appearance: none;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder, textarea::placeholder { color: var(--muted2); }
+  textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
+
+  select:disabled { opacity: .4; cursor: not-allowed; }
+
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: ''; position: absolute;
+    right: 13px; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--muted);
+    pointer-events: none;
+  }
+  select option { background: var(--bg3); }
+
+  .char-count { font-size: 11px; color: var(--muted2); text-align: right; margin-top: 4px; }
+
+  .field-error { font-size: 11px; color: var(--red); margin-top: 5px; display: none; }
+  .field-error.show { display: block; }
+  input.error, textarea.error, select.error { border-color: var(--red) !important; }
+
+  .upload-area {
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--r2); padding: 24px 20px;
+    text-align: center; cursor: pointer;
+    transition: all .2s; background: var(--bg3); position: relative;
+  }
+  .upload-area:hover, .upload-area.dragover {
+    border-color: var(--accent); background: rgba(232,85,10,.05);
+  }
+  .upload-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--bg4);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .upload-icon svg { width: 18px; height: 18px; stroke: var(--muted); fill: none; }
+  .upload-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .upload-sub   { font-size: 11px; color: var(--muted); }
+  .upload-sub em { color: var(--accent2); font-style: normal; }
+  input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+  .file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .file-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg4); border-radius: 8px; padding: 8px 12px; font-size: 12px;
+  }
+  .file-item-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+  .file-item-name { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-item-size { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+  .file-remove {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--bg3); border: none; color: var(--muted);
+    cursor: pointer; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .file-remove:hover { background: rgba(239,68,68,.2); color: var(--red); }
+
+  .form-actions {
+    padding: 18px 26px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--bg2); border-top: 1px solid var(--border);
+  }
+  .actions-left { font-size: 11px; color: var(--muted); }
+
+  .btn-primary {
+    padding: 10px 24px; border-radius: var(--r); border: none;
+    background: var(--accent); color: white;
+    font-size: 13px; font-weight: 600; font-family: var(--font);
+    cursor: pointer; transition: all .15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-primary svg { width: 14px; height: 14px; stroke: white; fill: none; }
+
+  .btn-secondary {
+    padding: 10px 20px; border-radius: var(--r);
+    border: 1px solid var(--border2); background: transparent; color: var(--muted);
+    font-size: 13px; font-family: var(--font); cursor: pointer; transition: all .15s;
+  }
+  .btn-secondary:hover { background: var(--bg3); color: var(--text); }
+
+  .success-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.75); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .success-overlay.show { display: flex; }
+  .success-card {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 18px; padding: 40px 44px;
+    text-align: center; max-width: 360px; width: 90%;
+    animation: popIn .3s ease;
+  }
+  @keyframes popIn {
+    from { transform: scale(.9); opacity: 0; }
+    to   { transform: scale(1);  opacity: 1; }
+  }
+  .success-icon {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(15,184,132,.15);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+  }
+  .success-icon svg { width: 26px; height: 26px; stroke: var(--teal); fill: none; }
+  .success-id { font-family: var(--mono); font-size: 12px; color: var(--accent2); margin-bottom: 10px; }
+  .success-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .success-sub { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+  .success-actions { display: flex; gap: 10px; justify-content: center; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    body { padding: 24px 16px 48px; }
+    .field-row, .location-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <!-- balão de chat -->
+        <path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="white" fill-opacity="0.25"/>
+        <!-- chave de fenda diagonal -->
+        <line x1="7" y1="17" x2="15" y2="9" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M15 7 C16 6 18 6 18 8 C18 9 17 10 16 10 L14 10 L14 8 Z" fill="white"/>
+        <line x1="7" y1="17" x2="5.5" y2="18.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="logo-name">RepairFast</span>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a href="#" id="homeLink">Início</a>
+        <span>›</span>
+        <span style="color:var(--text)">Novo reporte</span>
+      </div>
+      <div class="page-title">Novo reporte</div>
+      <div class="page-sub">Preencha as informações sobre a ocorrência que você identificou no instituição</div>
+    </div>
+    <button class="cancel-btn" id="cancelBtn">Cancelar</button>
+  </div>
+
+  <div class="info-banner">
+    <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Um responsável irá avaliar a ocorrência e definir a prioridade e o prazo de resolução.
+  </div>
+
+  <form id="reporteForm" novalidate>
+    <div class="form-card">
+
+      <!-- IDENTIFICAÇÃO -->
+      <div class="form-section">
+        <div class="form-section-title">Identificação</div>
+
+        <div class="field">
+          <label class="required" for="titulo">Título</label>
+          <input type="text" id="titulo" placeholder="Ex: Lâmpada queimada no corredor do 2º andar" maxlength="100">
+          <div class="char-count"><span id="tituloCount">0</span>/100</div>
+          <div class="field-error" id="tituloErr">O título é obrigatório</div>
+        </div>
+
+        <div class="field">
+          <label class="required" for="descricao">Descrição</label>
+          <textarea id="descricao" placeholder="Descreva o que foi observado, quando ocorreu e qual o impacto potencial..." maxlength="1000" rows="4"></textarea>
+          <div class="char-count"><span id="descCount">0</span>/1000</div>
+          <div class="field-error" id="descErr">A descrição é obrigatória</div>
+        </div>
+      </div>
+
+      <!-- CATEGORIA -->
+      <div class="form-section">
+        <div class="form-section-title">Categoria</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="required" for="categoria">Categoria</label>
+            <div class="select-wrap">
+              <select id="categoria">
+                <option value="">Selecione...</option>
+                <option>Infraestrutura e instalações</option>
+                <option>Equipamentos e tecnologia</option>
+                <option>Limpeza e higiene</option>
+                <option>Segurança e acessibilidade</option>
+                <option>Manutenção predial</option>
+                <option>Serviços e atendimento</option>
+                <option>Meio ambiente e sustentabilidade</option>
+                <option>Comportamento e conduta</option>
+              </select>
+            </div>
+            <div class="field-error" id="categoriaErr">Selecione uma categoria</div>
+          </div>
+
+          <div class="field">
+            <label class="required" for="tipo">Tipo de ocorrência</label>
+            <div class="select-wrap">
+              <select id="tipo">
+                <option value="">Selecione...</option>
+                <option>Falha</option>
+                <option>Risco</option>
+                <option>Melhoria</option>
+              </select>
+            </div>
+            <div class="field-error" id="tipoErr">Selecione o tipo</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOCALIZAÇÃO -->
+      <div class="form-section">
+        <div class="form-section-title">Localização</div>
+
+        <div class="location-grid">
+          <div class="field">
+            <label class="required" for="setor">Setor</label>
+            <div class="select-wrap">
+              <select id="setor" onchange="updateZonas()">
+                <option value="">Selecione...</option>
+                <option value="academico">Bloco Acadêmico</option>
+                <option value="escola">Escola Integrada</option>
+                <option value="laboratorios">Laboratórios</option>
+                <option value="esportes">Esportes e Lazer</option>
+                <option value="biblioteca">Biblioteca</option>
+                <option value="pastoral">Pastoral e Capela</option>
+                <option value="servicos">Serviços e Apoio</option>
+                <option value="administrativo">Administrativo</option>
+                <option value="externo">Áreas Externas</option>
+              </select>
+            </div>
+            <div class="field-error" id="setorErr">Selecione o setor</div>
+          </div>
+
+          <div class="field">
+            <label class="required" for="zona">Área específica</label>
+            <div class="select-wrap">
+              <select id="zona" disabled>
+                <option value="">Selecione o setor primeiro</option>
+              </select>
+            </div>
+            <div class="field-error" id="zonaErr">Selecione a área</div>
+          </div>
+
+          <div class="field">
+            <label for="local">Ponto de referência</label>
+            <input type="text" id="local" placeholder="Ex: Sala 204, Porta B...">
+          </div>
+        </div>
+      </div>
+
+      <!-- ANEXOS -->
+      <div class="form-section">
+        <div class="form-section-title">Anexos</div>
+
+        <div class="field">
+          <label>Evidências <span style="color:var(--muted2);font-weight:400">(opcional)</span></label>
+          <div class="upload-area" id="uploadArea">
+            <input type="file" id="fileInput" multiple accept="image/*,video/*,.pdf,.doc,.docx">
+            <div class="upload-icon">
+              <svg viewBox="0 0 24 24" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="upload-title">Arraste arquivos ou <em>clique para selecionar</em></div>
+            <div class="upload-sub">Imagens, vídeos, PDF ou documentos · Máx. 20MB por arquivo</div>
+          </div>
+          <div class="file-list" id="fileList"></div>
+        </div>
+      </div>
+
+      <!-- AÇÕES -->
+      <div class="form-actions">
+        <div class="actions-left">* Campos obrigatórios</div>
+        <div class="actions-right">
+          <button type="submit" class="btn-primary">
+            <svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Enviar reporte
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-id" id="successId">REP-#2049</div>
+    <div class="success-title">Reporte enviado!</div>
+    <div class="success-sub">Um responsável irá avaliar a ocorrência e definir os próximos passos.</div>
+    <div class="success-actions">
+      <button class="btn-secondary" onclick="newReport()">Novo reporte</button>
+      <button class="btn-primary" onclick="goToList()">
+        <svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        Ver reportes
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── ROTEAMENTO POR PERFIL ── */
+const HOMES = {
+  employee: 'home_employee.html',
+  manager:  'home_manager.html',
+  analyst:  'home_analyst.html',
+};
+
+function getRole() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('role') || 'employee';
+}
+
+function getHomeUrl() {
+  const role = getRole();
+  return HOMES[role] || HOMES.employee;
+}
+
+function goHome() {
+  window.location.href = getHomeUrl();
+}
+
+/* Aplica href correto no link "Início" */
+document.getElementById('homeLink').href = getHomeUrl();
+
+/* Botão cancelar: volta para home do perfil */
+document.getElementById('cancelBtn').addEventListener('click', () => {
+  if (titulo.value || descricao.value) {
+    if (confirm('Deseja descartar as alterações?')) goHome();
+  } else {
+    goHome();
+  }
+});
+
+const titulo    = document.getElementById('titulo');
+const descricao = document.getElementById('descricao');
+
+titulo.addEventListener('input',    () => document.getElementById('tituloCount').textContent = titulo.value.length);
+descricao.addEventListener('input', () => document.getElementById('descCount').textContent   = descricao.value.length);
+
+/* ── ZONAS DINÂMICAS ── */
+const zonasPorSetor = {
+  academico: [
+    'Salas de aula — 1º andar', 'Salas de aula — 2º andar', 'Salas de aula — 3º andar',
+    'Auditório', 'Sala dos professores', 'Coordenação acadêmica', 'Secretaria acadêmica',
+    'Corredor — 1º andar', 'Corredor — 2º andar', 'Corredor — 3º andar',
+    'Banheiros — 1º andar', 'Banheiros — 2º andar', 'Banheiros — 3º andar',
+  ],
+  escola: [
+    'Salas de aula — Ensino Fundamental', 'Salas de aula — Ensino Médio',
+    'Sala de reuniões pedagógicas', 'Coordenação escolar', 'Secretaria escolar',
+    'Corredor da escola', 'Banheiros',
+  ],
+  laboratorios: [
+    'Lab. de Informática 1', 'Lab. de Informática 2', 'Lab. de Informática 3',
+    'Lab. de Informática 4', 'Lab. de Informática 5',
+    'Lab. de Biomedicina', 'Lab. de Farmácia', 'Lab. de Fisioterapia',
+    'Lab. de Anatomia', 'Lab. de Microbiologia', 'Almoxarifado de laboratórios',
+  ],
+  esportes: [
+    'Quadra poliesportiva coberta', 'Quadra externa', 'Piscina — Natação',
+    'Vestiário masculino', 'Vestiário feminino', 'Academia de musculação',
+    'Depósito de equipamentos esportivos',
+  ],
+  biblioteca: [
+    'Acervo geral', 'Sala de informática', 'Cabines de estudo individual',
+    'Sala de estudo em grupo', 'Atendimento / Balcão',
+  ],
+  pastoral: [
+    'Capela', 'Sala de pastoral', 'Sala de reuniões da pastoral',
+  ],
+  servicos: [
+    'Lanchonete / Cantina', 'Copa dos funcionários', 'Gráfica',
+    'Recepção principal', 'Guarita / Portaria', 'Estacionamento', 'Depósito de limpeza',
+  ],
+  administrativo: [
+    'Reitoria / Diretoria', 'RH', 'Financeiro', 'Marketing',
+    'TI / Suporte', 'Almoxarifado geral', 'Sala de reuniões administrativa',
+  ],
+  externo: [
+    'Calçadas e acessos', 'Jardins e áreas verdes',
+    'Playground / Área infantil', 'Fachada do prédio', 'Iluminação externa',
+  ],
+};
+
+function updateZonas() {
+  const setor = document.getElementById('setor').value;
+  const zona  = document.getElementById('zona');
+  zona.innerHTML = '';
+
+  if (setor && zonasPorSetor[setor]) {
+    zona.disabled = false;
+    const def = document.createElement('option');
+    def.value = ''; def.textContent = 'Selecione...';
+    zona.appendChild(def);
+    zonasPorSetor[setor].forEach(z => {
+      const opt = document.createElement('option');
+      opt.textContent = z;
+      zona.appendChild(opt);
+    });
+  } else {
+    zona.disabled = true;
+    const def = document.createElement('option');
+    def.value = ''; def.textContent = 'Selecione o setor primeiro';
+    zona.appendChild(def);
+  }
+
+  clearErr(zona, 'zonaErr');
+}
+
+/* ── FILE UPLOAD ── */
+const uploadArea   = document.getElementById('uploadArea');
+const fileInput    = document.getElementById('fileInput');
+const fileListEl   = document.getElementById('fileList');
+let uploadedFiles  = [];
+
+const typeColors = {
+  img: { bg: 'rgba(15,184,132,.15)',  color: '#34d399', label: 'IMG' },
+  vid: { bg: 'rgba(59,130,246,.15)',  color: '#60a5fa', label: 'VID' },
+  pdf: { bg: 'rgba(239,68,68,.15)',   color: '#f87171', label: 'PDF' },
+  doc: { bg: 'rgba(167,139,250,.15)', color: '#a78bfa', label: 'DOC' },
+};
+
+function getType(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  if (['jpg','jpeg','png','gif','webp'].includes(ext)) return 'img';
+  if (['mp4','mov','avi','webm'].includes(ext)) return 'vid';
+  if (ext === 'pdf') return 'pdf';
+  return 'doc';
+}
+
+function formatSize(b) {
+  if (b < 1024) return b + 'B';
+  if (b < 1048576) return (b/1024).toFixed(1) + 'KB';
+  return (b/1048576).toFixed(1) + 'MB';
+}
+
+function renderFiles() {
+  fileListEl.innerHTML = '';
+  uploadedFiles.forEach((f, i) => {
+    const tc = typeColors[getType(f.name)];
+    const el = document.createElement('div');
+    el.className = 'file-item';
+    el.innerHTML = `
+      <div class="file-item-icon" style="background:${tc.bg};color:${tc.color}">${tc.label}</div>
+      <div class="file-item-name">${f.name}</div>
+      <div class="file-item-size">${formatSize(f.size)}</div>
+      <button class="file-remove" data-i="${i}">✕</button>`;
+    fileListEl.appendChild(el);
+  });
+  fileListEl.querySelectorAll('.file-remove').forEach(btn => {
+    btn.addEventListener('click', () => { uploadedFiles.splice(+btn.dataset.i, 1); renderFiles(); });
+  });
+}
+
+fileInput.addEventListener('change', () => {
+  uploadedFiles = [...uploadedFiles, ...Array.from(fileInput.files)];
+  renderFiles(); fileInput.value = '';
+});
+['dragover','dragenter'].forEach(ev => uploadArea.addEventListener(ev, e => { e.preventDefault(); uploadArea.classList.add('dragover'); }));
+['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e => { e.preventDefault(); uploadArea.classList.remove('dragover'); }));
+uploadArea.addEventListener('drop', e => { uploadedFiles = [...uploadedFiles, ...Array.from(e.dataTransfer.files)]; renderFiles(); });
+
+/* ── VALIDATION ── */
+function clearErr(el, errId) {
+  el.classList.remove('error');
+  document.getElementById(errId)?.classList.remove('show');
+}
+
+const fieldMap = [
+  { id: 'titulo',    errId: 'tituloErr',    test: v => v.trim().length > 0 },
+  { id: 'descricao', errId: 'descErr',      test: v => v.trim().length > 0 },
+  { id: 'categoria', errId: 'categoriaErr', test: v => v !== '' },
+  { id: 'tipo',      errId: 'tipoErr',      test: v => v !== '' },
+  { id: 'setor',     errId: 'setorErr',     test: v => v !== '' },
+  { id: 'zona',      errId: 'zonaErr',      test: v => v !== '' },
+];
+
+fieldMap.forEach(({ id, errId }) => {
+  const el = document.getElementById(id);
+  ['input','change'].forEach(ev => el.addEventListener(ev, () => clearErr(el, errId)));
+});
+
+function validate() {
+  let ok = true;
+  fieldMap.forEach(({ id, errId, test }) => {
+    const el = document.getElementById(id);
+    if (!test(el.value)) {
+      el.classList.add('error');
+      document.getElementById(errId).classList.add('show');
+      ok = false;
+    } else {
+      clearErr(el, errId);
+    }
+  });
+  return ok;
+}
+
+document.getElementById('reporteForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!validate()) {
+    document.querySelector('.error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  document.getElementById('successId').textContent = 'REP-#' + (2000 + Math.floor(Math.random() * 999));
+  document.getElementById('successOverlay').classList.add('show');
+});
+
+/* ── CANCEL / RESET ── */
+function resetForm() {
+  document.getElementById('reporteForm').reset();
+  uploadedFiles = []; renderFiles();
+  document.getElementById('tituloCount').textContent = '0';
+  document.getElementById('descCount').textContent   = '0';
+  const zona = document.getElementById('zona');
+  zona.innerHTML = '<option value="">Selecione o setor primeiro</option>';
+  zona.disabled = true;
+}
+
+function newReport()  {
+  document.getElementById('successOverlay').classList.remove('show');
+  resetForm();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToList() {
+  goHome();
+}
+</script>
+</body>
+</html>
