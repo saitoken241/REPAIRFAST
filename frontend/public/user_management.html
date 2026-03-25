@@ -172,6 +172,113 @@
   .new-btn:hover { background: var(--accent2); }
   .new-btn svg { width: 14px; height: 14px; stroke: white; fill: none; }
 
+  .sector-btn {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 18px;
+    border-radius: var(--r); border: none;
+    background: var(--blue); color: white;
+    font-size: 13px; font-weight: 600;
+    font-family: var(--font); cursor: pointer;
+    transition: all .15s; white-space: nowrap;
+  }
+  .sector-btn:hover { background: #2563eb; }
+  .sector-btn svg { width: 14px; height: 14px; stroke: white; fill: none; }
+
+  /* ── MODAL SETORES ── */
+  .sector-modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    width: 100%; max-width: 600px;
+    max-height: 88vh;
+    overflow-y: auto;
+    animation: slideUp .25s ease;
+  }
+  .sector-list { display: flex; flex-direction: column; gap: 10px; }
+  .sector-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .sector-item:hover { border-color: var(--border2); }
+  .sector-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px; cursor: pointer; user-select: none;
+  }
+  .sector-header-left { display: flex; align-items: center; gap: 10px; }
+  .sector-color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .sector-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .sector-count { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .sector-header-right { display: flex; align-items: center; gap: 6px; }
+  .sector-chevron { width: 16px; height: 16px; stroke: var(--muted); fill: none; transition: transform .2s; flex-shrink: 0; }
+  .sector-item.open .sector-chevron { transform: rotate(180deg); }
+  .sector-areas { display: none; padding: 0 14px 12px; border-top: 1px solid var(--border); }
+  .sector-item.open .sector-areas { display: block; }
+  .areas-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; margin-top: 10px; }
+  .area-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg4); border-radius: 8px; padding: 8px 10px;
+    font-size: 12px; color: var(--text);
+    animation: fadeRow .15s ease;
+  }
+  @keyframes fadeRow {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .area-row-name { flex: 1; }
+  .area-del {
+    width: 24px; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .area-del svg { width: 13px; height: 13px; stroke: var(--muted); fill: none; }
+  .area-del:hover { background: rgba(239,68,68,.12); }
+  .area-del:hover svg { stroke: var(--red); }
+  .add-area-row { display: flex; gap: 8px; align-items: center; }
+  .add-area-input {
+    flex: 1; background: var(--bg4);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: var(--font); font-size: 12px;
+    padding: 7px 10px; outline: none; transition: border-color .15s;
+  }
+  .add-area-input:focus { border-color: var(--blue); }
+  .add-area-input::placeholder { color: var(--muted2); }
+  .add-area-btn {
+    padding: 7px 12px; border-radius: 8px; border: none;
+    background: var(--blue); color: white;
+    font-size: 12px; font-weight: 600; font-family: var(--font);
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+    display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+  }
+  .add-area-btn:hover { background: #2563eb; }
+  .add-area-btn svg { width: 12px; height: 12px; stroke: white; fill: none; }
+  .sector-footer-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .new-sector-input {
+    flex: 1; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: var(--r);
+    color: var(--text); font-family: var(--font); font-size: 13px;
+    padding: 9px 12px; outline: none; transition: border-color .15s;
+  }
+  .new-sector-input:focus { border-color: var(--blue); }
+  .new-sector-input::placeholder { color: var(--muted2); }
+  .new-sector-btn {
+    padding: 9px 16px; border-radius: var(--r); border: none;
+    background: var(--blue); color: white;
+    font-size: 13px; font-weight: 600; font-family: var(--font);
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  }
+  .new-sector-btn:hover { background: #2563eb; }
+  .new-sector-btn svg { width: 13px; height: 13px; stroke: white; fill: none; }
+
   /* ── TABLE ── */
   .table-wrap {
     background: var(--bg2);
@@ -561,10 +668,16 @@
       <option value="false">Inativos</option>
     </select>
   </div>
-  <button class="new-btn" onclick="openModal()">
-    <svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    Novo usuário
-  </button>
+  <div style="display:flex;gap:10px">
+    <button class="sector-btn" onclick="openSectorModal()">
+      <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Setores e Áreas
+    </button>
+    <button class="new-btn" onclick="openModal()">
+      <svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Novo usuário
+    </button>
+  </div>
 </div>
 
 <!-- ── TABLE ── -->
@@ -677,6 +790,31 @@
         <svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
         <span id="saveBtnLabel">Criar usuário</span>
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: SETORES E ÁREAS ── -->
+<div class="overlay" id="sectorOverlay">
+  <div class="sector-modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Setores e Áreas</div>
+        <div class="modal-sub">Gerencie os setores e suas áreas específicas</div>
+      </div>
+      <button class="modal-close" onclick="closeSectorModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="sector-list" id="sectorList"></div>
+
+      <div class="sector-footer-row">
+        <input type="text" class="new-sector-input" id="newSectorInput" placeholder="Nome do novo setor...">
+        <button class="new-sector-btn" onclick="addSector()">
+          <svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Adicionar setor
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1039,6 +1177,167 @@ function showToast(msg, type = 'success') {
 }
 
 /* ══════════════════════════════
+   SETORES E ÁREAS
+══════════════════════════════ */
+const sectorColors = ['#e8550a','#3b82f6','#0fb884','#a78bfa','#f59e0b','#ec4899','#14b8a6','#6366f1','#84cc16'];
+
+let sectors = [
+  { id:1, name:'Bloco Acadêmico', areas:['Salas de aula — 1º andar','Salas de aula — 2º andar','Salas de aula — 3º andar','Auditório','Sala dos professores','Coordenação acadêmica','Secretaria acadêmica','Corredor — 1º andar','Corredor — 2º andar','Corredor — 3º andar','Banheiros — 1º andar','Banheiros — 2º andar','Banheiros — 3º andar'] },
+  { id:2, name:'Escola Integrada', areas:['Salas de aula — Ensino Fundamental','Salas de aula — Ensino Médio','Sala de reuniões pedagógicas','Coordenação escolar','Secretaria escolar','Corredor da escola','Banheiros'] },
+  { id:3, name:'Laboratórios', areas:['Lab. de Informática 1','Lab. de Informática 2','Lab. de Informática 3','Lab. de Informática 4','Lab. de Informática 5','Lab. de Biomedicina','Lab. de Farmácia','Lab. de Fisioterapia','Lab. de Anatomia','Lab. de Microbiologia','Almoxarifado de laboratórios'] },
+  { id:4, name:'Esportes e Lazer', areas:['Quadra poliesportiva coberta','Quadra externa','Piscina — Natação','Vestiário masculino','Vestiário feminino','Academia de musculação','Depósito de equipamentos esportivos'] },
+  { id:5, name:'Biblioteca', areas:['Acervo geral','Sala de informática','Cabines de estudo individual','Sala de estudo em grupo','Atendimento / Balcão'] },
+  { id:6, name:'Pastoral e Capela', areas:['Capela','Sala de pastoral','Sala de reuniões da pastoral'] },
+  { id:7, name:'Serviços e Apoio', areas:['Lanchonete / Cantina','Copa dos funcionários','Gráfica','Recepção principal','Guarita / Portaria','Estacionamento','Depósito de limpeza'] },
+  { id:8, name:'Administrativo', areas:['Reitoria / Diretoria','RH','Financeiro','Marketing','TI / Suporte','Almoxarifado geral','Sala de reuniões administrativa'] },
+  { id:9, name:'Áreas Externas', areas:['Calçadas e acessos','Jardins e áreas verdes','Playground / Área infantil','Fachada do prédio','Iluminação externa'] },
+];
+let nextSectorId = 10;
+
+function openSectorModal() {
+  renderSectors();
+  document.getElementById('sectorOverlay').classList.add('open');
+}
+
+function closeSectorModal() {
+  document.getElementById('sectorOverlay').classList.remove('open');
+  document.getElementById('newSectorInput').value = '';
+}
+
+function renderSectors() {
+  const list = document.getElementById('sectorList');
+  list.innerHTML = '';
+
+  sectors.forEach((s, si) => {
+    const color = sectorColors[si % sectorColors.length];
+    const item = document.createElement('div');
+    item.className = 'sector-item';
+    item.id = 'sector-' + s.id;
+
+    item.innerHTML = `
+      <div class="sector-header" onclick="toggleSector(${s.id})">
+        <div class="sector-header-left">
+          <div class="sector-color-dot" style="background:${color}"></div>
+          <div>
+            <div class="sector-name">${s.name}</div>
+            <div class="sector-count">${s.areas.length} área${s.areas.length !== 1 ? 's' : ''}</div>
+          </div>
+        </div>
+        <div class="sector-header-right">
+          <button class="icon-btn del" title="Excluir setor" onclick="deleteSector(event, ${s.id})">
+            <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+          <svg class="sector-chevron" viewBox="0 0 24 24" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="sector-areas">
+        <div class="areas-list" id="areas-${s.id}">
+          ${s.areas.map((a, ai) => `
+            <div class="area-row" id="area-${s.id}-${ai}">
+              <span class="area-row-name">${a}</span>
+              <button class="area-del" title="Remover área" onclick="deleteArea(${s.id}, ${ai})">
+                <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              </button>
+            </div>`).join('')}
+        </div>
+        <div class="add-area-row">
+          <input type="text" class="add-area-input" id="areaInput-${s.id}" placeholder="Nome da nova área...">
+          <button class="add-area-btn" onclick="addArea(${s.id})">
+            <svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar
+          </button>
+        </div>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function toggleSector(id) {
+  const el = document.getElementById('sector-' + id);
+  el.classList.toggle('open');
+}
+
+function deleteSector(e, id) {
+  e.stopPropagation();
+  const s = sectors.find(s => s.id === id);
+  if (!s) return;
+  if (!confirm(`Excluir o setor "${s.name}" e todas as suas áreas?`)) return;
+  sectors = sectors.filter(s => s.id !== id);
+  renderSectors();
+  syncDeptOptions();
+  showToast(`Setor "${s.name}" removido`, 'success');
+}
+
+function addArea(sectorId) {
+  const input = document.getElementById('areaInput-' + sectorId);
+  const name = input.value.trim();
+  if (!name) return;
+  const s = sectors.find(s => s.id === sectorId);
+  if (!s) return;
+  s.areas.push(name);
+  input.value = '';
+  renderSectors();
+  // reabre o setor
+  setTimeout(() => {
+    const el = document.getElementById('sector-' + sectorId);
+    if (el) el.classList.add('open');
+  }, 10);
+  syncDeptOptions();
+  showToast(`Área "${name}" adicionada`, 'success');
+}
+
+function deleteArea(sectorId, areaIdx) {
+  const s = sectors.find(s => s.id === sectorId);
+  if (!s) return;
+  const areaName = s.areas[areaIdx];
+  s.areas.splice(areaIdx, 1);
+  renderSectors();
+  setTimeout(() => {
+    const el = document.getElementById('sector-' + sectorId);
+    if (el) el.classList.add('open');
+  }, 10);
+  syncDeptOptions();
+  showToast(`Área "${areaName}" removida`, 'success');
+}
+
+function addSector() {
+  const input = document.getElementById('newSectorInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (sectors.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+    showToast('Já existe um setor com esse nome', 'error');
+    return;
+  }
+  sectors.push({ id: nextSectorId++, name, areas: [] });
+  input.value = '';
+  renderSectors();
+  syncDeptOptions();
+  showToast(`Setor "${name}" criado`, 'success');
+}
+
+/* Sincroniza o select de departamento no modal de usuário */
+function syncDeptOptions() {
+  const sel = document.getElementById('fDept');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Selecione...</option>';
+  sectors.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    sel.appendChild(opt);
+  });
+  sel.value = current;
+}
+
+/* enter no input de novo setor */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('newSectorInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addSector();
+  });
+});
+
+/* ══════════════════════════════
    FILTERS
 ══════════════════════════════ */
 document.getElementById('searchInput').addEventListener('input', renderTable);
@@ -1051,6 +1350,9 @@ document.getElementById('formOverlay').addEventListener('click', function(e) {
 });
 document.getElementById('deleteOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeDelete();
+});
+document.getElementById('sectorOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeSectorModal();
 });
 
 /* limpa erro ao digitar */
@@ -1071,6 +1373,7 @@ document.getElementById('deleteOverlay').addEventListener('click', function(e) {
 /* ══════════════════════════════
    INIT
 ══════════════════════════════ */
+syncDeptOptions();
 renderTable();
 </script>
 </body>
