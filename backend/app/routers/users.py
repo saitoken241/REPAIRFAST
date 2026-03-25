@@ -5,7 +5,7 @@ from ..models.user_model import User
 from ..schemas.user_schemas import UserCreate, UserResponse, UserUpdate
 from ..utils.security import hash_password
 from ..models.department_model import Department
-
+from ..routers.auth import require_roles
 
 router = APIRouter(
     prefix="/users",
@@ -19,7 +19,7 @@ def get_db():
         db.close()
 
 @router.post("/", response_model=UserResponse)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
+def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
     existing_user = db.query(User).filter(User.email == user.email).first()
     existing_cpf = db.query(User).filter(User.cpf == user.cpf).first()
 
@@ -46,11 +46,11 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.get("/", response_model=list[UserResponse])
-def list_users(db: Session = Depends(get_db)):
+def list_users(db: Session = Depends(get_db),current_user: User = Depends(require_roles(["manager"]))):
     return db.query(User).all()
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
     user = db.query(User).filter(User.id == user_id).first()
 
     if not user:
@@ -61,7 +61,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_db)):
+def update_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
     user = db.get(User, user_id)
 
     if not user:
@@ -81,7 +81,7 @@ def update_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_d
     return user
 
 @router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)):
+def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
     user = db.get(User, user_id)
 
     if not user:
