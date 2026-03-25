@@ -3,6 +3,11 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from dotenv import load_dotenv
 import os
+from fastapi import Depends, HTTPException, status
+from app.models import User
+from typing import List
+
+
 
 load_dotenv()
 
@@ -37,3 +42,4 @@ def decode_access_token(token: str) -> dict | None:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except JWTError:
         return None
+    

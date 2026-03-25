@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app import models
 from ..schemas.department_schemas import DepartmentCreate, DepartmentResponse
-
+from app.models import User
+from ..routers.auth import require_roles, get_current_user
 router = APIRouter(prefix="/departments", tags=["Departments"])
 
 
@@ -17,7 +18,7 @@ def get_db():
         db.close()
 
 @router.post("/", response_model=DepartmentResponse)
-def create_department(dept: DepartmentCreate, db: Session = Depends(get_db)):
+def create_department(dept: DepartmentCreate, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
     existing = db.query(models.Department).filter(models.Department.name == dept.name).first()
 
     if existing:
@@ -36,7 +37,7 @@ def get_departments(db: Session = Depends(get_db)):
     return db.query(models.Department).all()
 
 @router.get("/{department_id}", response_model=DepartmentResponse)
-def get_department(department_id: int, db: Session = Depends(get_db)):
+def get_department(department_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
     dept = db.query(models.Department).filter(models.Department.id == department_id).first()
 
     if not dept:
@@ -45,7 +46,7 @@ def get_department(department_id: int, db: Session = Depends(get_db)):
     return dept
 
 @router.put("/{department_id}", response_model=DepartmentResponse)
-def update_department(department_id: int, dept: DepartmentCreate, db: Session = Depends(get_db)):
+def update_department(department_id: int, dept: DepartmentCreate, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
     department = db.query(models.Department).filter(models.Department.id == department_id).first()
 
     if not department:
@@ -59,7 +60,7 @@ def update_department(department_id: int, dept: DepartmentCreate, db: Session = 
     return department
 
 @router.delete("/{department_id}")
-def delete_department(department_id: int, db: Session = Depends(get_db)):
+def delete_department(department_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
     department = db.query(models.Department).filter(models.Department.id == department_id).first()
 
     if not department:
