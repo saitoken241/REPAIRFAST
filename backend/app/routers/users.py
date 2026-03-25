@@ -33,11 +33,11 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         password=hash_password(user.password),
         cpf=user.cpf,
         company = user.company,
-        number=user.number
+        number=user.number,
+        department_id = user.department_id,
+        role=user.role
     
     )
-
-    
 
     db.add(new_user)
     db.commit()

@@ -30,7 +30,7 @@ class User(Base):
         cascade = "all, delete",
         uselist = True # 1:N
         )
-    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False, default="0")
+    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
 
     department = relationship(
         "Department",

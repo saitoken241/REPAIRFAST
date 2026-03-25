@@ -15,6 +15,8 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=6)
     company : str 
     number: str | None = None
+    department_id: int 
+    role: UserRole = UserRole.employee
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None

@@ -27,7 +27,7 @@ class Report(Base):
         Enum("low", 
              "medium", 
              "high", 
-             name="priority_enum"),
+             name="priority_enum"), default="medium",
           nullable=False, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     user = relationship(
