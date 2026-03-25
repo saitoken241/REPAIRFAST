@@ -16,9 +16,20 @@
    Estilos específicos do Analista
 ══════════════════════════════════════════ */
 
-/* Avatar azul */
-.sb-av { background: linear-gradient(135deg, var(--blue), #2980b9); }
-.sb-user-role { color: var(--blue); }
+/* Page header */
+.page-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+.greeting { font-family:var(--fd); font-size:clamp(20px,2.5vw,28px); letter-spacing:1px; line-height:1; }
+.greeting span { color:var(--orange); }
+.sub-greeting { font-size:13px; color:var(--text-muted); margin-top:4px; }
+.header-actions { display:flex; align-items:center; gap:10px; }
+
+.notif-btn { position:relative; width:38px; height:38px; background:var(--dark3); border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer; transition:border-color .2s; }
+.notif-btn:hover { border-color:var(--orange-border); }
+.notif-dot { position:absolute; top:7px; right:7px; width:7px; height:7px; background:var(--orange); border-radius:50%; border:2px solid var(--dark3); display:none; }
+
+.btn-new { display:flex; align-items:center; gap:8px; padding:10px 18px; background:var(--orange); color:white; border:none; border-radius:10px; font-family:var(--fb); font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; transition:background .2s,transform .15s; }
+.btn-new:hover { background:var(--orange-bright); transform:translateY(-1px); }
+.btn-new svg { width:15px; height:15px; fill:white; flex-shrink:0; }
 
 /* Summary */
 .summary-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
@@ -115,60 +126,22 @@
 </head>
 <body>
 
-<div class="overlay" id="overlay"></div>
-
 <div class="app">
-
-  <!-- SIDEBAR -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sb-logo">
-      <a href="login.html" class="sb-logo-row">
-        <div class="sb-logo-icon">🔧</div>
-        <span class="sb-logo-name">RepairFast</span>
-      </a>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Principal</div>
-      <a class="sb-item active"><span class="sb-icon">🏠</span><span>Início</span></a>
-      <a class="sb-item">
-        <span class="sb-icon">📋</span><span>Todos os Reportes</span>
-        <span class="sb-badge" id="sb-badge-abertos">—</span>
-      </a>
-      <a class="sb-item"><span class="sb-icon">⚠️</span><span>Críticos</span></a>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Análise</div>
-      <a class="sb-item"><span class="sb-icon">📊</span><span>Dashboard</span></a>
-      <a class="sb-item"><span class="sb-icon">🗺️</span><span>Mapa de Riscos</span></a>
-      <a class="sb-item"><span class="sb-icon">📚</span><span>Base de Conhecimento</span></a>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Conta</div>
-      <a class="sb-item"><span class="sb-icon">⚙️</span><span>Configurações</span></a>
-      <a class="sb-item" href="login.html" onclick="logout()"><span class="sb-icon">🚪</span><span>Sair</span></a>
-    </div>
-    <div class="sb-bottom">
-      <div class="sb-user">
-        <div class="sb-av" id="sb-av">?</div>
-        <div class="sb-user-info">
-          <div class="sb-user-name" id="sb-name">—</div>
-          <div class="sb-user-role">Analista</div>
-        </div>
-      </div>
-    </div>
-  </nav>
 
   <!-- MAIN -->
   <main class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-      <button class="hamburger" id="hamburger">☰</button>
-      <div class="topbar-titles">
+    <!-- CABEÇALHO -->
+    <div class="page-header">
+      <div>
         <div class="greeting" id="greeting">—</div>
         <div class="sub-greeting" id="sub-greeting">Carregando...</div>
       </div>
-      <div class="topbar-actions">
+      <div class="header-actions">
+        <button class="btn-new" onclick="abrirNovoReporte()">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <span>Novo Reporte</span>
+        </button>
         <div class="notif-btn">🔔<div class="notif-dot" id="notif-dot"></div></div>
       </div>
     </div>
@@ -201,7 +174,7 @@
     <div class="critical-section">
       <div class="section-hd">
         <div class="section-title"><div class="pulse"></div>CRÍTICOS EM ABERTO</div>
-        <span class="section-link">Ver todos</span>
+
       </div>
       <div class="critical-list" id="criticalList"></div>
     </div>
@@ -230,7 +203,7 @@
         <div class="filter-sep"></div>
         <div class="filter-group" id="filterPrio">
           <button class="filter-pill active" onclick="setFiltro('prio','todos',this)">Todas</button>
-          <button class="filter-pill" onclick="setFiltro('prio','critica',this)" style="color:var(--red)">Crítica</button>
+          <button class="filter-pill" onclick="setFiltro('prio','critica',this)">Crítica</button>
           <button class="filter-pill" onclick="setFiltro('prio','alta',this)">Alta</button>
           <button class="filter-pill" onclick="setFiltro('prio','media',this)">Média</button>
           <button class="filter-pill" onclick="setFiltro('prio','baixa',this)">Baixa</button>
@@ -244,7 +217,7 @@
               <th>ID</th><th>Título</th>
               <th class="hide-md">Colaborador</th>
               <th>Prioridade</th><th>Status</th>
-              <th class="hide-sm">Data</th><th>Ações</th>
+              <th class="hide-sm">Data</th>
             </tr>
           </thead>
           <tbody id="reportTableBody"></tbody>
@@ -288,8 +261,6 @@ function renderAnalista(a) {
   document.getElementById("greeting").innerHTML =
     `${saudacao()}, <span>${a.nome.toUpperCase()}</span> 👋`;
   setText("sub-greeting", `${diaSemana()}, ${dataHoje()} · Analista · ${a.setor}`);
-  setText("sb-av",     `${a.nome[0]}${a.sobrenome[0]}`);
-  setText("sb-name",   `${a.nome} ${a.sobrenome}`);
   setText("setor-nome", a.setor);
 }
 
@@ -380,13 +351,6 @@ function _drawTabela() {
         <td><span class="tag ${pr.cls}">${pr.label}</span></td>
         <td><span class="tag ${st.cls}">${st.label}</span></td>
         <td class="hide-sm"><span class="row-date">${r.data}</span></td>
-        <td>
-          <div class="row-actions" onclick="event.stopPropagation()">
-            <button class="action-btn assign"  onclick="abrirModal('atribuir',${r.id},'${r.titulo.replace(/'/g,"\\'")}')">Atribuir</button>
-            <button class="action-btn status"  onclick="abrirModal('status',${r.id},'${r.titulo.replace(/'/g,"\\'")}')">Status</button>
-            <button class="action-btn comment" onclick="abrirModal('comentar',${r.id},'${r.titulo.replace(/'/g,"\\'")}')">Comentar</button>
-          </div>
-        </td>
       </tr>`;
     }).join('');
   }
@@ -489,7 +453,8 @@ async function init() {
   }
 }
 
-initSidebar();
+function abrirNovoReporte() { /* navegar para página de novo reporte */ }
+
 init();
 </script>
 </body>
