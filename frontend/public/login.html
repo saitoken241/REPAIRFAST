@@ -821,11 +821,11 @@
       // redireciona conforme o perfil retornado pela API
       setTimeout(() => {
         const rotas = {
-          funcionario: 'home_funcionario.html',
-          analista:    'home_analista.html',
-          gestor:      'home_gestor.html'
+          funcionario: 'home_employee.html',
+          analista:    'home_analyst.html',
+          gestor:      'home_manager.html'
         };
-        window.location.href = rotas[data.perfil] || 'home_funcionario.html';
+        window.location.href = rotas[data.perfil] || 'home_employee.html';
       }, 1400);
 
     } catch (err) {
