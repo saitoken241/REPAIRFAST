@@ -9,7 +9,7 @@
    ─────────────────────────────────────────────────
    Para ativar a API real:
      1. Mude USE_MOCK para false
-     2. Defina API_BASE com a URL do seu FastAPI
+     2. Defina API_BASE com a URL do FastAPI
    ─────────────────────────────────────────────────
 ════════════════════════════════════════════════════ */
 
