@@ -45,9 +45,9 @@ repairfast/
 │   └── public/
 │       ├── index.html            # Institutional landing page
 │       ├── login.html            # User authentication
-│       ├── home_funcionario.html # Employee dashboard
-│       ├── home_analista.html    # Analyst dashboard
-│       └── home_gestor.html      # Manager dashboard
+│       ├── home_employee.html    # Employee dashboard
+│       ├── home_analyst.html     # Analyst dashboard
+│       └── home_manager.html     # Manager dashboard
 │   └── src/
 │       ├── css/
 │       │   ├── global.css        # Global styles and CSS variables
