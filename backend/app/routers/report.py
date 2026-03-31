@@ -3,10 +3,11 @@ from sqlalchemy.orm import Session
 from ..database import SessionLocal
 from ..models.reports_model import Report
 from ..models.user_model import User
-from ..schemas.report_schemas import UserCreateReport, ReportResponse
-from ..utils.security import hash_password
+from ..schemas.report_schemas import UserCreateReport, ReportResponse, UserUpdateReport
 from ..models.department_model import Department
 from ..routers.auth import get_current_user
+from ..routers.auth import require_roles
+
 
 router = APIRouter(
     prefix="/reports",
@@ -36,3 +37,59 @@ def create_report(request: UserCreateReport, db: Session = Depends(get_db), curr
     db.refresh(new_report)
     
     return new_report
+
+@router.get("/", response_model=list[ReportResponse])
+def list_reports(db: Session = Depends(get_db),current_user: User = Depends(require_roles(["manager"]))):
+    return db.query(Report).filter(
+    Report.department_id == current_user.department_id
+).all()
+
+@router.get("/{report_id}", response_model=ReportResponse)
+def get_report(report_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
+    report = db.get(Report, report_id)
+
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if report.department_id != current_user.department_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return report
+
+
+
+@router.put("/{report_id}", response_model=ReportResponse)
+def update_report(
+    report_id: int,
+    report_data: UserUpdateReport,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["manager"]))
+):
+    report = db.get(Report, report_id)
+
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if report.department_id != current_user.department_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+
+    for key, value in report_data.dict(exclude_unset=True).items():
+        if hasattr(report, key):
+            setattr(report, key, value)
+
+    db.commit()
+    db.refresh(report)
+
+    return report
+
+@router.delete("/{report_id}")
+def delete_report(report_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
+    report = db.get(Report, report_id)
+
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if report.department_id != current_user.department_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    db.delete(report)
+    db.commit()
+
+    return {"detail": "Report deleted"}

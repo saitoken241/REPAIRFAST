@@ -7,7 +7,7 @@ from .routers import users,auth,report,department
 app = FastAPI()
 
 # cria tabelas
-Base.metadata.create_all(bind=engine)
+#Base.metadata.create_all(bind=engine)
 
 # registra rotas
 app.include_router(users.router)
