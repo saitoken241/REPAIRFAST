@@ -5,6 +5,7 @@ from ..database import SessionLocal
 from ..models.user_model import User
 from ..schemas.auth_schemas import LoginResponse
 from ..utils.security import verify_password, create_access_token, decode_access_token
+from typing import List
 
 router = APIRouter(
     prefix="/auth",
