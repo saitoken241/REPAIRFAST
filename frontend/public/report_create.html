@@ -128,7 +128,7 @@
   .field:last-child { margin-bottom: 0; }
 
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
 
   label {
     display: block; font-size: 12px; font-weight: 500;
@@ -374,11 +374,10 @@
       <div class="form-section">
         <div class="form-section-title">Localização</div>
 
-        <div class="location-grid">
-          <div class="field">
+        <div class="field">
             <label class="required" for="setor">Setor</label>
             <div class="select-wrap">
-              <select id="setor" onchange="updateZonas()">
+              <select id="setor">
                 <option value="">Selecione...</option>
                 <option value="academico">Bloco Acadêmico</option>
                 <option value="escola">Escola Integrada</option>
@@ -393,18 +392,6 @@
             </div>
             <div class="field-error" id="setorErr">Selecione o setor</div>
           </div>
-
-          <div class="field">
-            <label class="required" for="zona">Área específica</label>
-            <div class="select-wrap">
-              <select id="zona" disabled>
-                <option value="">Selecione o setor primeiro</option>
-              </select>
-            </div>
-            <div class="field-error" id="zonaErr">Selecione a área</div>
-          </div>
-
-        </div>
       </div>
 
       <!-- ANEXOS -->
@@ -467,19 +454,25 @@
 <script>
 /* ── ROTEAMENTO POR PERFIL ── */
 const HOMES = {
-  employee: 'home_employee.html',
-  manager:  'home_manager.html',
-  analyst:  'home_analyst.html',
+  employee:    'home_employee.html',
+  funcionario: 'home_employee.html',
+  manager:     'home_manager.html',
+  gestor:      'home_manager.html',
+  analyst:     'home_analyst.html',
+  analista:    'home_analyst.html',
 };
 
 function getRole() {
+  // 1. tenta via localStorage (salvo pelo login)
+  const stored = localStorage.getItem('perfil') || localStorage.getItem('role');
+  if (stored) return stored;
+  // 2. fallback: query string ?role=
   const params = new URLSearchParams(window.location.search);
   return params.get('role') || 'employee';
 }
 
 function getHomeUrl() {
-  const role = getRole();
-  return HOMES[role] || HOMES.employee;
+  return HOMES[getRole()] || HOMES.employee;
 }
 
 function goHome() {
@@ -503,76 +496,6 @@ const descricao = document.getElementById('descricao');
 
 titulo.addEventListener('input',    () => document.getElementById('tituloCount').textContent = titulo.value.length);
 descricao.addEventListener('input', () => document.getElementById('descCount').textContent   = descricao.value.length);
-
-/* ── ZONAS DINÂMICAS ── */
-const zonasPorSetor = {
-  academico: [
-    'Salas de aula — 1º andar', 'Salas de aula — 2º andar', 'Salas de aula — 3º andar',
-    'Auditório', 'Sala dos professores', 'Coordenação acadêmica', 'Secretaria acadêmica',
-    'Corredor — 1º andar', 'Corredor — 2º andar', 'Corredor — 3º andar',
-    'Banheiros — 1º andar', 'Banheiros — 2º andar', 'Banheiros — 3º andar',
-  ],
-  escola: [
-    'Salas de aula — Ensino Fundamental', 'Salas de aula — Ensino Médio',
-    'Sala de reuniões pedagógicas', 'Coordenação escolar', 'Secretaria escolar',
-    'Corredor da escola', 'Banheiros',
-  ],
-  laboratorios: [
-    'Lab. de Informática 1', 'Lab. de Informática 2', 'Lab. de Informática 3',
-    'Lab. de Informática 4', 'Lab. de Informática 5',
-    'Lab. de Biomedicina', 'Lab. de Farmácia', 'Lab. de Fisioterapia',
-    'Lab. de Anatomia', 'Lab. de Microbiologia', 'Almoxarifado de laboratórios',
-  ],
-  esportes: [
-    'Quadra poliesportiva coberta', 'Quadra externa', 'Piscina — Natação',
-    'Vestiário masculino', 'Vestiário feminino', 'Academia de musculação',
-    'Depósito de equipamentos esportivos',
-  ],
-  biblioteca: [
-    'Acervo geral', 'Sala de informática', 'Cabines de estudo individual',
-    'Sala de estudo em grupo', 'Atendimento / Balcão',
-  ],
-  pastoral: [
-    'Capela', 'Sala de pastoral', 'Sala de reuniões da pastoral',
-  ],
-  servicos: [
-    'Lanchonete / Cantina', 'Copa dos funcionários', 'Gráfica',
-    'Recepção principal', 'Guarita / Portaria', 'Estacionamento', 'Depósito de limpeza',
-  ],
-  administrativo: [
-    'Reitoria / Diretoria', 'RH', 'Financeiro', 'Marketing',
-    'TI / Suporte', 'Almoxarifado geral', 'Sala de reuniões administrativa',
-  ],
-  externo: [
-    'Calçadas e acessos', 'Jardins e áreas verdes',
-    'Playground / Área infantil', 'Fachada do prédio', 'Iluminação externa',
-  ],
-};
-
-function updateZonas() {
-  const setor = document.getElementById('setor').value;
-  const zona  = document.getElementById('zona');
-  zona.innerHTML = '';
-
-  if (setor && zonasPorSetor[setor]) {
-    zona.disabled = false;
-    const def = document.createElement('option');
-    def.value = ''; def.textContent = 'Selecione...';
-    zona.appendChild(def);
-    zonasPorSetor[setor].forEach(z => {
-      const opt = document.createElement('option');
-      opt.textContent = z;
-      zona.appendChild(opt);
-    });
-  } else {
-    zona.disabled = true;
-    const def = document.createElement('option');
-    def.value = ''; def.textContent = 'Selecione o setor primeiro';
-    zona.appendChild(def);
-  }
-
-  clearErr(zona, 'zonaErr');
-}
 
 /* ── FILE UPLOAD ── */
 const uploadArea   = document.getElementById('uploadArea');
@@ -639,7 +562,6 @@ const fieldMap = [
   { id: 'categoria', errId: 'categoriaErr', test: v => v !== '' },
   { id: 'tipo',      errId: 'tipoErr',      test: v => v !== '' },
   { id: 'setor',     errId: 'setorErr',     test: v => v !== '' },
-  { id: 'zona',      errId: 'zonaErr',      test: v => v !== '' },
 ];
 
 fieldMap.forEach(({ id, errId }) => {
@@ -678,9 +600,6 @@ function resetForm() {
   uploadedFiles = []; renderFiles();
   document.getElementById('tituloCount').textContent = '0';
   document.getElementById('descCount').textContent   = '0';
-  const zona = document.getElementById('zona');
-  zona.innerHTML = '<option value="">Selecione o setor primeiro</option>';
-  zona.disabled = true;
 }
 
 function newReport()  {

@@ -40,8 +40,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 .s-aberto   {background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border)}
 .s-andamento{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-b)}
 .s-resolvido{background:var(--green-dim);color:var(--green);border:1px solid var(--green-b)}
-.s-pendente {background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow-b)}
-.p-critica  {background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
+.p-alto     {background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border)}
+.p-medio    {background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow-b)}
+.p-baixo    {background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-b)}
 
 /* BREADCRUMB */
 .breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);margin-bottom:18px;flex-wrap:wrap;animation:fadeUp .25s ease both}
@@ -167,6 +168,33 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 @media(max-width:1024px){.main-grid{grid-template-columns:1fr}}
 @media(max-width:768px){:root{--pad:16px}.info-grid{grid-template-columns:1fr}}
 @media(max-width:480px){:root{--pad:14px}.rh-titulo{font-size:22px}}
+
+/* ══ VIEW DE REPORTE ENCERRADO (colaborador) ══ */
+.closed-banner{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--green-dim);border:1px solid var(--green-b);border-radius:var(--r);margin-bottom:20px;animation:fadeUp .3s ease both}
+.closed-banner-icon{flex-shrink:0}
+.closed-banner-body{flex:1}
+.closed-banner-title{font-family:var(--fd);font-size:15px;letter-spacing:.5px;color:var(--green);margin-bottom:2px}
+.closed-banner-sub{font-size:12px;color:var(--text-muted)}
+.closed-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+.closed-info-block{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.closed-info-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.closed-field-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);margin-bottom:5px}
+.closed-field-val{font-size:13px;color:var(--text);line-height:1.6}
+.closed-meta-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.closed-meta-row:last-child{border-bottom:none}
+.closed-meta-key{color:var(--text-muted)}
+.closed-meta-val{font-weight:500;text-align:right}
+.closed-tl-item{display:grid;grid-template-columns:auto 1fr;gap:0 12px}
+.closed-tl-left{display:flex;flex-direction:column;align-items:center}
+.closed-tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.closed-tl-line{width:1px;flex:1;background:var(--border);margin:3px auto 0;min-height:18px}
+.closed-tl-body{padding-bottom:14px}
+.closed-tl-action{font-size:11px;font-weight:500}
+.closed-tl-who{font-size:10px;color:var(--text-muted)}
+.closed-tl-time{font-size:10px;color:var(--text-dim);font-family:var(--fm)}
+.closed-tl-desc{font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.5}
+.closed-tl-comment{font-size:11px;color:var(--text-muted);font-style:italic;padding:5px 8px;background:var(--dark3);border-radius:5px;margin-top:3px;line-height:1.5}
+@media(max-width:1024px){.closed-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -186,8 +214,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
     <div class="rh-id" id="rh-id">REPORTE #1248 · ABERTO EM 21/03/2025</div>
     <div class="rh-titulo" id="rh-titulo">Falta de sinalização em área de risco — Corredor B</div>
     <div class="rh-badges">
-      <span class="tag p-critica" id="rh-tipo">Risco</span>
-      <span class="tag s-andamento" id="rh-status">Em análise</span>
+      <span class="tag p-alto" id="rh-tipo">Risco</span>
+      <span class="tag s-aberto" id="rh-status">Aberto</span>
       <span class="tag" style="background:var(--dark3);border:1px solid var(--border);color:var(--text-muted)" id="rh-cat">Segurança e acessibilidade</span>
     </div>
   </div>
@@ -227,7 +255,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
         <div class="info-item"><div class="info-label">Categoria</div><div class="info-val" id="info-categoria">Segurança e acessibilidade</div></div>
         <div class="info-item"><div class="info-label">Tipo de ocorrência</div><div class="info-val" id="info-tipo">Risco</div></div>
         <div class="info-item"><div class="info-label">Setor</div><div class="info-val" id="info-setor">Segurança do Trabalho</div></div>
-        <div class="info-item"><div class="info-label">Área específica</div><div class="info-val" id="info-zona">Corredor B</div></div>
       </div>
     </div>
 
@@ -309,6 +336,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
   </div><!-- /right-col -->
 </div><!-- /main-grid -->
 
+<!-- VIEW ENCERRADO (colaborador) -->
+<div id="viewEncerrado" style="display:none"></div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="lightboxClickFora(event)">
   <button class="lightbox-close" onclick="fecharLightbox()">×</button>
@@ -326,29 +356,23 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
    DADOS MOCK
 ══════════════════════════════════════════════════ */
 const STATUS_CFG = {
-  aberto:    { icon:"📋", label:"ABERTO",        desc:"Seu reporte foi recebido e aguarda análise.",           cor:"var(--orange)", cls:"s-aberto",    pulse:"var(--orange)" },
-  analise:   { icon:"🔍", label:"EM ANÁLISE",    desc:"Um analista está investigando a ocorrência reportada.", cor:"var(--blue)",   cls:"s-andamento", pulse:"var(--blue)"   },
-  andamento: { icon:"⚙️", label:"EM ANDAMENTO",  desc:"Ações corretivas estão sendo executadas.",              cor:"var(--teal)",   cls:"s-andamento", pulse:"var(--teal)"   },
-  pendente:  { icon:"⏳", label:"PENDENTE",       desc:"Aguardando informações adicionais para prosseguir.",    cor:"var(--yellow)", cls:"s-pendente",  pulse:"var(--yellow)" },
-  resolvido: { icon:"✅", label:"RESOLVIDO",      desc:"Ocorrência encerrada. Obrigado pelo seu reporte!",      cor:"var(--green)",  cls:"s-resolvido", pulse:"var(--green)"  },
+  aberto:    { icon:"📋", label:"ABERTO",       desc:"Seu reporte foi recebido e está aguardando análise.",  cor:"var(--orange)", cls:"s-aberto",    pulse:"var(--orange)" },
+  andamento: { icon:"⚙️", label:"EM ANDAMENTO", desc:"Ações corretivas estão sendo executadas pela equipe.", cor:"var(--blue)",   cls:"s-andamento", pulse:"var(--blue)"   },
+  resolvido: { icon:"✅", label:"RESOLVIDO",     desc:"Ocorrência encerrada. Obrigado pelo seu reporte!",     cor:"var(--green)",  cls:"s-resolvido", pulse:"var(--green)"  },
 };
 
 const HISTORICO_MOCK = [
-  { quem:"João Lima",      tempo:"21/03/2025 · 08:42", acao:"Reporte aberto",              cor:"var(--orange)", dot:"var(--orange)", desc:"Reporte registrado via aplicativo mobile com 2 imagens e 1 documento anexados." },
+  { quem:"João Lima",      tempo:"21/03/2025 · 08:42", acao:"Reporte aberto",              cor:"var(--orange)", dot:"var(--orange)", desc:"Reporte registrado com 2 imagens e 1 documento anexados." },
   { quem:"Sistema",        tempo:"21/03/2025 · 08:43", acao:"Atribuído automaticamente",   cor:"var(--blue)",   dot:"var(--blue)",   desc:"Reporte encaminhado ao analista Ricardo Santos." },
-  { quem:"Ricardo Santos", tempo:"21/03/2025 · 09:10", acao:"Status alterado — Em análise",cor:"var(--blue)",   dot:"var(--blue)",   desc:null },
+  { quem:"Ricardo Santos", tempo:"21/03/2025 · 09:10", acao:"Status alterado — Aberto",    cor:"var(--blue)",   dot:"var(--blue)",   desc:null },
   { quem:"Ricardo Santos", tempo:"22/03/2025 · 14:30", acao:"Comentário registrado",       cor:"var(--teal)",   dot:"var(--teal)",   comentario:"Confirmada ausência de sinalização. Solicitado orçamento para placas definitivas e instalação de sinalização provisória de emergência." },
-  { quem:"Ana Paula",      tempo:"25/03/2025 · 10:15", acao:"Ação preventiva registrada",  cor:"var(--green)",  dot:"var(--green)",  desc:"Instalação de fitas de advertência provisórias realizada pela equipe de manutenção." },
+  { quem:"Ana Paula",      tempo:"25/03/2025 · 10:15", acao:"Plano de ação atualizado",    cor:"var(--green)",  dot:"var(--green)",  desc:"Sinalização provisória instalada e marcada como concluída no plano de ação." },
 ];
 
 const PLANO_MOCK = [
   { desc:"Instalar sinalização provisória de emergência (fitas e cones)",        resp:"Ana Paula Ferreira", prazo:"2025-03-22", done:true  },
   { desc:"Solicitar orçamento para placas de sinalização definitiva NR-26",      resp:"Ricardo Santos",     prazo:"2025-03-28", done:false },
   { desc:"Realizar inspeção pós-instalação e registrar conformidade no sistema", resp:"Ricardo Santos",     prazo:"2025-04-05", done:false },
-];
-
-const PREV_MOCK = [
-  { tipo:"Sinalização de área", desc:"Instalação de fitas de advertência provisórias no Corredor B enquanto sinalização definitiva é providenciada.", resp:"Ana Paula Ferreira", prazo:"2025-03-25" },
 ];
 
 /* ══════════════════════════════════════════════════
@@ -384,7 +408,7 @@ function renderStatus(key) {
 
   /* Badge no header */
   const badge = document.getElementById("rh-status");
-  if (badge) { badge.className = `tag ${cfg.cls}`; badge.textContent = cfg.label.replace('EM ','Em ').replace('ABERTO','Aberto').replace('PENDENTE','Pendente').replace('RESOLVIDO','Resolvido'); }
+  if (badge) { badge.className = `tag ${cfg.cls}`; badge.textContent = cfg.label.charAt(0) + cfg.label.slice(1).toLowerCase().replace('em andamento','Em andamento').replace('aberto','Aberto').replace('resolvido','Resolvido'); }
 
   /* Card lateral */
   const card  = document.getElementById("status-card");
@@ -483,20 +507,6 @@ function registrarNoHistorico(acao, quem, cor, dot, desc, comentario) {
 }
 
 /* Injetam entradas de prevencoes e plano no histórico (sem painel separado) */
-function injetarPrevencoesNoHistorico(lista) {
-  if (!lista || !lista.length) return;
-  lista.forEach(p => {
-    _historico.push({
-      quem: p.resp || 'Analista',
-      tempo: p.prazo ? fmtPrazo(p.prazo) : '—',
-      acao: 'Ação preventiva registrada',
-      cor: 'var(--blue)', dot: 'var(--blue)',
-      desc: `[${p.tipo}] ${p.desc}`,
-      comentario: null
-    });
-  });
-}
-
 function injetarPlanoNoHistorico(plano) {
   if (!plano || !plano.length) return;
   plano.filter(p => p.done).forEach(p => {
@@ -509,14 +519,6 @@ function injetarPlanoNoHistorico(plano) {
       comentario: null
     });
   });
-}
-
-/* ══════════════════════════════════════════════════
-   RENDER — AÇÕES PREVENTIVAS (não exibe painel, só injeta no histórico)
-══════════════════════════════════════════════════ */
-function renderPrevencoes(lista) {
-  /* Apenas injeta no histórico — sem painel separado */
-  injetarPrevencoesNoHistorico(lista);
 }
 
 /* ══════════════════════════════════════════════════
@@ -621,8 +623,210 @@ function _renderLightboxItem() {
 }
 
 /* ══════════════════════════════════════════════════
-   INIT
+   VIEW ENCERRADO — colaborador (somente leitura)
 ══════════════════════════════════════════════════ */
+function ativarViewEncerrado(dados) {
+  document.querySelector('.breadcrumb').style.display   = 'none';
+  document.querySelector('.report-header').style.display = 'none';
+  document.querySelector('.main-grid').style.display    = 'none';
+  document.getElementById('viewEncerrado').style.display = 'block';
+
+  const titulo    = dados.titulo    || document.getElementById("rh-titulo")?.textContent    || '—';
+  const idReporte = dados.id        ? `REPORTE #${dados.id}` : '—';
+  const descricao = dados.descricao || document.getElementById("info-descricao")?.textContent || '—';
+  const categoria = dados.categoria || document.getElementById("info-categoria")?.textContent || '—';
+  const tipo      = dados.tipo      || document.getElementById("info-tipo")?.textContent      || '—';
+  const setor     = dados.setor     || document.getElementById("info-setor")?.textContent     || '—';
+  const reporter  = dados.reporter  || document.getElementById("reporter-nome")?.textContent  || '—';
+  const reporterIni = reporter.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+  const abertura  = dados.data      || document.getElementById("meta-abertura")?.textContent  || '—';
+  const reporteId = dados.id ? `#${dados.id}` : '#—';
+  const destino   = localStorage.getItem('perfil') === 'analyst' ? 'home_analyst.html' : 'home_employee.html';
+  const motivo    = dados.motivo    || 'Problema resolvido — ação corretiva aplicada';
+  const encerradoEm = dados.encerradoEm || new Date().toLocaleDateString('pt-BR') + ' · ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+
+  /* Badge de prioridade */
+  const prioMap = {
+    alta:  { cls:'p-alta',  label:'Alta'  },
+    media: { cls:'p-media', label:'Média' },
+    baixa: { cls:'p-baixa', label:'Baixa' },
+  };
+  const prio = prioMap[dados.prioridade] || null;
+  const prioBadge = prio ? `<span class="tag ${prio.cls}">${prio.label}</span>` : '';
+
+  /* Histórico */
+  const hist = Array.isArray(dados.historico) ? dados.historico : _historico;
+  const histHtml = hist.length ? hist.map((h, i) => `
+    <div class="closed-tl-item">
+      <div class="closed-tl-left">
+        <div class="closed-tl-dot" style="background:${h.dot || h.cor || 'var(--teal)'}"></div>
+        ${i < hist.length - 1 ? '<div class="closed-tl-line"></div>' : ''}
+      </div>
+      <div class="closed-tl-body">
+        <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
+          <span class="closed-tl-action" style="color:${h.cor || 'var(--teal)'}">${h.acao}</span>
+          <span class="closed-tl-who">· ${h.quem}</span>
+          <span class="closed-tl-time" style="margin-left:auto">${h.tempo}</span>
+        </div>
+        ${h.desc       ? `<div class="closed-tl-desc">${h.desc}</div>`             : ''}
+        ${h.comentario ? `<div class="closed-tl-comment">"${h.comentario}"</div>` : ''}
+      </div>
+    </div>`).join('')
+  : `<div style="font-size:12px;color:var(--text-dim);text-align:center;padding:12px 0">Nenhum registro encontrado</div>`;
+
+  /* Evidências */
+  const imagens = _anexos.filter(a => isImagem(a));
+  const videos  = _anexos.filter(a => isVideo(a));
+  const docs    = _anexos.filter(a => !isImagem(a) && !isVideo(a));
+  const thumbsHtml = [...imagens, ...videos].map(a => {
+    const idx = _anexos.indexOf(a);
+    return isImagem(a)
+      ? `<div class="ev-thumb" onclick="abrirLightbox(${idx})" style="cursor:pointer"><img src="${a.data}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover"><div class="ev-overlay">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div></div>`
+      : `<div class="ev-thumb" onclick="abrirLightbox(${idx})" style="cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          <span style="font-size:10px;color:var(--text-muted);text-align:center;padding:0 4px">${a.name}</span>
+          <div class="ev-overlay">▶</div>
+        </div>`;
+  }).join('');
+  const docsHtml = docs.map(a => {
+    const idx = _anexos.indexOf(a);
+    return `<div class="ev-doc" onclick="abrirLightbox(${idx})" style="cursor:pointer">
+      <div class="ev-doc-icon">${getIconeTipo(a.type, a.name)}</div>
+      <div class="ev-doc-info"><div class="ev-doc-name">${a.name}</div><div class="ev-doc-size">${formatSize(a.size)}</div></div>
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </div>`;
+  }).join('');
+  const anexoCount = _anexos.length;
+  const evidenciasHtml = anexoCount === 0
+    ? `<div class="ev-empty">Nenhuma evidência anexada</div>`
+    : `${thumbsHtml ? `<div class="evidencias-grid">${thumbsHtml}</div>` : ''}
+       ${docsHtml   ? `<div style="display:flex;flex-direction:column;gap:8px;${thumbsHtml?'margin-top:10px':''}">${docsHtml}</div>` : ''}`;
+
+  document.getElementById('viewEncerrado').innerHTML = `
+  <div style="min-height:100vh;background:var(--dark);padding:var(--pad);padding-bottom:48px">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb" style="animation:fadeUp .25s ease both;margin-bottom:18px">
+      <a href="${destino}" style="color:var(--text-muted);text-decoration:none">← Início</a>
+      <span style="color:var(--text-dim)">/</span>
+      <span style="color:var(--text-muted)">Meus Reportes</span>
+      <span style="color:var(--text-dim)">/</span>
+      <span style="color:var(--text-dim);font-family:var(--fm)">${reporteId}</span>
+    </div>
+
+    <!-- Header -->
+    <div class="report-header" style="display:flex;align-items:flex-start;gap:16px;margin-bottom:24px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--fm);font-size:12px;color:var(--text-dim);margin-bottom:6px">${idReporte}</div>
+        <div style="font-family:var(--fd);font-size:clamp(22px,3vw,32px);letter-spacing:.5px;line-height:1.15;margin-bottom:10px">${titulo}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span class="tag s-resolvido">Encerrado</span>
+          ${prioBadge}
+          <span class="tag" style="background:var(--dark3);border:1px solid var(--border);color:var(--text-muted)">${categoria}</span>
+        </div>
+      </div>
+      <div>
+        <a href="${destino}" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:10px;font-family:var(--fb);font-size:13px;text-decoration:none;transition:all .2s;white-space:nowrap">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Voltar
+        </a>
+      </div>
+    </div>
+
+    <!-- Banner encerrado -->
+    <div class="closed-banner">
+      <div class="closed-banner-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="closed-banner-body">
+        <div class="closed-banner-title">REPORTE ENCERRADO</div>
+        <div class="closed-banner-sub">Encerrado em ${encerradoEm} · Motivo: ${motivo}</div>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="closed-grid">
+
+      <!-- Coluna esquerda -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <div class="panel">
+          <div class="panel-hd"><div><div class="panel-title">INFORMAÇÕES DO REPORTE</div><div class="panel-sub">Dados registrados por você</div></div></div>
+          <div class="closed-info-block">
+            <div class="closed-field-label">Título</div>
+            <div class="closed-field-val" style="font-weight:500;font-size:14px">${titulo}</div>
+          </div>
+          <div class="closed-info-block">
+            <div class="closed-field-label">Descrição</div>
+            <div class="closed-field-val">${descricao}</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="info-item"><div class="info-label">Categoria</div><div class="info-val">${categoria}</div></div>
+            <div class="info-item"><div class="info-label">Tipo de ocorrência</div><div class="info-val">${tipo}</div></div>
+            <div class="info-item"><div class="info-label">Setor</div><div class="info-val">${setor}</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <div><div class="panel-title">EVIDÊNCIAS</div><div class="panel-sub">Arquivos que você anexou</div></div>
+            <span style="font-size:11px;color:var(--text-dim);font-family:var(--fm)">${anexoCount} arquivo${anexoCount !== 1 ? 's' : ''}</span>
+          </div>
+          ${evidenciasHtml}
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd"><div><div class="panel-title">HISTÓRICO</div><div class="panel-sub">Linha do tempo do reporte</div></div></div>
+          <div style="display:flex;flex-direction:column">${histHtml}</div>
+        </div>
+
+      </div>
+
+      <!-- Coluna direita -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <div class="panel">
+          <div class="panel-hd"><div class="panel-title">INFORMAÇÕES</div></div>
+          <div>
+            <div class="closed-meta-row">
+              <span class="closed-meta-key">Reportado por</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:22px;height:22px;border-radius:50%;background:var(--orange-dim);color:var(--orange);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">${reporterIni}</div>
+                <span class="closed-meta-val">${reporter}</span>
+              </div>
+            </div>
+            <div class="closed-meta-row">
+              <span class="closed-meta-key">Aberto em</span>
+              <span class="closed-meta-val" style="font-family:var(--fm);font-size:11px">${abertura}</span>
+            </div>
+            <div class="closed-meta-row">
+              <span class="closed-meta-key">Status</span>
+              <span class="tag s-resolvido">Encerrado</span>
+            </div>
+            <div class="closed-meta-row">
+              <span class="closed-meta-key">ID do Reporte</span>
+              <span class="closed-meta-val" style="font-family:var(--fm);color:var(--text-dim)">${reporteId}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card de confirmação -->
+        <div class="panel" style="border-color:var(--green-b);text-align:center;padding:24px 20px">
+          <div style="margin-bottom:12px">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div style="font-family:var(--fd);font-size:15px;letter-spacing:.5px;color:var(--green);margin-bottom:8px">OCORRÊNCIA RESOLVIDA</div>
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.6">A equipe responsável tratou e encerrou este reporte. Se o problema persistir, abra um novo reporte.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>`;
+}
+
+
 function init() {
   /* Link de início e breadcrumb por perfil */
   const perfil  = localStorage.getItem('perfil') || 'employee';
@@ -653,7 +857,6 @@ function init() {
     if (dados.categoria) { document.getElementById("info-categoria").textContent = dados.categoria; document.getElementById("rh-cat").textContent          = dados.categoria; }
     if (dados.tipo)      { document.getElementById("info-tipo").textContent      = dados.tipo;      document.getElementById("rh-tipo").textContent         = dados.tipo; }
     if (dados.setor)       document.getElementById("info-setor").textContent     = dados.setor;
-    if (dados.zona)        document.getElementById("info-zona").textContent      = dados.zona;
     if (dados.reporter) {
       const ini = dados.reporter.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
       document.getElementById("reporter-av").textContent   = ini;
@@ -665,15 +868,17 @@ function init() {
     }
     if (Array.isArray(dados.anexos)) renderAnexos(dados.anexos);
     else renderAnexos([]);
-    renderStatus(dados.status || 'analise');
-    /* Monta histórico: base + entradas do plano + preventivas em ordem */
+    renderStatus(dados.status || 'aberto');
     _historico = Array.isArray(dados.historico) ? [...dados.historico] : [...HISTORICO_MOCK];
     const planoAtual = Array.isArray(dados.plano) ? dados.plano : PLANO_MOCK;
-    const prevAtual  = Array.isArray(dados.prevencoes) ? dados.prevencoes : PREV_MOCK;
     injetarPlanoNoHistorico(planoAtual);
-    injetarPrevencoesNoHistorico(prevAtual);
     renderHistorico(_historico);
     renderPlano(planoAtual);
+
+    /* Se resolvido, ativa view encerrada */
+    if (dados.status === 'resolvido') {
+      setTimeout(() => ativarViewEncerrado(dados), 0);
+    }
   } else {
     /* ── Dados mock (demonstração) ── */
     const svg1 = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='800' height='600' fill='%231A1A1A'/><rect x='60' y='80' width='680' height='440' rx='8' fill='%232E2E2E'/><text x='400' y='300' font-family='sans-serif' font-size='18' fill='%23666' text-anchor='middle'>foto_corredor_b.jpg</text></svg>`;
@@ -683,11 +888,9 @@ function init() {
       { name:"area_risco.png",         size:97280,  type:"image/png",       data:"data:image/svg+xml," + encodeURIComponent(svg2.replace(/%23/g,'#')) },
       { name:"relatorio_inspecao.pdf", size:250880, type:"application/pdf", data:"" },
     ]);
-    renderStatus('analise');
-    /* Mock: histórico base + plano concluído + preventivas */
+    renderStatus('aberto');
     _historico = [...HISTORICO_MOCK];
     injetarPlanoNoHistorico(PLANO_MOCK);
-    injetarPrevencoesNoHistorico(PREV_MOCK);
     renderHistorico(_historico);
     renderPlano(PLANO_MOCK);
   }

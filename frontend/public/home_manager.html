@@ -22,7 +22,7 @@
 .sub-greeting { font-size:13px; color:var(--text-muted); margin-top:4px; }
 .header-actions { display:flex; align-items:center; gap:10px; }
 
-.notif-btn { position:relative; width:38px; height:38px; background:var(--dark3); border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer; transition:border-color .2s; }
+.notif-btn { position:relative; width:40px; height:40px; background:var(--dark3); border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .2s; flex-shrink:0; }
 .notif-btn:hover { border-color:var(--orange-border); }
 .notif-dot { position:absolute; top:7px; right:7px; width:7px; height:7px; background:var(--orange); border-radius:50%; border:2px solid var(--dark3); display:none; }
 
@@ -33,6 +33,45 @@
 .btn-secondary { display:flex; align-items:center; gap:8px; padding:10px 18px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:10px; font-family:var(--fb); font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .2s; }
 .btn-secondary:hover { border-color:rgba(255,255,255,.2); color:var(--text); transform:translateY(-1px); }
 .btn-secondary svg { width:15px; height:15px; fill:currentColor; flex-shrink:0; }
+
+.btn-logout { display:flex; align-items:center; gap:7px; padding:9px 16px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:10px; font-family:var(--fb); font-size:13px; cursor:pointer; white-space:nowrap; transition:all .2s; text-decoration:none; }
+.btn-logout:hover { background:rgba(232,92,26,0.08); color:var(--orange); border-color:var(--orange-border); }
+.btn-logout svg { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
+/* ── Modais ── */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:800; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.modal-overlay.open { display:flex; }
+.modal-box { background:var(--dark3); border:1px solid var(--border); border-radius:16px; padding:28px; width:90%; max-width:480px; animation:fadeUp .25s ease both; position:relative; max-height:90vh; overflow-y:auto; }
+.modal-box.wide { max-width:560px; }
+.modal-close { position:absolute; top:14px; right:14px; background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer; line-height:1; padding:4px; }
+.modal-close:hover { color:var(--text); }
+.modal-title { font-family:var(--fd); font-size:22px; letter-spacing:1px; margin-bottom:4px; }
+.modal-sub   { font-size:12px; color:var(--text-muted); margin-bottom:22px; }
+.modal-lbl   { font-size:11px; font-weight:500; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; display:block; }
+.modal-input, .modal-select { width:100%; padding:10px 12px; background:var(--dark4); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--fb); font-size:13px; outline:none; transition:border-color .2s; margin-bottom:14px; }
+.modal-input:focus, .modal-select:focus { border-color:var(--orange-border); }
+.modal-input.error, .modal-select.error { border-color:var(--red) !important; }
+.modal-field-error { font-size:11px; color:var(--red); margin-top:-10px; margin-bottom:10px; display:none; }
+.modal-field-error.show { display:block; }
+.modal-row   { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
+.btn-modal-cancel  { padding:9px 18px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); font-family:var(--fb); font-size:13px; cursor:pointer; transition:all .15s; }
+.btn-modal-cancel:hover { background:var(--dark4); color:var(--text); }
+.btn-modal-confirm { padding:9px 20px; background:var(--orange); border:none; border-radius:8px; color:white; font-family:var(--fb); font-size:13px; font-weight:500; cursor:pointer; transition:background .2s; }
+.btn-modal-confirm:hover { background:var(--orange-bright); }
+
+/* Modal Setores */
+.setor-list { display:flex; flex-direction:column; gap:8px; margin-bottom:18px; max-height:220px; overflow-y:auto; }
+.setor-item { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--dark4); border:1px solid var(--border); border-radius:8px; font-size:13px; }
+.setor-item-name { font-weight:500; }
+.setor-item-del  { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px; padding:2px 6px; border-radius:4px; transition:all .15s; line-height:1; }
+.setor-item-del:hover { background:rgba(239,68,68,.15); color:var(--red); }
+.setor-add-row   { display:flex; gap:8px; }
+.setor-add-input { flex:1; padding:10px 12px; background:var(--dark4); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--fb); font-size:13px; outline:none; transition:border-color .2s; }
+.setor-add-input:focus { border-color:var(--orange-border); }
+.setor-add-btn   { padding:10px 16px; background:var(--orange); border:none; border-radius:8px; color:white; font-size:13px; font-family:var(--fb); font-weight:500; cursor:pointer; transition:background .2s; white-space:nowrap; }
+.setor-add-btn:hover { background:var(--orange-bright); }
+.setor-empty { font-size:13px; color:var(--text-muted); text-align:center; padding:16px 0; }
 
 
 .tabs-row { display:flex; align-items:center; justify-content:flex-start; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
@@ -79,7 +118,6 @@
 .rank-num.silver { color:#BDC3C7; }
 .rank-num.bronze { color:#CD7F32; }
 .rank-num.other  { color:var(--text-dim); }
-.rank-icon { font-size:20px; flex-shrink:0; }
 .rank-info { flex:1; min-width:0; }
 .rank-name { font-size:13px; font-weight:500; }
 .rank-meta { font-size:11px; color:var(--text-muted); margin-top:2px; }
@@ -89,16 +127,6 @@
 .sla-bad   { background:var(--red-dim);    color:var(--red); }
 
 .recent-list { display:flex; flex-direction:column; gap:8px; }
-.recent-item { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:12px 14px; background:var(--dark3); border:1px solid var(--border); border-radius:10px; cursor:pointer; transition:all .15s; }
-.recent-item:hover { border-color:var(--orange-border); background:var(--dark4); }
-.ri-icon  { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
-.ri-body  { min-width:0; }
-.ri-title { font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
-.ri-meta  { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
-.ri-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
-.ri-id    { font-family:var(--fm); font-size:11px; color:var(--text-dim); }
-.ri-date  { font-family:var(--fm); font-size:10px; color:var(--text-dim); }
-
 .pbi-wrap      { background:var(--dark2); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
 .pbi-toolbar   { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:10px; }
 .pbi-title     { font-family:var(--fd); font-size:16px; letter-spacing:1px; display:flex; align-items:center; gap:10px; }
@@ -106,7 +134,7 @@
 .pbi-actions   { display:flex; gap:8px; }
 .pbi-btn       { display:flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; font-family:var(--fb); border:1px solid var(--border); background:var(--dark3); color:var(--text-muted); }
 .pbi-btn:hover { color:var(--text); border-color:rgba(255,255,255,.15); background:var(--dark4); }
-.pbi-iframe-wrap     { position:relative; width:100%; padding-bottom:56.25%; background:var(--dark3); min-height:500px; }
+.pbi-iframe-wrap     { position:relative; width:100%; padding-bottom:56.25%; background:var(--dark3); }
 .pbi-iframe-wrap iframe { position:absolute; inset:0; width:100%; height:100%; border:none; }
 .pbi-placeholder       { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
 .pbi-placeholder-icon  { font-size:48px; opacity:.4; }
@@ -134,26 +162,40 @@
         <div class="sub-greeting" id="sub-greeting">Carregando...</div>
       </div>
       <div class="header-actions">
-        <button class="btn-secondary" onclick="criarUsuario()">
-          <svg viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          <span>Novo Usuário</span>
+        <div class="notif-btn">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <button class="btn-secondary" onclick="window.location.href='manager_management.html'">
+          <svg viewBox="0 0 24 24" style="fill:currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          <span>Gerenciar</span>
         </button>
         <button class="btn-new" onclick="abrirNovoReporte()">
           <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
           <span>Novo Reporte</span>
         </button>
-        <div class="notif-btn">🔔<div class="notif-dot" id="notif-dot"></div></div>
+        <a href="login.html" class="btn-logout" title="Sair">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sair
+        </a>
       </div>
     </div>
 
     <div class="tabs-row">
       <div class="tabs">
-        <button class="tab active" onclick="setTab('overview')"><span class="tab-icon">📊</span> Visão Geral</button>
-        <button class="tab" onclick="setTab('powerbi')"><span class="tab-icon">⚡</span> Power BI</button>
+        <button class="tab active" onclick="setTab('overview')">
+          <span class="tab-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span> Visão Geral
+        </button>
+        <button class="tab" onclick="setTab('powerbi')">
+          <span class="tab-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span> Power BI
+        </button>
       </div>
       <div class="scope-btns">
-        <button class="scope-btn active" onclick="setEscopo('empresa',this)">🏭 Toda a empresa</button>
-        <button class="scope-btn" onclick="setEscopo('setor',this)">🔬 Meu setor</button>
+        <button class="scope-btn active" onclick="setEscopo('empresa',this)">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Toda a empresa
+        </button>
+        <button class="scope-btn" onclick="setEscopo('setor',this)">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Meu setor
+        </button>
       </div>
     </div>
 
@@ -161,22 +203,34 @@
     <div class="tab-content active" id="tab-overview">
       <div class="kpi-row">
         <div class="kpi-card" style="--c:var(--text-muted)">
-          <div class="kpi-label">📋 Total de Reportes</div>
+          <div class="kpi-label">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Total de Reportes
+          </div>
           <div class="kpi-val" id="kpi-total">—</div>
           <div class="kpi-sub"><span class="kpi-badge badge-green" id="kpi-total-delta">—</span> vs mês anterior</div>
         </div>
         <div class="kpi-card" style="--c:var(--blue)">
-          <div class="kpi-label">⏱️ Tempo Médio de Resolução</div>
+          <div class="kpi-label">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Tempo Médio de Resolução
+          </div>
           <div class="kpi-val" id="kpi-tempo">—<span style="font-size:18px;font-weight:400;color:var(--text-muted)"> h</span></div>
           <div class="kpi-sub">Meta: 60h &nbsp;<span class="kpi-badge" id="kpi-tempo-badge">—</span></div>
         </div>
         <div class="kpi-card" style="--c:var(--green)">
-          <div class="kpi-label">🎯 Cumprimento de SLA</div>
+          <div class="kpi-label">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Cumprimento de SLA
+          </div>
           <div class="kpi-val" id="kpi-sla">—<span style="font-size:18px;font-weight:400;color:var(--text-muted)">%</span></div>
           <div class="kpi-sub" id="kpi-sla-sub">— de — reportes no prazo</div>
         </div>
-        <div class="kpi-card" style="--c:var(--red)">
-          <div class="kpi-label">🚨 Críticos em Aberto</div>
+        <div class="kpi-card" style="--c:var(--orange)">
+          <div class="kpi-label">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Alta Prioridade
+          </div>
           <div class="kpi-val" id="kpi-criticos">—</div>
           <div class="kpi-sub" id="kpi-criticos-sub">—</div>
         </div>
@@ -198,20 +252,11 @@
       </div>
 
       <div class="grid-3-1" id="grid-overview">
-        <div style="display:flex;flex-direction:column;gap:16px">
-          <div class="panel">
-            <div class="panel-hd">
-              <div><div class="panel-title">VOLUME MENSAL</div><div class="panel-sub">Últimos 6 meses</div></div>
-            </div>
-            <canvas id="chartMensal" height="110"></canvas>
+        <div class="panel">
+          <div class="panel-hd">
+            <div><div class="panel-title">VOLUME MENSAL</div><div class="panel-sub">Últimos 6 meses</div></div>
           </div>
-          <div class="panel">
-            <div class="panel-hd">
-              <div><div class="panel-title">REPORTES RECENTES</div><div class="panel-sub">Últimas ocorrências registradas</div></div>
-              <a class="panel-link">Ver todos</a>
-            </div>
-            <div class="recent-list" id="recentList"></div>
-          </div>
+          <canvas id="chartMensal" height="110"></canvas>
         </div>
         <div class="panel" id="rankPanel">
           <div class="panel-hd">
@@ -226,14 +271,22 @@
     <div class="tab-content" id="tab-powerbi">
       <div class="pbi-wrap">
         <div class="pbi-toolbar">
-          <div class="pbi-title">⚡ Power BI <span class="pbi-badge">Relatório Embed</span></div>
+          <div class="pbi-title">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Power BI <span class="pbi-badge">Relatório Embed</span>
+          </div>
           <div class="pbi-actions">
-            <button class="pbi-btn" onclick="abrirFullscreen()">⛶ Tela cheia</button>
+            <button class="pbi-btn" onclick="abrirFullscreen()">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              Tela cheia
+            </button>
           </div>
         </div>
         <div class="pbi-iframe-wrap" id="pbiFrame">
           <div class="pbi-placeholder" id="pbiPlaceholder">
-            <div class="pbi-placeholder-icon">⚡</div>
+            <div class="pbi-placeholder-icon">
+              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.4"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
             <div class="pbi-placeholder-title">RELATÓRIO INDISPONÍVEL</div>
             <div class="pbi-placeholder-desc">
               O dashboard analítico está temporariamente indisponível.<br>
@@ -247,24 +300,228 @@
   </main>
 </div>
 
+<!-- MODAL: NOVO USUÁRIO -->
+<div class="modal-overlay" id="modalUsuario">
+  <div class="modal-box wide">
+    <button class="modal-close" onclick="fecharModal('modalUsuario')">×</button>
+    <div class="modal-title">NOVO USUÁRIO</div>
+    <div class="modal-sub">Preencha os dados para cadastrar um novo acesso ao sistema.</div>
+
+    <div class="modal-row">
+      <div>
+        <label class="modal-lbl">Nome completo *</label>
+        <input class="modal-input" id="u-nome" type="text" placeholder="Ex: João Silva">
+        <div class="modal-field-error" id="err-nome">Campo obrigatório</div>
+      </div>
+      <div>
+        <label class="modal-lbl">E-mail corporativo *</label>
+        <input class="modal-input" id="u-email" type="email" placeholder="joao@empresa.com.br">
+        <div class="modal-field-error" id="err-email">Informe um e-mail válido</div>
+      </div>
+    </div>
+
+    <div class="modal-row">
+      <div>
+        <label class="modal-lbl">Perfil de acesso *</label>
+        <select class="modal-select" id="u-perfil">
+          <option value="">Selecione...</option>
+          <option value="funcionario">Funcionário</option>
+          <option value="analista">Analista</option>
+          <option value="gestor">Gestor</option>
+        </select>
+        <div class="modal-field-error" id="err-perfil">Selecione um perfil</div>
+      </div>
+      <div>
+        <label class="modal-lbl">Setor *</label>
+        <select class="modal-select" id="u-setor">
+          <option value="">Selecione...</option>
+        </select>
+        <div class="modal-field-error" id="err-setor">Selecione o setor</div>
+      </div>
+    </div>
+
+    <div class="modal-row">
+      <div>
+        <label class="modal-lbl">Matrícula</label>
+        <input class="modal-input" id="u-matricula" type="text" placeholder="Ex: EMP-2024-001" style="margin-bottom:0">
+      </div>
+      <div>
+        <label class="modal-lbl">Cargo</label>
+        <input class="modal-input" id="u-cargo" type="text" placeholder="Ex: Técnico de Manutenção" style="margin-bottom:0">
+      </div>
+    </div>
+
+    <div class="modal-footer" style="margin-top:20px">
+      <button class="btn-modal-cancel" onclick="fecharModal('modalUsuario')">Cancelar</button>
+      <button class="btn-modal-confirm" onclick="confirmarNovoUsuario()">Cadastrar Usuário</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: GERENCIAR SETORES -->
+<div class="modal-overlay" id="modalSetores">
+  <div class="modal-box">
+    <button class="modal-close" onclick="fecharModal('modalSetores')">×</button>
+    <div class="modal-title">GERENCIAR SETORES</div>
+    <div class="modal-sub">Adicione ou remova setores da organização.</div>
+    <div class="setor-list" id="setorList"></div>
+    <div class="setor-add-row">
+      <input class="setor-add-input" id="novoSetorInput" type="text" placeholder="Nome do novo setor..." onkeydown="if(event.key==='Enter')adicionarSetor()">
+      <button class="setor-add-btn" onclick="adicionarSetor()">Adicionar</button>
+    </div>
+    <div class="modal-footer" style="margin-top:18px">
+      <button class="btn-modal-cancel" onclick="fecharModal('modalSetores')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 22px;display:flex;align-items:center;gap:10px;font-size:13px;z-index:9990;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap">
+  <span id="toast-icon"></span><span id="toast-msg"></span>
+</div>
+
 <script>
 let _escopo = 'empresa';
+
+/* ── SETORES ── */
+let _setores = JSON.parse(localStorage.getItem('rf_setores') || 'null') || [
+  'Produção','Manutenção','Logística','Segurança','Qualidade','Administrativo','TI'
+];
+
+function salvarSetores() { localStorage.setItem('rf_setores', JSON.stringify(_setores)); }
+
+function renderSetorList() {
+  const el = document.getElementById('setorList');
+  if (!_setores.length) { el.innerHTML = '<div class="setor-empty">Nenhum setor cadastrado.</div>'; return; }
+  el.innerHTML = _setores.map((s, i) => `
+    <div class="setor-item">
+      <span class="setor-item-name">${s}</span>
+      <button class="setor-item-del" onclick="removerSetor(${i})" title="Remover">✕</button>
+    </div>`).join('');
+}
+
+function populateSetorSelect() {
+  const sel = document.getElementById('u-setor');
+  const val = sel.value;
+  sel.innerHTML = '<option value="">Selecione...</option>' +
+    _setores.map(s => `<option value="${s}"${s===val?' selected':''}>${s}</option>`).join('');
+}
+
+function adicionarSetor() {
+  const inp = document.getElementById('novoSetorInput');
+  const nome = inp.value.trim();
+  if (!nome) return;
+  if (_setores.includes(nome)) { showToast('Setor já existe.', 'error'); return; }
+  _setores.push(nome);
+  salvarSetores();
+  renderSetorList();
+  populateSetorSelect();
+  inp.value = '';
+  showToast(`Setor "${nome}" adicionado!`, 'success');
+}
+
+function removerSetor(i) {
+  const nome = _setores[i];
+  if (!confirm(`Remover o setor "${nome}"?`)) return;
+  _setores.splice(i, 1);
+  salvarSetores();
+  renderSetorList();
+  populateSetorSelect();
+  showToast(`Setor "${nome}" removido.`, 'success');
+}
+
+/* ── MODAIS ── */
+function abrirModalSetores() {
+  renderSetorList();
+  document.getElementById('modalSetores').classList.add('open');
+}
+
+function abrirModalNovoUsuario() {
+  populateSetorSelect();
+  // limpa campos
+  ['u-nome','u-email','u-matricula','u-cargo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('u-perfil').value = '';
+  document.getElementById('u-setor').value  = '';
+  document.querySelectorAll('.modal-field-error').forEach(e => e.classList.remove('show'));
+  document.querySelectorAll('.modal-input.error, .modal-select.error').forEach(e => e.classList.remove('error'));
+  document.getElementById('modalUsuario').classList.add('open');
+}
+
+function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+/* ── CADASTRO DE USUÁRIO ── */
+function confirmarNovoUsuario() {
+  const nome     = document.getElementById('u-nome').value.trim();
+  const email    = document.getElementById('u-email').value.trim();
+  const perfil   = document.getElementById('u-perfil').value;
+  const setor    = document.getElementById('u-setor').value;
+  let ok = true;
+
+  function setErr(id, errId, cond) {
+    const el  = document.getElementById(id);
+    const err = document.getElementById(errId);
+    if (cond) { el.classList.add('error'); err.classList.add('show'); ok = false; }
+    else       { el.classList.remove('error'); err.classList.remove('show'); }
+  }
+
+  setErr('u-nome',   'err-nome',   !nome);
+  setErr('u-email',  'err-email',  !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+  setErr('u-perfil', 'err-perfil', !perfil);
+  setErr('u-setor',  'err-setor',  !setor);
+
+  if (!ok) return;
+
+  // Salva localmente (lista de usuários no localStorage)
+  const usuarios = JSON.parse(localStorage.getItem('rf_usuarios') || '[]');
+  if (usuarios.find(u => u.email === email)) {
+    document.getElementById('u-email').classList.add('error');
+    document.getElementById('err-email').textContent = 'E-mail já cadastrado';
+    document.getElementById('err-email').classList.add('show');
+    return;
+  }
+  const novoUsuario = {
+    id: Date.now(),
+    nome,
+    email,
+    perfil,
+    setor,
+    matricula: document.getElementById('u-matricula').value.trim(),
+    cargo:     document.getElementById('u-cargo').value.trim(),
+    criadoEm:  new Date().toLocaleDateString('pt-BR'),
+  };
+  usuarios.push(novoUsuario);
+  localStorage.setItem('rf_usuarios', JSON.stringify(usuarios));
+
+  fecharModal('modalUsuario');
+  showToast(`Usuário "${nome}" cadastrado com sucesso!`, 'success');
+}
+
+/* ── TOAST ── */
+function showToast(msg, type = 'success') {
+  const t    = document.getElementById('toast');
+  const icon = document.getElementById('toast-icon');
+  const txt  = document.getElementById('toast-msg');
+  icon.innerHTML = type === 'success'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="#3DBA7A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  txt.textContent = msg;
+  t.style.borderColor = type === 'success' ? 'rgba(61,186,122,.3)' : 'rgba(231,76,60,.3)';
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 3500);
+}
 
 function setEscopo(esc, btn) {
   _escopo = esc;
   document.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-
   const rankPanel = document.getElementById("rankPanel");
   const grid      = document.getElementById("grid-overview");
-  if (esc === 'setor') {
-    rankPanel.style.display = 'none';
-    grid.style.gridTemplateColumns = '1fr';
-  } else {
-    rankPanel.style.display = '';
-    grid.style.gridTemplateColumns = '';
-  }
-
+  if (esc === 'setor') { rankPanel.style.display='none'; grid.style.gridTemplateColumns='1fr'; }
+  else                 { rankPanel.style.display=''; grid.style.gridTemplateColumns='3fr 1fr'; }
   carregarDados();
 }
 
@@ -277,7 +534,7 @@ function setTab(id) {
 }
 
 function renderGestor(g) {
-  document.getElementById("greeting").innerHTML = `${saudacao()}, <span>${g.nome.toUpperCase()}</span> 👋`;
+  document.getElementById("greeting").innerHTML = `${saudacao()}, <span>${g.nome.toUpperCase()}</span>`;
   setText("sub-greeting", `${diaSemana()}, ${dataHoje()} · Gestor · ${g.setor}`);
 }
 
@@ -287,7 +544,6 @@ function renderDados(d) {
   renderPrioridade(d.prio);
   renderMensal(d.mensal, d.meses);
   renderRanking(d.ranking);
-  renderRecentes(d.recentes);
 }
 
 function renderKPIs(k) {
@@ -296,7 +552,7 @@ function renderKPIs(k) {
   document.getElementById("kpi-total-delta").className = `kpi-badge ${k.totalDelta.startsWith('+') ? 'badge-green' : 'badge-red'}`;
   setValComUnidade("kpi-tempo", k.tempo);
   const badge = document.getElementById("kpi-tempo-badge");
-  badge.textContent = k.tempo <= 60 ? "✓ Dentro da meta" : "⚠ Acima da meta";
+  badge.textContent = k.tempo <= 60 ? "Dentro da meta" : "Acima da meta";
   badge.className   = `kpi-badge ${k.tempo <= 60 ? 'badge-green' : 'badge-red'}`;
   setValComUnidade("kpi-sla", k.sla);
   setText("kpi-sla-sub",      `${k.slaN} de ${k.slaD} reportes no prazo`);
@@ -319,7 +575,7 @@ function renderPrioridade(p) {
   if (_chartPrio) _chartPrio.destroy();
   _chartPrio = new Chart(ctx, {
     type: 'bar',
-    data: { labels:['Média','Alta','Baixa','Crítica'], datasets:[{ data:[p.media,p.alta,p.baixa,p.critica], backgroundColor:['rgba(245,200,66,.7)','rgba(232,92,26,.7)','rgba(74,158,232,.7)','rgba(232,80,74,.8)'], borderRadius:6, borderSkipped:false }] },
+    data: { labels:['Baixa','Média','Alta'], datasets:[{ data:[p.baixa,p.media,p.alta], backgroundColor:['rgba(74,158,232,.7)','rgba(245,200,66,.7)','rgba(232,92,26,.7)'], borderRadius:6, borderSkipped:false }] },
     options: { responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#888880',font:{size:11}}}, y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#888880',font:{size:11}}} } }
   });
 }
@@ -334,37 +590,15 @@ function renderMensal(vals, meses) {
   });
 }
 
-const RANK_ICONS = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
-const RANK_CLS   = ['gold','silver','bronze','other','other','other'];
+const RANK_CLS = ['gold','silver','bronze','other','other','other'];
 
 function renderRanking(lista) {
   document.getElementById("rankList").innerHTML = lista.map((r,i) => `
     <div class="rank-item">
       <div class="rank-num ${RANK_CLS[i]||'other'}">${i+1}</div>
-      <div class="rank-icon">${RANK_ICONS[i]||'🏅'}</div>
       <div class="rank-info"><div class="rank-name">${r.nome}</div><div class="rank-meta">${r.reportes} reportes</div></div>
       <span class="rank-sla ${r.slaClass}">${r.sla}% SLA</span>
     </div>`).join('');
-}
-
-function renderRecentes(lista) {
-  document.getElementById("recentList").innerHTML = lista.map(r => {
-    const st = STATUS_MAP[r.status]         || { cls:"", label:r.status };
-    const pr = PRIORIDADE_MAP[r.prioridade] || { cls:"", label:r.prioridade, bg:"var(--dark4)" };
-    return `
-    <div class="recent-item" onclick="abrirReporte(${r.id})">
-      <div class="ri-icon" style="background:${pr.bg}">${r.prioridade==='critica'?'🚨':r.prioridade==='alta'?'⚠️':'📋'}</div>
-      <div class="ri-body">
-        <div class="ri-title">${r.titulo}</div>
-        <div class="ri-meta">
-          <span class="tag ${st.cls}">${st.label}</span>
-          <span class="tag ${pr.cls}">${pr.label}</span>
-          <span class="tag" style="background:var(--dark4);color:var(--text-muted);border:1px solid var(--border)">${r.setor}</span>
-        </div>
-      </div>
-      <div class="ri-right"><span class="ri-id">#${r.id}</span><span class="ri-date">${r.data}</span></div>
-    </div>`;
-  }).join('');
 }
 
 /* Power BI */
@@ -388,8 +622,10 @@ function abrirFullscreen() {
   if (iframe.requestFullscreen) iframe.requestFullscreen();
 }
 
-function abrirNovoReporte() { /* navegar para página de novo reporte */ }
-function criarUsuario()     { /* navegar para página de criar usuário */ }
+function abrirNovoReporte() {
+  localStorage.setItem('perfil', 'gestor');
+  window.location.href = 'report_create.html';
+}
 
 /* Init */
 async function carregarDados() {

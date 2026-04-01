@@ -43,10 +43,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 .s-andamento{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-b)}
 .s-resolvido{background:var(--green-dim);color:var(--green);border:1px solid var(--green-b)}
 .s-pendente {background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow-b)}
-.p-critica  {background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
-.p-alta     {background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border)}
-.p-media    {background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow-b)}
-.p-baixa    {background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-b)}
+.p-alto     {background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border)}
+.p-medio    {background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow-b)}
+.p-baixo    {background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-b)}
 
 /* BREADCRUMB */
 .breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);margin-bottom:18px;flex-wrap:wrap}
@@ -126,16 +125,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 .meta-av{width:24px;height:24px;border-radius:50%;background:var(--mid);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text-muted);flex-shrink:0}
 .meta-person{display:flex;align-items:center;gap:6px;justify-content:flex-end}
 
-/* AÇÕES RÁPIDAS */
-.actions-stack{display:flex;flex-direction:column;gap:8px}
-.action-card{padding:12px 14px;background:var(--dark3);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px}
-.action-card:hover{border-color:var(--c,var(--orange-border));background:var(--dark4)}
-.action-card::before{content:'';width:3px;border-radius:2px;height:32px;flex-shrink:0;background:var(--c,var(--orange))}
-.ac-icon{font-size:18px;flex-shrink:0}
-.ac-body{flex:1;min-width:0}
-.ac-label{font-size:12px;font-weight:500;margin-bottom:2px}
-.ac-desc{font-size:11px;color:var(--text-muted)}
-.ac-arrow{font-size:16px;color:var(--text-dim);flex-shrink:0}
+
 
 /* STATUS */
 .status-selector{display:flex;flex-direction:column;gap:6px}
@@ -328,7 +318,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
         <div class="rh-titulo" id="rh-titulo">Falta de sinalização em área de risco — Corredor B</div>
         <div class="rh-badges">
           <!-- tipo de ocorrência (Falha / Risco / Melhoria) -->
-          <span class="tag p-critica" id="rh-tipo-badge">Risco</span>
+          <span class="tag p-alto" id="rh-tipo-badge">Risco</span>
           <!-- status -->
           <span class="tag s-aberto" id="rh-status-badge">Aberto</span>
           <!-- categoria do reporte -->
@@ -387,10 +377,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
               <div class="info-item">
                 <div class="info-label">Setor</div>
                 <div class="info-val" id="info-setor">Segurança do Trabalho</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Área específica</div>
-                <div class="info-val" id="info-zona">Corredor B</div>
               </div>
             </div>
           </div>
@@ -471,27 +457,20 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 
         <!-- Status -->
         <div class="panel" style="animation-delay:.12s">
-          <div class="panel-hd">
-            <div><div class="panel-title">STATUS DO REPORTE</div><div class="panel-sub">Clique para alterar e confirme</div></div>
-          </div>
+          <div class="panel-hd"><div class="panel-title">STATUS DO REPORTE</div></div>
+
           <div class="status-selector">
-            <div class="status-opt" style="--c:var(--orange);--dim:var(--orange-dim)" onclick="selecionarStatus('Aberto',this)">
+            <div class="status-opt active" style="--c:var(--orange);--dim:var(--orange-dim)" onclick="selecionarStatus('Aberto',this)">
               <div class="status-dot" style="background:var(--orange)"></div><span>Aberto</span><span class="status-check">✓</span>
-            </div>
-            <div class="status-opt active" style="--c:var(--blue);--dim:var(--blue-dim)" onclick="selecionarStatus('Em análise',this)">
-              <div class="status-dot" style="background:var(--blue)"></div><span>Em análise</span><span class="status-check">✓</span>
             </div>
             <div class="status-opt" style="--c:var(--teal);--dim:var(--teal-dim)" onclick="selecionarStatus('Em andamento',this)">
               <div class="status-dot" style="background:var(--teal)"></div><span>Em andamento</span><span class="status-check">✓</span>
-            </div>
-            <div class="status-opt" style="--c:var(--yellow);--dim:var(--yellow-dim)" onclick="selecionarStatus('Pendente',this)">
-              <div class="status-dot" style="background:var(--yellow)"></div><span>Pendente</span><span class="status-check">✓</span>
             </div>
             <div class="status-opt" style="--c:var(--green);--dim:var(--green-dim)" onclick="selecionarStatus('Resolvido',this)">
               <div class="status-dot" style="background:var(--green)"></div><span>Resolvido</span><span class="status-check">✓</span>
             </div>
           </div>
-          <button class="btn-primary" style="margin-top:12px" onclick="salvarStatus()">Salvar Status</button>
+          <button class="btn-primary" style="margin-top:10px" onclick="salvarStatus()">Salvar Status</button>
         </div>
 
         <!-- Responsável -->
@@ -514,29 +493,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
           </div>
           <div class="plan-list" id="planList"></div>
           <button class="btn-add-plan" onclick="abrirModalPlano()">+ Nova ação</button>
-        </div>
-
-        <!-- Ações Rápidas -->
-        <div class="panel" style="animation-delay:.24s">
-          <div class="panel-hd"><div class="panel-title">AÇÕES RÁPIDAS</div></div>
-          <div class="actions-stack">
-            <div class="action-card" style="--c:var(--blue)" onclick="abrirModalPrevencao()">
-              <div class="ac-icon">🛡️</div>
-              <div class="ac-body">
-                <div class="ac-label">Registrar Ação Preventiva</div>
-                <div class="ac-desc">Gerenciar medidas de prevenção vinculadas</div>
-              </div>
-              <div class="ac-arrow">›</div>
-            </div>
-            <div class="action-card" style="--c:var(--teal)" onclick="notificarColaborador()">
-              <div class="ac-icon">📢</div>
-              <div class="ac-body">
-                <div class="ac-label">Notificar Colaborador</div>
-                <div class="ac-desc">Enviar atualização ao reportante</div>
-              </div>
-              <div class="ac-arrow">›</div>
-            </div>
-          </div>
         </div>
 
       </div><!-- /right-col -->
@@ -566,70 +522,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
       <button class="btn-cancel" onclick="fecharModal('modalPlano')">Cancelar</button>
       <button class="btn-confirm" onclick="adicionarAcaoPlano()">Adicionar</button>
     </div>
-  </div>
-</div>
-
-<!-- ════ MODAL AÇÕES PREVENTIVAS ════ -->
-<div class="modal-overlay" id="modalPrevencao">
-  <div class="modal" style="max-width:520px">
-    <button class="modal-close" onclick="fecharModal('modalPrevencao')">×</button>
-
-    <!-- VIEW 1: lista -->
-    <div id="prevView-lista">
-      <div class="modal-title" style="text-align:center">AÇÕES PREVENTIVAS</div>
-      <div class="modal-sub" style="text-align:center;margin-bottom:16px" id="modalPrev-sub">Reporte #1248 — Gerenciar medidas de prevenção</div>
-
-      <div class="prev-list" id="prevList"></div>
-
-      <button class="btn-add-prev" onclick="abrirFormPrev()">
-        <span class="btn-add-prev-icon">+</span> Nova ação preventiva
-      </button>
-
-      <div style="display:flex;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border)">
-        <button class="btn-cancel" onclick="fecharModal('modalPrevencao')">Fechar</button>
-      </div>
-    </div>
-
-    <!-- VIEW 2: formulário nova ação -->
-    <div id="prevView-form" style="display:none">
-      <div class="modal-title" style="text-align:center">NOVA AÇÃO PREVENTIVA</div>
-      <div class="modal-sub" style="text-align:center;margin-bottom:16px">Preencha os dados da medida de prevenção</div>
-
-      <!-- Tipos -->
-      <div style="margin-bottom:14px">
-        <label class="modal-label">Tipo de ação <span style="color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0">(selecione ou crie)</span></label>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:30px" id="tipoTags"></div>
-        <!-- campo + botão para adicionar tipo personalizado -->
-        <div class="tipo-input-row">
-          <input class="modal-input" id="novo-tipo-input" placeholder="Novo tipo personalizado...">
-          <button class="btn-add-tipo" onclick="adicionarTipoCustom()" title="Adicionar tipo">+</button>
-        </div>
-      </div>
-
-      <!-- Descrição -->
-      <div style="margin-bottom:14px">
-        <label class="modal-label">Descrição detalhada</label>
-        <textarea class="modal-textarea" id="prev-desc" placeholder="Descreva a ação preventiva a ser implementada..." style="margin-bottom:0"></textarea>
-      </div>
-
-      <!-- Responsável + Prazo -->
-      <div class="input-row" style="margin-bottom:20px">
-        <div>
-          <label class="modal-label">Responsável pela execução</label>
-          <select class="modal-select" id="prev-resp" style="margin-bottom:0"></select>
-        </div>
-        <div>
-          <label class="modal-label">Prazo de execução</label>
-          <input class="modal-input" type="date" id="prev-prazo" style="margin-bottom:0">
-        </div>
-      </div>
-
-      <div style="display:flex;gap:8px">
-        <button class="btn-cancel" style="flex:1" onclick="voltarListaPrev()">← Voltar</button>
-        <button class="btn-confirm" style="flex:1" onclick="registrarPrevencao()">Salvar Ação</button>
-      </div>
-    </div>
-
   </div>
 </div>
 
@@ -684,7 +576,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
     <div style="background:var(--dark4);border:1px solid var(--yellow-b);border-radius:8px;padding:12px 14px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start">
       <span style="font-size:18px;flex-shrink:0">⚠️</span>
       <div style="font-size:12px;color:var(--text-muted);line-height:1.6">
-        Ao reabrir, o reporte voltará ao status <strong style="color:var(--blue)">Em análise</strong> e você poderá registrar novas ações, atualizações e planos. Essa ação será registrada no histórico.
+        Ao reabrir, o reporte voltará ao status <strong style="color:var(--orange)">Aberto</strong> e você poderá registrar novas ações, atualizações e planos. Essa ação será registrada no histórico.
       </div>
     </div>
 
@@ -718,16 +610,16 @@ const ANALISTAS = [
 ];
 
 let _responsavelAtual = ANALISTAS[0];
-let _statusAtual      = "Em análise";
-let _statusPendente   = "Em análise";
+let _statusAtual      = "Aberto";
+let _statusPendente   = "Aberto";
 let _reporteId        = "1248";
 
 const HISTORICO = [
   { quem:"João Lima",      tempo:"21/03/2025 · 08:42", acao:"Reporte aberto",               cor:"var(--orange)", dot:"var(--orange)", desc:"Reporte registrado via aplicativo mobile com 2 imagens e 1 documento anexados." },
   { quem:"Sistema",        tempo:"21/03/2025 · 08:43", acao:"Atribuído automaticamente",    cor:"var(--blue)",   dot:"var(--blue)",   desc:"Reporte encaminhado ao analista Ricardo Santos." },
-  { quem:"Ricardo Santos", tempo:"21/03/2025 · 09:10", acao:"Status alterado — Em análise", cor:"var(--blue)",   dot:"var(--blue)",   desc:null },
+  { quem:"Ricardo Santos", tempo:"21/03/2025 · 09:10", acao:"Status alterado — Aberto", cor:"var(--blue)",   dot:"var(--blue)",   desc:null },
   { quem:"Ricardo Santos", tempo:"22/03/2025 · 14:30", acao:"Comentário registrado",        cor:"var(--teal)",   dot:"var(--teal)",   comentario:"Confirmada ausência de sinalização. Solicitado orçamento para placas definitivas e instalação de sinalização provisória de emergência." },
-  { quem:"Ana Paula",      tempo:"25/03/2025 · 10:15", acao:"Ação preventiva registrada",   cor:"var(--green)",  dot:"var(--green)",  desc:"Instalação de fitas de advertência provisórias realizada pela equipe de manutenção." },
+  { quem:"Ana Paula",      tempo:"25/03/2025 · 10:15", acao:"Plano de ação atualizado",      cor:"var(--green)",  dot:"var(--green)",  desc:"Sinalização provisória instalada e marcada como concluída no plano de ação." },
 ];
 
 let _plano = [
@@ -736,12 +628,6 @@ let _plano = [
   { id:3, desc:"Realizar inspeção pós-instalação e registrar conformidade no sistema", resp:"Ricardo Santos",     prazo:"2025-04-05", done:false },
 ];
 
-let _prevenções = [
-  { id:1, tipo:"Sinalização de área", desc:"Instalação de fitas de advertência provisórias no Corredor B enquanto sinalização definitiva é providenciada.", resp:"Ana Paula Ferreira", prazo:"2025-03-25" },
-];
-
-let _tipos = ["Instalação de EPI","Sinalização de área","Treinamento","Manutenção preventiva","Revisão de procedimento"];
-let _tipoSel = "";
 
 /* ══════════════════════════════════════════════════
    UTILITÁRIOS
@@ -882,6 +768,9 @@ function renderPlano() {
           <span class="plan-due${v ? ' overdue' : ''}">📅 ${fmtPrazo(p.prazo)}${v ? ' · vencido' : ''}</span>
         </div>
       </div>
+      <button onclick="excluirAcaoPlano(${p.id})" title="Excluir ação" style="flex-shrink:0;width:26px;height:26px;border-radius:6px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseover="this.style.background='rgba(239,68,68,.12)'" onmouseout="this.style.background='none'">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
     </div>`;
   }).join('');
 }
@@ -900,9 +789,17 @@ function togglePlano(id) {
   }
 }
 
-/* ══════════════════════════════════════════════════
-   MODAL PLANO
-══════════════════════════════════════════════════ */
+function excluirAcaoPlano(id) {
+  const item = _plano.find(p => p.id === id);
+  if (!item) return;
+  _plano = _plano.filter(p => p.id !== id);
+  renderPlano();
+  showToast("🗑️", `Ação "${item.desc.slice(0, 40)}${item.desc.length > 40 ? '…' : ''}" removida`, "blue");
+  registrarHist("Ação do plano removida", _responsavelAtual.nome, `"${item.desc}" foi excluída do plano.`, null, "var(--red)", "var(--red)");
+}
+
+
+
 function abrirModalPlano() { abrirModal('modalPlano'); }
 
 function adicionarAcaoPlano() {
@@ -933,12 +830,28 @@ function salvarStatus() {
   if (_statusPendente === _statusAtual) return;
   const anterior = _statusAtual;
   _statusAtual   = _statusPendente;
-  const map = { "Aberto":"s-aberto","Em análise":"s-andamento","Em andamento":"s-andamento","Pendente":"s-pendente","Resolvido":"s-resolvido" };
+  const map = { "Aberto":"s-aberto", "Em andamento":"s-andamento", "Resolvido":"s-resolvido" };
   const badge = document.getElementById("rh-status-badge");
   badge.className   = `tag ${map[_statusAtual] || ''}`;
   badge.textContent = _statusAtual;
   showToast("✅", `Status atualizado para "${_statusAtual}"`, "green");
   registrarHist(`Status alterado — ${_statusAtual}`, _responsavelAtual.nome, `Status anterior: ${anterior}.`, null, "var(--blue)", "var(--blue)");
+
+  /* Se status for Resolvido, habilita o botão Encerrar */
+  const btnEncerrar = document.getElementById("btn-encerrar");
+  if (btnEncerrar) {
+    if (_statusAtual === "Resolvido") {
+      btnEncerrar.disabled = false;
+      btnEncerrar.title    = "Encerrar este reporte";
+    } else {
+      /* Volta a lógica normal baseada no plano */
+      const pend = _plano.filter(p => !p.done).length;
+      btnEncerrar.disabled = pend > 0;
+      btnEncerrar.title    = pend > 0
+        ? `Conclua ${pend} ação${pend !== 1 ? 'ões' : ''} do plano para encerrar`
+        : "Encerrar este reporte";
+    }
+  }
 }
 
 /* ══════════════════════════════════════════════════
@@ -973,117 +886,6 @@ function adicionarComentario() {
 /* ══════════════════════════════════════════════════
    AÇÕES PREVENTIVAS — VIEWS
 ══════════════════════════════════════════════════ */
-function abrirModalPrevencao() {
-  voltarListaPrev();
-  renderPrevList();
-  abrirModal('modalPrevencao');
-}
-
-function abrirFormPrev() {
-  _tipoSel = '';
-  const desc  = document.getElementById("prev-desc");
-  const prazo = document.getElementById("prev-prazo");
-  const inp   = document.getElementById("novo-tipo-input");
-  if (desc)  desc.value  = '';
-  if (prazo) prazo.value = '';
-  if (inp)   inp.value   = '';
-  renderTipos();
-  document.getElementById("prevView-lista").style.display = "none";
-  document.getElementById("prevView-form").style.display  = "block";
-}
-
-function voltarListaPrev() {
-  const lista = document.getElementById("prevView-lista");
-  const form  = document.getElementById("prevView-form");
-  if (lista) lista.style.display = "block";
-  if (form)  form.style.display  = "none";
-  _tipoSel = '';
-}
-
-/* ── TIPOS ── */
-function renderTipos() {
-  const el = document.getElementById("tipoTags");
-  if (!_tipos.length) {
-    el.innerHTML = `<span style="font-size:11px;color:var(--text-dim)">Nenhum tipo cadastrado — crie um abaixo</span>`;
-    return;
-  }
-  el.innerHTML = _tipos.map(t => {
-    const sel = t === _tipoSel;
-    return `
-    <div class="tipo-tag${sel ? ' selected' : ''}" onclick="selecionarTipo('${t.replace(/'/g,"\\'")}',this)">
-      ${t}
-      <span class="tipo-tag-del" onclick="event.stopPropagation();removerTipo('${t.replace(/'/g,"\\'")}')">×</span>
-    </div>`;
-  }).join('');
-}
-
-function selecionarTipo(t, el) {
-  _tipoSel = t;
-  document.querySelectorAll('.tipo-tag').forEach(d => d.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
-function removerTipo(t) {
-  _tipos = _tipos.filter(x => x !== t);
-  if (_tipoSel === t) _tipoSel = '';
-  renderTipos();
-}
-
-function adicionarTipoCustom() {
-  const inp = document.getElementById("novo-tipo-input");
-  const v   = inp.value.trim();
-  if (!v) return;
-  if (_tipos.includes(v)) { showToast("⚠️", "Tipo já existe", "red"); return; }
-  _tipos.push(v);
-  _tipoSel = v;
-  inp.value = '';
-  renderTipos();
-  showToast("✅", `Tipo "${v}" adicionado`, "green");
-}
-
-/* ── REGISTRAR PREVENÇÃO ── */
-function registrarPrevencao() {
-  const tipo  = _tipoSel || document.getElementById("novo-tipo-input").value.trim();
-  const desc  = document.getElementById("prev-desc").value.trim();
-  const resp  = document.getElementById("prev-resp");
-  const prazo = document.getElementById("prev-prazo").value;
-  if (!tipo) { showToast("⚠️", "Selecione ou crie um tipo de ação", "red"); return; }
-  if (!desc) { showToast("⚠️", "Preencha a descrição", "red"); return; }
-  const nomeResp = resp.options[resp.selectedIndex].text;
-  _prevenções.push({ id: Date.now(), tipo, desc, resp: nomeResp, prazo });
-  voltarListaPrev();
-  renderPrevList();
-  showToast("🛡️", "Ação preventiva registrada", "green");
-  registrarHist("Ação preventiva registrada", _responsavelAtual.nome, `[${tipo}] ${desc} — Responsável: ${nomeResp} · Prazo: ${fmtPrazo(prazo) || '—'}`, null, "var(--green)", "var(--green)");
-}
-
-function renderPrevList() {
-  const el = document.getElementById("prevList");
-  if (!_prevenções.length) {
-    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px">Nenhuma ação preventiva cadastrada</div>`;
-    return;
-  }
-  el.innerHTML = _prevenções.map(p => `
-    <div class="prev-item">
-      <div class="prev-item-body">
-        <div class="prev-item-tipo">${p.tipo}</div>
-        <div class="prev-item-desc">${p.desc}</div>
-        <div class="prev-item-meta">
-          <span>👤 ${p.resp}</span>
-          ${p.prazo ? `<span>📅 ${fmtPrazo(p.prazo)}</span>` : ''}
-        </div>
-      </div>
-      <button class="prev-del" onclick="removerPrevencao(${p.id})" title="Remover ação">🗑️</button>
-    </div>`).join('');
-}
-
-function removerPrevencao(id) {
-  const item = _prevenções.find(p => p.id === id);
-  _prevenções = _prevenções.filter(p => p.id !== id);
-  renderPrevList();
-  showToast("🗑️", "Ação preventiva removida", "red");
-  if (item) registrarHist("Ação preventiva removida", _responsavelAtual.nome, `[${item.tipo}] "${item.desc.slice(0, 50)}..." removida.`, null, "var(--red)", "var(--red)");
-}
 
 /* ══════════════════════════════════════════════════
    ENCERRAMENTO
@@ -1144,11 +946,20 @@ function encerrarReporte() {
   registrarHist("Reporte encerrado", _responsavelAtual.nome, `Motivo: ${motivo}.`, null, "var(--red)", "var(--red)");
   _statusAtual = "Resolvido";
 
+  /* Persiste motivo e data no sessionStorage para o colaborador ver no tracking */
+  try {
+    const dados = JSON.parse(sessionStorage.getItem("reporteAtual") || "{}");
+    dados.status      = "resolvido";
+    dados.motivo      = motivo;
+    dados.encerradoEm = new Date().toLocaleDateString('pt-BR') + ' · ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    sessionStorage.setItem("reporteAtual", JSON.stringify(dados));
+  } catch(e) {}
+
   /* Atualiza badge de status no header */
   const badge = document.getElementById("rh-status-badge");
   badge.className   = "tag s-resolvido";
   badge.textContent = "Resolvido";
-  document.querySelectorAll('.status-opt').forEach((o, i) => { o.classList.remove('active'); if (i === 4) o.classList.add('active'); });
+  document.querySelectorAll('.status-opt').forEach((o, i) => { o.classList.remove('active'); if (i === 2) o.classList.add('active'); });
 
   /* Após pequeno delay para o toast aparecer, monta e exibe a view de encerrado */
   setTimeout(() => ativarViewEncerrado(motivo), 600);
@@ -1169,7 +980,6 @@ function ativarViewEncerrado(motivo) {
   const categoria = document.getElementById("info-categoria").textContent;
   const tipo      = document.getElementById("info-tipo").textContent;
   const setor     = document.getElementById("info-setor").textContent;
-  const zona      = document.getElementById("info-zona").textContent;
   const reporter  = document.getElementById("reporter-nome").textContent;
   const reporterAv= document.getElementById("reporter-av").textContent;
   const respNome  = document.getElementById("meta-resp-nome").textContent;
@@ -1273,6 +1083,10 @@ function ativarViewEncerrado(motivo) {
         </div>
       </div>
       <div class="rh-actions">
+        <a href="home_analyst.html" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:10px;font-family:var(--fb);font-size:13px;text-decoration:none;transition:all .2s;white-space:nowrap">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Voltar
+        </a>
         <button class="btn-reopen" onclick="solicitarReabertura()">🔓 Reabrir Reporte</button>
       </div>
     </div>
@@ -1310,7 +1124,6 @@ function ativarViewEncerrado(motivo) {
             <div class="info-item"><div class="info-label">Categoria</div><div class="info-val">${categoria}</div></div>
             <div class="info-item"><div class="info-label">Tipo de ocorrência</div><div class="info-val">${tipo}</div></div>
             <div class="info-item"><div class="info-label">Setor</div><div class="info-val">${setor}</div></div>
-            <div class="info-item"><div class="info-label">Área específica</div><div class="info-val">${zona}</div></div>
           </div>
         </div>
 
@@ -1382,7 +1195,7 @@ function ativarViewEncerrado(motivo) {
           <div style="text-align:center;padding:4px 0 12px">
             <div style="font-size:28px;margin-bottom:8px">🔓</div>
             <div style="font-family:var(--fd);font-size:15px;letter-spacing:.5px;margin-bottom:6px">REABRIR REPORTE</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">O reporte voltará ao status <strong style="color:var(--blue)">Em análise</strong> e poderá receber novas ações.</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">O reporte voltará ao status <strong style="color:var(--orange)">Aberto</strong> e poderá receber novas ações.</div>
             <button class="btn-reopen" style="width:100%;justify-content:center" onclick="solicitarReabertura()">🔓 Reabrir Reporte</button>
           </div>
         </div>
@@ -1409,15 +1222,15 @@ function confirmarReabertura() {
   document.querySelector('.app').style.display = 'flex';
   document.getElementById('viewEncerrado').style.display = 'none';
 
-  /* Volta status para Em análise */
-  _statusAtual    = "Em análise";
-  _statusPendente = "Em análise";
+  /* Volta status para Aberto */
+  _statusAtual    = "Aberto";
+  _statusPendente = "Aberto";
   const badge = document.getElementById("rh-status-badge");
-  badge.className   = "tag s-andamento";
-  badge.textContent = "Em análise";
+  badge.className   = "tag s-aberto";
+  badge.textContent = "Aberto";
   document.querySelectorAll('.status-opt').forEach((o, i) => {
     o.classList.remove('active');
-    if (i === 1) o.classList.add('active'); /* "Em análise" é o índice 1 */
+    if (i === 0) o.classList.add('active'); /* "Aberto" é o índice 0 */
   });
 
   /* Reabilita o botão Encerrar (já vai ser desabilitado por renderPlano se houver pendências) */
@@ -1439,11 +1252,6 @@ function confirmarReabertura() {
 /* ══════════════════════════════════════════════════
    OUTRAS
 ══════════════════════════════════════════════════ */
-function notificarColaborador() {
-  const nome = document.getElementById("reporter-nome").textContent;
-  showToast("📢", `Notificação enviada para ${nome}`, "blue");
-  registrarHist("Colaborador notificado", _responsavelAtual.nome, `Notificação enviada ao reportante ${nome}.`, null, "var(--teal)", "var(--teal)");
-}
 /* ══════════════════════════════════════════════════
    LIGHTBOX DE ANEXOS
 ══════════════════════════════════════════════════ */
@@ -1654,7 +1462,6 @@ function carregarDadosReporte() {
     document.getElementById("bc-id").textContent           = `#${dados.id}`;
     document.getElementById("meta-id").textContent         = `#${dados.id}`;
     document.getElementById("modalPlano-sub").textContent  = `Reporte #${dados.id} — Plano de ação`;
-    document.getElementById("modalPrev-sub").textContent   = `Reporte #${dados.id} — Gerenciar medidas de prevenção`;
     document.getElementById("modalEncerrar-sub").textContent = `Reporte #${dados.id} — Esta ação não pode ser desfeita`;
     if (dados.data) document.getElementById("meta-abertura").textContent = dados.data;
   }
@@ -1688,11 +1495,6 @@ function carregarDadosReporte() {
     document.getElementById("info-setor").textContent = dados.setor;
   }
 
-  /* Área específica (zona) */
-  if (dados.zona) {
-    document.getElementById("info-zona").textContent = dados.zona;
-  }
-
   /* Quem reportou */
   if (dados.reporter) {
     const ini = dados.reporter.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
@@ -1706,6 +1508,43 @@ function carregarDadosReporte() {
   } else if (dados.semAnexos) {
     renderAnexos([]);
   }
+
+  /* Aplica o status do reporte na interface */
+  if (dados.status) {
+    const statusMap = {
+      aberto:    { label: 'Aberto',       cls: 's-aberto',    idx: 0 },
+      andamento: { label: 'Em andamento', cls: 's-andamento', idx: 1 },
+      resolvido: { label: 'Resolvido',    cls: 's-resolvido', idx: 2 },
+    };
+    const cfg = statusMap[dados.status];
+    if (cfg) {
+      if (dados.status === 'resolvido') {
+        /* Abre direto na view encerrada */
+        _statusAtual    = 'Resolvido';
+        _statusPendente = 'Resolvido';
+        const badge = document.getElementById('rh-status-badge');
+        if (badge) { badge.className = 'tag s-resolvido'; badge.textContent = 'Resolvido'; }
+        document.querySelectorAll('.status-opt').forEach((o, i) => {
+          o.classList.remove('active');
+          if (i === 2) o.classList.add('active');
+        });
+        const btnEncerrar = document.getElementById('btn-encerrar');
+        if (btnEncerrar) { btnEncerrar.disabled = false; btnEncerrar.title = 'Encerrar este reporte'; }
+        /* Aciona a view encerrada com motivo padrão */
+        setTimeout(() => ativarViewEncerrado('Problema resolvido — ação corretiva aplicada'), 0);
+      } else {
+        /* Aberto ou Em andamento — aplica no seletor e badge */
+        _statusAtual    = cfg.label;
+        _statusPendente = cfg.label;
+        const badge = document.getElementById('rh-status-badge');
+        if (badge) { badge.className = `tag ${cfg.cls}`; badge.textContent = cfg.label; }
+        document.querySelectorAll('.status-opt').forEach((o, i) => {
+          o.classList.remove('active');
+          if (i === cfg.idx) o.classList.add('active');
+        });
+      }
+    }
+  }
 }
 
 /* ══════════════════════════════════════════════════
@@ -1715,16 +1554,7 @@ function init() {
   preencherSelects();
   renderHistorico();
   renderPlano();
-  renderPrevList();
   carregarDadosReporte();
-
-  /* Enter no campo de tipo — também aciona adicionarTipoCustom */
-  document.addEventListener("keydown", function(e) {
-    if (e.key === "Enter" && e.target.id === "novo-tipo-input") {
-      e.preventDefault();
-      adicionarTipoCustom();
-    }
-  });
 }
 
 init();
