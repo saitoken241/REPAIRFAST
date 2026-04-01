@@ -32,32 +32,7 @@
     font-family: 'DM Sans', sans-serif;
     font-weight: 300;
     overflow-x: hidden;
-    cursor: none;
   }
-
-  /* Custom cursor */
-  .cursor {
-    position: fixed;
-    width: 12px; height: 12px;
-    background: var(--orange);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
-  }
-  .cursor-ring {
-    position: fixed;
-    width: 36px; height: 36px;
-    border: 1px solid rgba(232,92,26,0.4);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: transform 0.15s ease-out, width 0.3s, height 0.3s;
-  }
-  body:has(a:hover) .cursor, body:has(button:hover) .cursor { width: 20px; height: 20px; background: var(--orange-bright); }
-  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 56px; height: 56px; }
 
   /* Noise texture overlay */
   body::before {
@@ -457,7 +432,8 @@
     gap: 8px;
     animation: floatCard 5s 1s ease-in-out infinite;
   }
-  .badge-sla-icon { font-size: 20px; }
+  .badge-sla-icon { display: flex; align-items: center; justify-content: center; }
+  .badge-sla-icon svg { width: 22px; height: 22px; }
   .badge-sla-val { font-family: 'Bebas Neue'; font-size: 22px; color: var(--accent-green); letter-spacing: 1px; }
   .badge-sla-lbl { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
 
@@ -585,7 +561,14 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 24px;
-    font-size: 22px;
+  }
+  .feature-icon svg {
+    width: 24px; height: 24px;
+    stroke: var(--orange);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .feature-name {
     font-weight: 500;
@@ -678,7 +661,16 @@
     transition: border-color 0.2s, transform 0.2s;
   }
   .stack-item:hover { border-color: var(--orange); transform: translateY(-4px); }
-  .stack-item-icon { font-size: 28px; margin-bottom: 8px; }
+  .stack-item-icon {
+    width: 36px; height: 36px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stack-item-icon svg {
+    width: 32px; height: 32px;
+  }
   .stack-item-name { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
 
   /* ODS */
@@ -782,9 +774,6 @@
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">
@@ -849,6 +838,12 @@
 
     <!-- Floating SLA badge -->
     <div class="hero-float-badge badge-sla">
+      <div class="badge-sla-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
       <div>
         <div class="badge-sla-val">55.3%</div>
         <div class="badge-sla-lbl">SLA Cumprido</div>
@@ -967,33 +962,74 @@
   </div>
 
   <div class="features-grid reveal">
+    <!-- Formulários Dinâmicos -->
     <div class="feature-card">
-      <div class="feature-icon">📋</div>
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="2"/>
+          <path d="M9 12h6M9 16h4"/>
+        </svg>
+      </div>
       <div class="feature-name">Formulários Dinâmicos</div>
       <div class="feature-desc">Coleta estruturada que varia conforme o tipo de ocorrência, garantindo consistência e completude dos dados.</div>
     </div>
+    <!-- Mapa Interativo -->
     <div class="feature-card">
-      <div class="feature-icon">🗺️</div>
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+          <line x1="9" y1="3" x2="9" y2="18"/>
+          <line x1="15" y1="6" x2="15" y2="21"/>
+        </svg>
+      </div>
       <div class="feature-name">Mapa Interativo</div>
       <div class="feature-desc">Visualização geoespacial de ocorrências por área, setor e criticidade para decisões mais rápidas.</div>
     </div>
+    <!-- Dashboard Power BI -->
     <div class="feature-card">
-      <div class="feature-icon">📊</div>
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M3 9h18M9 21V9"/>
+          <rect x="12" y="12" width="3" height="6" rx="1"/>
+          <rect x="16" y="14" width="2" height="4" rx="1"/>
+        </svg>
+      </div>
       <div class="feature-name">Dashboard Power BI</div>
       <div class="feature-desc">Indicadores consolidados em tempo real com triagem, priorização e suporte à tomada de decisão.</div>
     </div>
+    <!-- Notificações Automáticas -->
     <div class="feature-card">
-      <div class="feature-icon">🔔</div>
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          <line x1="12" y1="2" x2="12" y2="4"/>
+        </svg>
+      </div>
       <div class="feature-name">Notificações Automáticas</div>
       <div class="feature-desc">Alertas em tempo real para atrasos, pendências e mudanças de status em cada reporte.</div>
     </div>
+    <!-- IA Conversacional -->
     <div class="feature-card">
-      <div class="feature-icon">🤖</div>
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 12-8 12S4 15.25 4 10a8 8 0 0 1 8-8z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
       <div class="feature-name">IA Conversacional</div>
       <div class="feature-desc">Assistente inteligente para orientação, engajamento e consultas à base de conhecimento.</div>
     </div>
+    <!-- Reconhecer+ -->
     <div class="feature-card">
-      <div class="feature-icon">🏆</div>
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="6"/>
+          <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+        </svg>
+      </div>
       <div class="feature-name">Reconhecer+</div>
       <div class="feature-desc">Rankings, pontuações e badges que incentivam comportamentos seguros e cultura preventiva.</div>
     </div>
@@ -1062,28 +1098,73 @@
     <p>Construído com tecnologias modernas para garantir performance, segurança e escalabilidade industrial.</p>
   </div>
   <div class="stack-grid reveal">
+    <!-- Python -->
     <div class="stack-item">
-      <div class="stack-item-icon">🐍</div>
+      <div class="stack-item-icon">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15.885 2.1c-7.1 0-6.651 3.07-6.651 3.07v3.19h6.752v1H6.545S2 8.8 2 16.005s4.013 6.912 4.013 6.912H8.33v-3.325s-.13-4.013 3.95-4.013h6.812s3.818.06 3.818-3.688V5.8s.578-3.7-6.975-3.7zm-3.74 2.138a1.214 1.214 0 1 1-1.214 1.214 1.214 1.214 0 0 1 1.214-1.214z" fill="#387EB8"/>
+          <path d="M16.085 29.9c7.1 0 6.651-3.07 6.651-3.07v-3.19h-6.752v-1h9.441S30 23.2 30 15.995s-4.013-6.912-4.013-6.912H23.67v3.325s.13 4.013-3.95 4.013h-6.812S9.09 16.36 9.09 20.108v6.091S8.512 29.9 16.085 29.9zm3.74-2.138A1.214 1.214 0 1 1 21.04 26.55a1.214 1.214 0 0 1-1.215 1.212z" fill="#FFE052"/>
+        </svg>
+      </div>
       <div class="stack-item-name">Python</div>
     </div>
+    <!-- FastAPI -->
     <div class="stack-item">
-      <div class="stack-item-icon">⚡</div>
+      <div class="stack-item-icon">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="14" fill="#059669"/>
+          <path d="M17 6l-8 11h7l-1 9 8-11h-7l1-9z" fill="white"/>
+        </svg>
+      </div>
       <div class="stack-item-name">FastAPI</div>
     </div>
+    <!-- MySQL -->
     <div class="stack-item">
-      <div class="stack-item-icon">🗄️</div>
+      <div class="stack-item-icon">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 4C9.373 4 4 6.686 4 10v12c0 3.314 5.373 6 12 6s12-2.686 12-6V10c0-3.314-5.373-6-12-6z" fill="#00758F"/>
+          <ellipse cx="16" cy="10" rx="12" ry="4" fill="#F29111"/>
+          <path d="M4 14c0 2.21 5.373 4 12 4s12-1.79 12-4" stroke="#F29111" stroke-width="1.5" fill="none"/>
+          <path d="M4 18c0 2.21 5.373 4 12 4s12-1.79 12-4" stroke="#F29111" stroke-width="1.5" fill="none"/>
+        </svg>
+      </div>
       <div class="stack-item-name">MySQL</div>
     </div>
+    <!-- Figma -->
     <div class="stack-item">
-      <div class="stack-item-icon">📱</div>
+      <div class="stack-item-icon">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 28a4 4 0 0 0 4-4v-4h-4a4 4 0 0 0 0 8z" fill="#0ACF83"/>
+          <path d="M7 16a4 4 0 0 1 4-4h4v8h-4a4 4 0 0 1-4-4z" fill="#A259FF"/>
+          <path d="M7 8a4 4 0 0 1 4-4h4v8h-4a4 4 0 0 1-4-4z" fill="#F24E1E"/>
+          <path d="M15 4h4a4 4 0 0 1 0 8h-4V4z" fill="#FF7262"/>
+          <circle cx="19" cy="16" r="4" fill="#1ABCFE"/>
+        </svg>
+      </div>
       <div class="stack-item-name">Figma</div>
     </div>
+    <!-- Power BI -->
     <div class="stack-item">
-      <div class="stack-item-icon">📊</div>
+      <div class="stack-item-icon">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="18" width="5" height="10" rx="1" fill="#F2C811"/>
+          <rect x="11" y="12" width="5" height="16" rx="1" fill="#F2C811"/>
+          <rect x="18" y="6" width="5" height="22" rx="1" fill="#F2C811"/>
+          <rect x="25" y="10" width="3" height="18" rx="1" fill="#F2A900" opacity="0.7"/>
+        </svg>
+      </div>
       <div class="stack-item-name">Power BI</div>
     </div>
+    <!-- HTML/CSS/JS -->
     <div class="stack-item">
-      <div class="stack-item-icon">🌐</div>
+      <div class="stack-item-icon">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4l2.4 22L16 29l9.6-3L28 4H4z" fill="#E44D26"/>
+          <path d="M16 26.5l7.8-2.16L25.5 8H16v18.5z" fill="#F16529"/>
+          <path d="M16 14h-4.5l-.3-3H16V8H7.4l.8 9H16v-3zm.1 8.5l-.1.02-3.8-1.03-.24-2.7H9l.47 5.25L16.1 26l.1-.03v-3.47z" fill="white"/>
+          <path d="M16 14v3h4.2l-.4 4.48-3.8 1.03V26l6.62-1.84.1-1.07.76-8.6.08-.93H16zm0-6v3h8.9l.07-.79.16-1.75.08-.46H16z" fill="#EBEBEB"/>
+        </svg>
+      </div>
       <div class="stack-item-name">HTML/CSS/JS</div>
     </div>
   </div>
@@ -1142,27 +1223,6 @@
 </footer>
 
 <script>
-  // Custom cursor
-  const cursor = document.getElementById('cursor');
-  const cursorRing = document.getElementById('cursorRing');
-  let mouseX = 0, mouseY = 0;
-  let ringX = 0, ringY = 0;
-
-  document.addEventListener('mousemove', e => {
-    mouseX = e.clientX; mouseY = e.clientY;
-    cursor.style.left = mouseX + 'px';
-    cursor.style.top = mouseY + 'px';
-  });
-
-  function animateRing() {
-    ringX += (mouseX - ringX) * 0.12;
-    ringY += (mouseY - ringY) * 0.12;
-    cursorRing.style.left = ringX + 'px';
-    cursorRing.style.top = ringY + 'px';
-    requestAnimationFrame(animateRing);
-  }
-  animateRing();
-
   // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver(entries => {

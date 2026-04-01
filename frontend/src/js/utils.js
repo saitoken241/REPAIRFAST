@@ -189,17 +189,15 @@ function ativarFiltro(btn, grupo = '.filter-pill') {
 ══════════════════════════════════════════ */
 
 const STATUS_MAP = {
-  aberto:    { cls: 's-aberto',    label: 'Aberto',        bg: 'var(--orange-dim)', emoji: '⚠️' },
-  andamento: { cls: 's-andamento', label: 'Em andamento',  bg: 'var(--blue-dim)',   emoji: '🔧' },
-  resolvido: { cls: 's-resolvido', label: 'Resolvido',     bg: 'var(--green-dim)',  emoji: '✅' },
-  pendente:  { cls: 's-pendente',  label: 'Pendente',      bg: 'var(--yellow-dim)', emoji: '⏳' },
+  aberto:    { cls: 's-aberto',    label: 'Aberto',       bg: 'var(--orange-dim)' },
+  andamento: { cls: 's-andamento', label: 'Em andamento', bg: 'var(--blue-dim)'   },
+  resolvido: { cls: 's-resolvido', label: 'Resolvido',    bg: 'var(--green-dim)'  },
 };
 
 const PRIORIDADE_MAP = {
-  critica: { cls: 'p-critica', label: 'Crítica', bg: 'var(--red-dim)'    },
-  alta:    { cls: 'p-alta',    label: 'Alta',    bg: 'var(--orange-dim)' },
-  media:   { cls: 'p-media',   label: 'Média',   bg: 'var(--yellow-dim)' },
-  baixa:   { cls: 'p-baixa',   label: 'Baixa',   bg: 'var(--blue-dim)'   },
+  alta:  { cls: 'p-alta',  label: 'Alta',  bg: 'var(--orange-dim)' },
+  media: { cls: 'p-media', label: 'Média', bg: 'var(--yellow-dim)' },
+  baixa: { cls: 'p-baixa', label: 'Baixa', bg: 'var(--blue-dim)'   },
 };
 
 /* ══════════════════════════════════════════

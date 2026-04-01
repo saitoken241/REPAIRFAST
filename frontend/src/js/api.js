@@ -44,9 +44,9 @@ const MOCK = {
 
   reportesFuncionario: [
     { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B",       setor:"Segurança",  prioridade:"alta",    status:"aberto",    data:"21/03/2025" },
-    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             setor:"Produção",   prioridade:"critica", status:"andamento", data:"19/03/2025" },
+    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             setor:"Produção",   prioridade:"alta", status:"andamento", data:"19/03/2025" },
     { id:1227, titulo:"EPI ausente no posto de laminação — Linha 3",               setor:"Qualidade",  prioridade:"media",   status:"resolvido", data:"15/03/2025" },
-    { id:1219, titulo:"Vazamento de óleo próximo à máquina CNC-04",                setor:"Manutenção", prioridade:"alta",    status:"pendente",  data:"12/03/2025" },
+    { id:1219, titulo:"Vazamento de óleo próximo à máquina CNC-04",                setor:"Manutenção", prioridade:"alta",    status:"andamento",  data:"12/03/2025" },
     { id:1210, titulo:"Iluminação insuficiente no corredor de saída emergencial",   setor:"Segurança",  prioridade:"baixa",   status:"resolvido", data:"08/03/2025" }
   ],
 
@@ -63,7 +63,7 @@ const MOCK = {
   },
 
   resumoAnalista: {
-    total: 38, aberto: 12, critico: 4, resolvido: 18
+    total: 38, aberto: 12, andamento: 5, resolvido: 18
   },
 
   criticos: [
@@ -74,17 +74,17 @@ const MOCK = {
   ],
 
   reportesAnalista: [
-    { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B",        reporter:"João Lima",   prioridade:"critica", status:"aberto",    data:"21/03/2025" },
+    { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B",        reporter:"João Lima",   prioridade:"alta", status:"aberto",    data:"21/03/2025" },
     { id:1247, titulo:"EPI ausente no posto de laminação — Linha 3",               reporter:"Ana Paula",   prioridade:"alta",    status:"aberto",    data:"21/03/2025" },
     { id:1245, titulo:"Iluminação inadequada no corredor de saída emergencial",     reporter:"Pedro R.",    prioridade:"media",   status:"andamento", data:"20/03/2025" },
-    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             reporter:"Carlos F.",   prioridade:"critica", status:"aberto",    data:"19/03/2025" },
-    { id:1238, titulo:"Ruído excessivo próximo à área de manutenção",              reporter:"Marcos V.",   prioridade:"media",   status:"pendente",  data:"18/03/2025" },
-    { id:1235, titulo:"Vazamento de produto químico na Linha 2",                   reporter:"Ana Paula",   prioridade:"critica", status:"aberto",    data:"17/03/2025" },
+    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             reporter:"Carlos F.",   prioridade:"alta", status:"aberto",    data:"19/03/2025" },
+    { id:1238, titulo:"Ruído excessivo próximo à área de manutenção",              reporter:"Marcos V.",   prioridade:"media",   status:"andamento",  data:"18/03/2025" },
+    { id:1235, titulo:"Vazamento de produto químico na Linha 2",                   reporter:"Ana Paula",   prioridade:"alta", status:"aberto",    data:"17/03/2025" },
     { id:1232, titulo:"Falta de equipamento de combate a incêndio no Galpão A",    reporter:"João Lima",   prioridade:"alta",    status:"andamento", data:"16/03/2025" },
-    { id:1230, titulo:"Bloqueio de rota de fuga no Galpão C",                      reporter:"Marcos V.",   prioridade:"critica", status:"andamento", data:"15/03/2025" },
+    { id:1230, titulo:"Bloqueio de rota de fuga no Galpão C",                      reporter:"Marcos V.",   prioridade:"alta", status:"andamento", data:"15/03/2025" },
     { id:1227, titulo:"Piso escorregadio na entrada do refeitório",                reporter:"Fernanda S.", prioridade:"media",   status:"resolvido", data:"15/03/2025" },
     { id:1224, titulo:"Ausência de protetor auricular na área de britagem",        reporter:"Pedro R.",    prioridade:"alta",    status:"resolvido", data:"14/03/2025" },
-    { id:1220, titulo:"Risco de queda em plataforma elevada — Setor B2",           reporter:"João Lima",   prioridade:"alta",    status:"pendente",  data:"13/03/2025" },
+    { id:1220, titulo:"Risco de queda em plataforma elevada — Setor B2",           reporter:"João Lima",   prioridade:"alta",    status:"andamento",  data:"13/03/2025" },
     { id:1218, titulo:"Descarte irregular de resíduos químicos",                   reporter:"Carlos F.",   prioridade:"media",   status:"resolvido", data:"12/03/2025" },
   ],
 
@@ -103,7 +103,7 @@ const MOCK = {
       { nome:"Segurança",  val:74,  pct:27,  cor:"#E8504A" },
       { nome:"TI",         val:50,  pct:18,  cor:"#F5C842" },
     ],
-    prio:    { critica:67, alta:241, media:357, baixa:185 },
+    prio:    { alta_total:67, alta:241, media:357, baixa:185 },
     mensal:  [161, 76, 142, 155, 157, 159],
     meses:   ["Mai","Jun","Jul","Ago","Set","Out"],
     ranking: [
@@ -115,11 +115,11 @@ const MOCK = {
       { nome:"TI",         reportes:50,  sla:38, slaClass:"sla-bad"  },
     ],
     recentes: [
-      { id:1248, titulo:"Falta de sinalização — Corredor B",            setor:"Segurança",  prioridade:"critica", status:"aberto",    data:"21/03" },
+      { id:1248, titulo:"Falta de sinalização — Corredor B",            setor:"Segurança",  prioridade:"alta", status:"aberto",    data:"21/03" },
       { id:1247, titulo:"EPI ausente no posto de laminação",            setor:"Qualidade",  prioridade:"alta",    status:"aberto",    data:"21/03" },
       { id:1245, titulo:"Iluminação inadequada no corredor emergencial", setor:"Segurança",  prioridade:"media",   status:"andamento", data:"20/03" },
-      { id:1241, titulo:"Esteira com trepidação anormal",               setor:"Produção",   prioridade:"critica", status:"aberto",    data:"19/03" },
-      { id:1238, titulo:"Ruído excessivo — área de manutenção",         setor:"Manutenção", prioridade:"media",   status:"pendente",  data:"18/03" },
+      { id:1241, titulo:"Esteira com trepidação anormal",               setor:"Produção",   prioridade:"alta", status:"aberto",    data:"19/03" },
+      { id:1238, titulo:"Ruído excessivo — área de manutenção",         setor:"Manutenção", prioridade:"media",   status:"andamento",  data:"18/03" },
     ]
   },
 
@@ -131,7 +131,7 @@ const MOCK = {
       { nome:"NR-12 — Máquinas", val:15, pct:54,  cor:"#2EC4B6" },
       { nome:"NR-6 — EPI",       val:12, pct:43,  cor:"#9B6FE8" },
     ],
-    prio:    { critica:4, alta:18, media:32, baixa:20 },
+    prio:    { alta_total:4, alta:18, media:32, baixa:20 },
     mensal:  [14, 8, 11, 13, 15, 13],
     meses:   ["Mai","Jun","Jul","Ago","Set","Out"],
     ranking: [
@@ -140,9 +140,9 @@ const MOCK = {
       { nome:"Subsetor C", reportes:27, sla:30, slaClass:"sla-bad"  },
     ],
     recentes: [
-      { id:1248, titulo:"Falta de sinalização — Corredor B",    setor:"Segurança", prioridade:"critica", status:"aberto",    data:"21/03" },
-      { id:1235, titulo:"Vazamento de produto químico Linha 2", setor:"Segurança", prioridade:"critica", status:"aberto",    data:"17/03" },
-      { id:1230, titulo:"Bloqueio de rota de fuga Galpão C",    setor:"Segurança", prioridade:"critica", status:"andamento", data:"15/03" },
+      { id:1248, titulo:"Falta de sinalização — Corredor B",    setor:"Segurança", prioridade:"alta", status:"aberto",    data:"21/03" },
+      { id:1235, titulo:"Vazamento de produto químico Linha 2", setor:"Segurança", prioridade:"alta", status:"aberto",    data:"17/03" },
+      { id:1230, titulo:"Bloqueio de rota de fuga Galpão C",    setor:"Segurança", prioridade:"alta", status:"andamento", data:"15/03" },
     ]
   }
 };
