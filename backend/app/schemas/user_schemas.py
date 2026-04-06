@@ -17,6 +17,7 @@ class UserCreate(BaseModel):
     number: str | None = None
     department_id: int 
     role: UserRole = UserRole.employee
+    
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
@@ -26,9 +27,13 @@ class UserUpdate(BaseModel):
     role: Optional[UserRole] = None
     number: Optional[str] = None
     department_id: Optional[int] = None
+    
 
 class UserResponse(BaseModel):
     id: int
     name: str
     email: str
     department_id: int
+    class Config:
+        from_attributes = True
+    
