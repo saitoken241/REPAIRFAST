@@ -51,7 +51,9 @@ def create_user(
 
 @router.get("/", response_model=list[UserResponse])
 def list_users(db: Session = Depends(get_db),current_user: User = Depends(require_roles(["manager"]))):
-    return db.query(User).all()
+    return db.query(User).filter(
+    User.department_id == current_user.department_id
+).all()
 
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
