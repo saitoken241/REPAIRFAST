@@ -40,7 +40,7 @@ def create_report(request: UserCreateReport, db: Session = Depends(get_db), curr
 
 @router.get("/", response_model=list[ReportResponse])
 def list_reports(db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
-    if current_user.role == "manager":
+    if current_user.role in ("manager","analyst"):
         return db.query(Report).filter(
         Report.department_id == current_user.department_id
     ).all()
