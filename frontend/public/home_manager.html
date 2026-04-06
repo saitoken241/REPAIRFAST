@@ -627,6 +627,32 @@ function abrirNovoReporte() {
   window.location.href = 'report_create.html';
 }
 
+/* ── Proteção de rota ──────────────────────────────────────────────
+   Verifica se o usuário está autenticado antes de renderizar a página.
+   Se não houver token no localStorage, redireciona para o login.
+   Se o perfil salvo não for "gestor", redireciona para o home
+   correto do perfil detectado.
+──────────────────────────────────────────────────────────────────── */
+(function protegerRota() {
+  const token  = localStorage.getItem('token');
+  const perfil = localStorage.getItem('perfil');
+
+  if (!token) {
+    window.location.replace('login.html');
+    return;
+  }
+
+  const homeMap = {
+    funcionario: 'home_employee.html',
+    analista:    'home_analyst.html',
+    gestor:      'home_manager.html',
+  };
+
+  if (perfil && perfil !== 'gestor' && homeMap[perfil]) {
+    window.location.replace(homeMap[perfil]);
+  }
+}());
+
 /* Init */
 async function carregarDados() {
   const dados = await getDashboard(_escopo);

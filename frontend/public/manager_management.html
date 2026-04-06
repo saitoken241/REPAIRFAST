@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RepairFast — Usuários</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="../src/js/api.js"></script>
 <style>
   :root {
     --bg:      #0e0f11;
@@ -964,12 +965,31 @@ function updateStats() {
 /* ══════════════════════════════
    TOGGLE STATUS
 ══════════════════════════════ */
-function toggleStatus(id) {
+async function toggleStatus(id) {
   const u = users.find(u => u.id === id);
   if (!u) return;
-  u.status_usuario = !u.status_usuario;
-  showToast(u.status_usuario ? `${u.name} ativado` : `${u.name} desativado`, 'success');
-  renderTable();
+
+  const novoStatus = !u.status_usuario;
+
+  try {
+    /* API real — PUT /users/:id com status invertido */
+    if (!USE_MOCK) {
+      const res = await fetch(`${API_BASE}/users/${id}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ ...u, status_usuario: novoStatus }),
+      });
+      if (!res.ok) throw new Error('Erro ao atualizar status');
+    }
+
+    u.status_usuario = novoStatus;
+    showToast(novoStatus ? `${u.name} ativado` : `${u.name} desativado`, 'success');
+    renderTable();
+
+  } catch (err) {
+    console.error(err);
+    showToast('Não foi possível alterar o status. Tente novamente.', 'error');
+  }
 }
 
 /* ══════════════════════════════
@@ -1040,7 +1060,7 @@ function setErr(fieldId, errId, show) {
 /* ══════════════════════════════
    SAVE USER
 ══════════════════════════════ */
-function saveUser() {
+async function saveUser() {
   const name    = document.getElementById('fName').value.trim();
   const cpfRaw  = document.getElementById('fCpf').value.replace(/\D/g,'');
   const email   = document.getElementById('fEmail').value.trim();
@@ -1080,32 +1100,81 @@ function saveUser() {
 
   if (!valid) return;
 
-  if (isNew) {
-    users.push({
-      id: nextId++,
-      name, cpf: cpfRaw, email,
-      company, role,
-      number: phone.replace(/\D/g,''),
-      status_usuario: true,
-      department_id: parseInt(dept),
-      password: pass,
-    });
-    showToast('Usuário criado com sucesso', 'success');
-  } else {
-    const u = users.find(u => u.id === editingId);
-    const editPass = document.getElementById('fEditPass').value;
-    Object.assign(u, {
-      name, cpf: cpfRaw, email, role,
-      company: u.company,
-      number: phone.replace(/\D/g,''),
-      department_id: parseInt(dept),
-      password: editPass,
-    });
-    showToast('Usuário atualizado', 'success');
-  }
+  const saveBtn = document.getElementById('saveBtnLabel');
+  const originalLabel = saveBtn.textContent;
+  saveBtn.textContent = 'Salvando...';
+  document.querySelector('.btn-save').disabled = true;
 
-  closeModal();
-  renderTable();
+  try {
+    if (isNew) {
+      const payload = {
+        name,
+        cpf:           cpfRaw,
+        email,
+        company,
+        role,
+        number:        phone.replace(/\D/g,''),
+        department_id: parseInt(dept),
+        password:      pass,
+        status_usuario: true,
+      };
+
+      /* API real — POST /users/ */
+      if (USE_MOCK) {
+        users.push({ id: nextId++, status_usuario: true, ...payload });
+      } else {
+        const res = await fetch(`${API_BASE}/users/`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('Erro ao criar usuário');
+        const novo = await res.json();
+        users.push({ ...novo, status_usuario: novo.status_usuario ?? true });
+      }
+      showToast('Usuário criado com sucesso', 'success');
+
+    } else {
+      const u = users.find(u => u.id === editingId);
+      const editPass = document.getElementById('fEditPass').value;
+      const payload = {
+        name,
+        cpf:           cpfRaw,
+        email,
+        company:       u.company,
+        role,
+        number:        phone.replace(/\D/g,''),
+        department_id: parseInt(dept),
+        password:      editPass,
+        status_usuario: u.status_usuario,
+      };
+
+      /* API real — PUT /users/:id */
+      if (USE_MOCK) {
+        Object.assign(u, payload);
+      } else {
+        const res = await fetch(`${API_BASE}/users/${editingId}`, {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('Erro ao atualizar usuário');
+        const atualizado = await res.json();
+        Object.assign(u, atualizado);
+      }
+      showToast('Usuário atualizado', 'success');
+    }
+
+    closeModal();
+    renderTable();
+
+  } catch (err) {
+    console.error(err);
+    showToast('Não foi possível salvar. Tente novamente.', 'error');
+  } finally {
+    saveBtn.textContent = originalLabel;
+    document.querySelector('.btn-save').disabled = false;
+  }
 }
 
 /* ══════════════════════════════
@@ -1124,13 +1193,30 @@ function closeDelete() {
   deletingId = null;
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (deletingId === null) return;
   const u = users.find(u => u.id === deletingId);
-  users = users.filter(u => u.id !== deletingId);
-  closeDelete();
-  renderTable();
-  showToast(`${u?.name} removido`, 'success');
+
+  try {
+    /* API real — DELETE /users/:id */
+    if (!USE_MOCK) {
+      const res = await fetch(`${API_BASE}/users/${deletingId}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error('Erro ao excluir usuário');
+    }
+
+    users = users.filter(u => u.id !== deletingId);
+    closeDelete();
+    renderTable();
+    showToast(`${u?.name} removido`, 'success');
+
+  } catch (err) {
+    console.error(err);
+    closeDelete();
+    showToast('Não foi possível excluir. Tente novamente.', 'error');
+  }
 }
 
 /* ══════════════════════════════
@@ -1312,8 +1398,52 @@ document.getElementById('sectorOverlay').addEventListener('click', function(e) {
 /* ══════════════════════════════
    INIT
 ══════════════════════════════ */
-syncDeptOptions();
-renderTable();
+
+/* ── Proteção de rota ──────────────────────────────────────────────
+   Verifica se o usuário está autenticado antes de renderizar a página.
+   Se não houver token no localStorage, redireciona para o login.
+   Apenas gestores podem acessar esta tela — outros perfis são
+   redirecionados para o home correto.
+──────────────────────────────────────────────────────────────────── */
+(function protegerRota() {
+  const token  = localStorage.getItem('token');
+  const perfil = localStorage.getItem('perfil');
+
+  if (!token) {
+    window.location.replace('login.html');
+    return;
+  }
+
+  const homeMap = {
+    funcionario: 'home_employee.html',
+    analista:    'home_analyst.html',
+    gestor:      'home_manager.html',
+  };
+
+  if (perfil && perfil !== 'gestor' && homeMap[perfil]) {
+    window.location.replace(homeMap[perfil]);
+  }
+}());
+
+async function init() {
+  syncDeptOptions();
+
+  /* API real — GET /users/ carrega usuários do departamento do gestor */
+  if (!USE_MOCK) {
+    try {
+      const res = await fetch(`${API_BASE}/users/`, { headers: authHeaders() });
+      if (!res.ok) throw new Error('Erro ao carregar usuários');
+      users = await res.json();
+    } catch (err) {
+      console.error(err);
+      showToast('Não foi possível carregar os usuários.', 'error');
+    }
+  }
+
+  renderTable();
+}
+
+init();
 </script>
 </body>
 </html>
