@@ -11,12 +11,20 @@
      1. Mude USE_MOCK para false
      2. Defina API_BASE com a URL do FastAPI
    ─────────────────────────────────────────────────
+
+   Rotas pendentes (backend cria amanhã) — forçam mock:
+     • GET  /reports/me/resumo      → getResumoFuncionario
+     • GET  /reports/setor/resumo   → getResumoSetor
+     • GET  /reports/setor/criticos → getReportesCriticos
+     • GET  /notificacoes/me        → getNotificacoes
+     • PATCH /notificacoes/:id/lida → patchNotificacaoLida
+     • GET  /dashboard/*            → getDashboard
 ════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════
    CONFIG
 ══════════════════════════════════════════ */
-const USE_MOCK = true;
+const USE_MOCK = false;
 const API_BASE = "http://localhost:8000";
 
 /** Headers padrão — inclui token JWT salvo no login */
@@ -43,11 +51,11 @@ const MOCK = {
   },
 
   reportesFuncionario: [
-    { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B",       setor:"Segurança",  prioridade:"alta",    status:"aberto",    data:"21/03/2025" },
-    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             setor:"Produção",   prioridade:"alta", status:"andamento", data:"19/03/2025" },
-    { id:1227, titulo:"EPI ausente no posto de laminação — Linha 3",               setor:"Qualidade",  prioridade:"media",   status:"resolvido", data:"15/03/2025" },
-    { id:1219, titulo:"Vazamento de óleo próximo à máquina CNC-04",                setor:"Manutenção", prioridade:"alta",    status:"andamento",  data:"12/03/2025" },
-    { id:1210, titulo:"Iluminação insuficiente no corredor de saída emergencial",   setor:"Segurança",  prioridade:"baixa",   status:"resolvido", data:"08/03/2025" }
+    { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B",       setor:"Segurança",  prioridade:"alta",  status:"aberto",    data:"21/03/2025" },
+    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             setor:"Produção",   prioridade:"alta",  status:"andamento", data:"19/03/2025" },
+    { id:1227, titulo:"EPI ausente no posto de laminação — Linha 3",               setor:"Qualidade",  prioridade:"media", status:"resolvido", data:"15/03/2025" },
+    { id:1219, titulo:"Vazamento de óleo próximo à máquina CNC-04",                setor:"Manutenção", prioridade:"alta",  status:"andamento", data:"12/03/2025" },
+    { id:1210, titulo:"Iluminação insuficiente no corredor de saída emergencial",   setor:"Segurança",  prioridade:"baixa", status:"resolvido", data:"08/03/2025" }
   ],
 
   notificacoes: [
@@ -74,18 +82,18 @@ const MOCK = {
   ],
 
   reportesAnalista: [
-    { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B",        reporter:"João Lima",   prioridade:"alta", status:"aberto",    data:"21/03/2025" },
-    { id:1247, titulo:"EPI ausente no posto de laminação — Linha 3",               reporter:"Ana Paula",   prioridade:"alta",    status:"aberto",    data:"21/03/2025" },
-    { id:1245, titulo:"Iluminação inadequada no corredor de saída emergencial",     reporter:"Pedro R.",    prioridade:"media",   status:"andamento", data:"20/03/2025" },
-    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             reporter:"Carlos F.",   prioridade:"alta", status:"aberto",    data:"19/03/2025" },
-    { id:1238, titulo:"Ruído excessivo próximo à área de manutenção",              reporter:"Marcos V.",   prioridade:"media",   status:"andamento",  data:"18/03/2025" },
-    { id:1235, titulo:"Vazamento de produto químico na Linha 2",                   reporter:"Ana Paula",   prioridade:"alta", status:"aberto",    data:"17/03/2025" },
-    { id:1232, titulo:"Falta de equipamento de combate a incêndio no Galpão A",    reporter:"João Lima",   prioridade:"alta",    status:"andamento", data:"16/03/2025" },
-    { id:1230, titulo:"Bloqueio de rota de fuga no Galpão C",                      reporter:"Marcos V.",   prioridade:"alta", status:"andamento", data:"15/03/2025" },
-    { id:1227, titulo:"Piso escorregadio na entrada do refeitório",                reporter:"Fernanda S.", prioridade:"media",   status:"resolvido", data:"15/03/2025" },
-    { id:1224, titulo:"Ausência de protetor auricular na área de britagem",        reporter:"Pedro R.",    prioridade:"alta",    status:"resolvido", data:"14/03/2025" },
-    { id:1220, titulo:"Risco de queda em plataforma elevada — Setor B2",           reporter:"João Lima",   prioridade:"alta",    status:"andamento",  data:"13/03/2025" },
-    { id:1218, titulo:"Descarte irregular de resíduos químicos",                   reporter:"Carlos F.",   prioridade:"media",   status:"resolvido", data:"12/03/2025" },
+    { id:1248, titulo:"Falta de sinalização em área de risco — Corredor B",        reporter:"João Lima",   prioridade:"alta",  status:"aberto",    data:"21/03/2025" },
+    { id:1247, titulo:"EPI ausente no posto de laminação — Linha 3",               reporter:"Ana Paula",   prioridade:"alta",  status:"aberto",    data:"21/03/2025" },
+    { id:1245, titulo:"Iluminação inadequada no corredor de saída emergencial",     reporter:"Pedro R.",    prioridade:"media", status:"andamento", data:"20/03/2025" },
+    { id:1241, titulo:"Equipamento de esteira com trepidação anormal",             reporter:"Carlos F.",   prioridade:"alta",  status:"aberto",    data:"19/03/2025" },
+    { id:1238, titulo:"Ruído excessivo próximo à área de manutenção",              reporter:"Marcos V.",   prioridade:"media", status:"andamento", data:"18/03/2025" },
+    { id:1235, titulo:"Vazamento de produto químico na Linha 2",                   reporter:"Ana Paula",   prioridade:"alta",  status:"aberto",    data:"17/03/2025" },
+    { id:1232, titulo:"Falta de equipamento de combate a incêndio no Galpão A",    reporter:"João Lima",   prioridade:"alta",  status:"andamento", data:"16/03/2025" },
+    { id:1230, titulo:"Bloqueio de rota de fuga no Galpão C",                      reporter:"Marcos V.",   prioridade:"alta",  status:"andamento", data:"15/03/2025" },
+    { id:1227, titulo:"Piso escorregadio na entrada do refeitório",                reporter:"Fernanda S.", prioridade:"media", status:"resolvido", data:"15/03/2025" },
+    { id:1224, titulo:"Ausência de protetor auricular na área de britagem",        reporter:"Pedro R.",    prioridade:"alta",  status:"resolvido", data:"14/03/2025" },
+    { id:1220, titulo:"Risco de queda em plataforma elevada — Setor B2",           reporter:"João Lima",   prioridade:"alta",  status:"andamento", data:"13/03/2025" },
+    { id:1218, titulo:"Descarte irregular de resíduos químicos",                   reporter:"Carlos F.",   prioridade:"media", status:"resolvido", data:"12/03/2025" },
   ],
 
   /* ── Gestor ── */
@@ -115,11 +123,11 @@ const MOCK = {
       { nome:"TI",         reportes:50,  sla:38, slaClass:"sla-bad"  },
     ],
     recentes: [
-      { id:1248, titulo:"Falta de sinalização — Corredor B",            setor:"Segurança",  prioridade:"alta", status:"aberto",    data:"21/03" },
-      { id:1247, titulo:"EPI ausente no posto de laminação",            setor:"Qualidade",  prioridade:"alta",    status:"aberto",    data:"21/03" },
-      { id:1245, titulo:"Iluminação inadequada no corredor emergencial", setor:"Segurança",  prioridade:"media",   status:"andamento", data:"20/03" },
-      { id:1241, titulo:"Esteira com trepidação anormal",               setor:"Produção",   prioridade:"alta", status:"aberto",    data:"19/03" },
-      { id:1238, titulo:"Ruído excessivo — área de manutenção",         setor:"Manutenção", prioridade:"media",   status:"andamento",  data:"18/03" },
+      { id:1248, titulo:"Falta de sinalização — Corredor B",            setor:"Segurança",  prioridade:"alta",  status:"aberto",    data:"21/03" },
+      { id:1247, titulo:"EPI ausente no posto de laminação",            setor:"Qualidade",  prioridade:"alta",  status:"aberto",    data:"21/03" },
+      { id:1245, titulo:"Iluminação inadequada no corredor emergencial", setor:"Segurança",  prioridade:"media", status:"andamento", data:"20/03" },
+      { id:1241, titulo:"Esteira com trepidação anormal",               setor:"Produção",   prioridade:"alta",  status:"aberto",    data:"19/03" },
+      { id:1238, titulo:"Ruído excessivo — área de manutenção",         setor:"Manutenção", prioridade:"media", status:"andamento", data:"18/03" },
     ]
   },
 
@@ -148,29 +156,74 @@ const MOCK = {
 };
 
 /* ══════════════════════════════════════════
+   NORMALIZAÇÃO
+   Converte a resposta do backend (campos em inglês)
+   para o formato esperado pelo frontend (campos em pt-BR).
+   Chamada apenas nas funções que usam a API real.
+   O mock já retorna os campos no formato correto.
+══════════════════════════════════════════ */
+
+/**
+ * Converte um objeto Report do backend para o formato do frontend.
+ *
+ * Mapeamentos aplicados:
+ *   title       → titulo
+ *   description → descricao
+ *   category    → setor  (backend não tem campo "setor" separado ainda)
+ *   priority    → prioridade  (low→baixa, medium→media, high→alta)
+ *   status      → status      (open→aberto, in_progress→andamento, closed→resolvido)
+ *   created_at  → data        (formatado como DD/MM/AAAA)
+ */
+function normalizarReport(r) {
+  const statusMap = {
+    open:        'aberto',
+    in_progress: 'andamento',
+    closed:      'resolvido',
+  };
+  const prioMap = {
+    low:    'baixa',
+    medium: 'media',
+    high:   'alta',
+  };
+
+  return {
+    id:         r.id,
+    titulo:     r.title,
+    descricao:  r.description,
+    setor:      r.category,
+    prioridade: prioMap[r.priority]  || r.priority,
+    status:     statusMap[r.status]  || r.status,
+    data:       r.created_at
+                  ? new Date(r.created_at).toLocaleDateString('pt-BR')
+                  : '—',
+    attachment: r.attachment || null,
+  };
+}
+
+/* ══════════════════════════════════════════
    ENDPOINTS — USUÁRIO
 ══════════════════════════════════════════ */
 
-/** GET /usuarios/me — dados do usuário logado */
+/** GET /auth/me — dados do usuário logado */
 async function getUsuarioMe() {
   if (USE_MOCK) return MOCK.funcionario;
-  const res = await fetch(`${API_BASE}/usuarios/me`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}/auth/me`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar usuário");
   return res.json();
 }
 
-/** GET /usuarios/me — dados do analista logado */
+/** GET /auth/me — dados do analista logado */
 async function getAnalistaMe() {
   if (USE_MOCK) return MOCK.analista;
-  const res = await fetch(`${API_BASE}/usuarios/me`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}/auth/me`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar analista");
   return res.json();
 }
 
-/** GET /usuarios/me — dados do gestor logado */
+/** GET /auth/me — dados do gestor logado */
 async function getGestorMe() {
   if (USE_MOCK) return MOCK.gestor;
-  const res = await fetch(`${API_BASE}/usuarios/me`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}/auth/me`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar gestor");
   return res.json();
 }
@@ -179,33 +232,69 @@ async function getGestorMe() {
    ENDPOINTS — FUNCIONÁRIO
 ══════════════════════════════════════════ */
 
-/** GET /reportes/me/resumo — resumo dos reportes do funcionário */
+/**
+ * GET /reports/me/resumo — resumo dos reportes do funcionário.
+ * PENDENTE: rota ainda não existe no backend → força mock.
+ * TODO: remover "|| true" quando backend criar GET /reports/me/resumo
+ */
 async function getResumoFuncionario() {
-  if (USE_MOCK) return MOCK.resumoFuncionario;
-  const res = await fetch(`${API_BASE}/reportes/me/resumo`, { headers: authHeaders() });
+  if (USE_MOCK || true) return MOCK.resumoFuncionario;
+  const res = await fetch(`${API_BASE}/reports/me/resumo`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar resumo");
   return res.json();
 }
 
-/** GET /reportes/me — lista de reportes do funcionário */
+/**
+ * GET /reports/ — lista de reportes do funcionário logado.
+ * O backend filtra automaticamente por user_id quando role = employee.
+ */
 async function getReportesFuncionario() {
   if (USE_MOCK) return MOCK.reportesFuncionario;
-  const res = await fetch(`${API_BASE}/reportes/me`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}/reports/`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar reportes");
+  const data = await res.json();
+  return data.map(normalizarReport);
+}
+
+/**
+ * POST /reports/ — cria um novo reporte.
+ * Chamado pelo report_create.html no submit do formulário.
+ * @param {{ title, description, category, priority, attachment }} payload
+ * @returns {Promise<{ id, title, status, priority, ... }>} reporte criado
+ */
+async function criarReport(payload) {
+  if (USE_MOCK) {
+    await new Promise(r => setTimeout(r, 800));
+    return { id: 2000 + Math.floor(Math.random() * 999), ...payload };
+  }
+  const res = await fetch(`${API_BASE}/reports/`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error('Erro ao criar reporte');
   return res.json();
 }
 
-/** GET /notificacoes/me — notificações do usuário */
+/**
+ * GET /notificacoes/me — notificações do usuário.
+ * PENDENTE: rota ainda não existe no backend → força mock.
+ * TODO: remover "|| true" quando backend criar GET /notificacoes/me
+ */
 async function getNotificacoes() {
-  if (USE_MOCK) return MOCK.notificacoes;
+  if (USE_MOCK || true) return MOCK.notificacoes;
   const res = await fetch(`${API_BASE}/notificacoes/me`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar notificações");
   return res.json();
 }
 
-/** PATCH /notificacoes/:id/lida — marca notificação como lida */
+/**
+ * PATCH /notificacoes/:id/lida — marca notificação como lida.
+ * PENDENTE: rota ainda não existe no backend → no-op.
+ * TODO: implementar quando backend criar PATCH /notificacoes/:id/lida
+ */
 async function patchNotificacaoLida(id) {
-  if (USE_MOCK) return;
+  if (USE_MOCK || true) return;
   await fetch(`${API_BASE}/notificacoes/${id}/lida`, {
     method: "PATCH",
     headers: authHeaders()
@@ -216,54 +305,80 @@ async function patchNotificacaoLida(id) {
    ENDPOINTS — ANALISTA
 ══════════════════════════════════════════ */
 
-/** GET /reportes/setor/resumo — resumo do setor */
+/**
+ * GET /reports/setor/resumo — resumo do setor.
+ * PENDENTE: rota ainda não existe no backend → força mock.
+ * TODO: remover "|| true" quando backend criar GET /reports/setor/resumo
+ */
 async function getResumoSetor() {
-  if (USE_MOCK) return MOCK.resumoAnalista;
-  const res = await fetch(`${API_BASE}/reportes/setor/resumo`, { headers: authHeaders() });
+  if (USE_MOCK || true) return MOCK.resumoAnalista;
+  const res = await fetch(`${API_BASE}/reports/setor/resumo`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar resumo do setor");
   return res.json();
 }
 
-/** GET /reportes/setor/criticos — reportes críticos do setor */
+/**
+ * GET /reports/setor/criticos — reportes críticos do setor.
+ * PENDENTE: rota ainda não existe no backend → força mock.
+ * TODO: remover "|| true" quando backend criar GET /reports/setor/criticos
+ */
 async function getReportesCriticos() {
-  if (USE_MOCK) return MOCK.criticos;
-  const res = await fetch(`${API_BASE}/reportes/setor/criticos`, { headers: authHeaders() });
+  if (USE_MOCK || true) return MOCK.criticos;
+  const res = await fetch(`${API_BASE}/reports/setor/criticos`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar críticos");
   return res.json();
 }
 
-/** GET /reportes/setor — todos os reportes do setor */
+/**
+ * GET /reports/ — todos os reportes do setor (analista/gestor).
+ * O backend filtra automaticamente por department_id quando role = analyst ou manager.
+ */
 async function getReportesSetor() {
   if (USE_MOCK) return MOCK.reportesAnalista;
-  const res = await fetch(`${API_BASE}/reportes/setor`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}/reports/`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar reportes do setor");
-  return res.json();
+  const data = await res.json();
+  return data.map(normalizarReport);
 }
 
-/** PATCH /reportes/:id/status — atualiza status de um reporte */
-async function patchReporteStatus(id, status) {
+/**
+ * PUT /reports/:id — atualiza um reporte completo.
+ * O backend usa PUT (não PATCH), por isso é necessário enviar o objeto completo.
+ *
+ * @param {number} id            — ID do reporte
+ * @param {object} reportCompleto — { title, description, category, priority, attachment? }
+ */
+async function patchReporteStatus(id, reportCompleto) {
   if (USE_MOCK) return;
-  await fetch(`${API_BASE}/reportes/${id}/status`, {
-    method: "PATCH",
+  await fetch(`${API_BASE}/reports/${id}`, {
+    method: "PUT",
     headers: authHeaders(),
-    body: JSON.stringify({ status })
+    body: JSON.stringify(reportCompleto)
   });
 }
 
-/** PATCH /reportes/:id/atribuir — atribui reporte a um responsável */
+/**
+ * Atribui reporte a um responsável.
+ * PENDENTE: rota ainda não existe no backend → no-op.
+ * TODO: implementar quando backend criar rota de atribuição
+ */
 async function patchReporteAtribuir(id, usuario) {
-  if (USE_MOCK) return;
-  await fetch(`${API_BASE}/reportes/${id}/atribuir`, {
+  if (USE_MOCK || true) return;
+  await fetch(`${API_BASE}/reports/${id}/atribuir`, {
     method: "PATCH",
     headers: authHeaders(),
     body: JSON.stringify({ usuario })
   });
 }
 
-/** POST /reportes/:id/comentarios — adiciona comentário a um reporte */
+/**
+ * Adiciona comentário a um reporte.
+ * PENDENTE: rota ainda não existe no backend → no-op.
+ * TODO: implementar quando backend criar rota de comentários
+ */
 async function postComentario(id, texto) {
-  if (USE_MOCK) return;
-  await fetch(`${API_BASE}/reportes/${id}/comentarios`, {
+  if (USE_MOCK || true) return;
+  await fetch(`${API_BASE}/reports/${id}/comentarios`, {
     method: "POST",
     headers: authHeaders(),
     body: JSON.stringify({ texto })
@@ -276,18 +391,17 @@ async function postComentario(id, texto) {
 
 /**
  * GET /dashboard/empresa | /dashboard/setor
- * Retorna todos os dados do dashboard do gestor.
+ * PENDENTE: rotas ainda não existem no backend → força mock.
+ * TODO: remover "|| true" quando backend criar GET /dashboard/*
  * @param {'empresa'|'setor'} escopo
  */
 async function getDashboard(escopo = 'empresa') {
-  if (USE_MOCK) {
+  if (USE_MOCK || true) {
     return escopo === 'empresa'
       ? MOCK.dashboardEmpresa
       : MOCK.dashboardSetor;
   }
-  const endpoint = escopo === 'empresa'
-    ? '/dashboard/empresa'
-    : '/dashboard/setor';
+  const endpoint = escopo === 'empresa' ? '/dashboard/empresa' : '/dashboard/setor';
   const res = await fetch(`${API_BASE}${endpoint}`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar dashboard");
   return res.json();
@@ -299,17 +413,29 @@ async function getDashboard(escopo = 'empresa') {
 
 /**
  * POST /auth/login — autentica o usuário.
- * Salva o token no localStorage ao receber resposta.
+ *
+ * O backend usa OAuth2PasswordRequestForm (form-data), por isso
+ * enviamos application/x-www-form-urlencoded com os campos
+ * "username" (email) e "password".
+ *
+ * Após receber o token, consultamos GET /auth/me para obter o
+ * role do usuário e mapeamos para o campo "perfil" usado pelo frontend.
+ *
+ * Mapeamento de roles:
+ *   employee  → funcionario
+ *   analyst   → analista
+ *   manager   → gestor
+ *
  * @param {string} email
  * @param {string} senha
  */
 async function postLogin(email, senha) {
   if (USE_MOCK) {
     // ── Perfis de teste (mock) ──────────────────────────
-    // funcionario@teste.com  → home_funcionario.html
-    // analista@teste.com     → home_analista.html
-    // gestor@teste.com       → home_gestor.html
-    // qualquer outro e-mail  → home_funcionario.html
+    // funcionario@teste.com  → home_employee.html
+    // analista@teste.com     → home_analyst.html
+    // gestor@teste.com       → home_manager.html
+    // qualquer outro e-mail  → home_employee.html
     // ────────────────────────────────────────────────────
     await new Promise(r => setTimeout(r, 1200)); // simula latência
     const perfis = {
@@ -325,20 +451,40 @@ async function postLogin(email, senha) {
   }
 
   // ── API real ──
+  // 1. Faz login com form-data (padrão OAuth2 do backend)
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, senha })
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ username: email, password: senha })
   });
   if (!res.ok) throw new Error('Credenciais inválidas');
+
   const data = await res.json();
-  localStorage.setItem('token',  data.token);
-  localStorage.setItem('perfil', data.perfil);
-  return data;
+  // Backend retorna: { access_token: "...", token_type: "bearer" }
+  localStorage.setItem('token', data.access_token);
+
+  // 2. Busca o role do usuário em /auth/me
+  const meRes = await fetch(`${API_BASE}/auth/me`, {
+    headers: { 'Authorization': `Bearer ${data.access_token}` }
+  });
+  if (!meRes.ok) throw new Error('Erro ao buscar dados do usuário');
+  const me = await meRes.json();
+
+  // 3. Mapeia role do backend → perfil do frontend
+  const roleMap = {
+    'employee': 'funcionario',
+    'analyst':  'analista',
+    'manager':  'gestor'
+  };
+  const perfil = roleMap[me.role] || 'funcionario';
+  localStorage.setItem('perfil', perfil);
+
+  return { token: data.access_token, perfil };
 }
 
 /** Remove o token e redireciona para o login */
 function logout() {
   localStorage.removeItem("token");
+  localStorage.removeItem("perfil");
   window.location.href = "login.html";
 }
