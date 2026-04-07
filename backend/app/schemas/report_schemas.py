@@ -44,4 +44,10 @@ class ReportResponse(BaseModel):
         from_attributes = True
 
 
-
+class ReportCriticoResponse(BaseModel):
+    id: int
+    title: str
+    department: str | None
+    status: str
+    reporter: str | None
+    date: str
