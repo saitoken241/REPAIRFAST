@@ -206,56 +206,12 @@
   .sector-header {
     display: flex; align-items: center;
     justify-content: space-between;
-    padding: 12px 14px; cursor: pointer; user-select: none;
+    padding: 12px 14px;
   }
   .sector-header-left { display: flex; align-items: center; gap: 10px; }
   .sector-color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .sector-name { font-size: 13px; font-weight: 500; color: var(--text); }
-  .sector-count { font-size: 11px; color: var(--muted); margin-top: 1px; }
   .sector-header-right { display: flex; align-items: center; gap: 6px; }
-  .sector-chevron { width: 16px; height: 16px; stroke: var(--muted); fill: none; transition: transform .2s; flex-shrink: 0; }
-  .sector-item.open .sector-chevron { transform: rotate(180deg); }
-  .sector-areas { display: none; padding: 0 14px 12px; border-top: 1px solid var(--border); }
-  .sector-item.open .sector-areas { display: block; }
-  .areas-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; margin-top: 10px; }
-  .area-row {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--bg4); border-radius: 8px; padding: 8px 10px;
-    font-size: 12px; color: var(--text);
-    animation: fadeRow .15s ease;
-  }
-  @keyframes fadeRow {
-    from { opacity: 0; transform: translateY(-4px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .area-row-name { flex: 1; }
-  .area-del {
-    width: 24px; height: 24px; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    background: none; border: none; cursor: pointer;
-    transition: all .15s; flex-shrink: 0;
-  }
-  .area-del svg { width: 13px; height: 13px; stroke: var(--muted); fill: none; }
-  .area-del:hover { background: rgba(239,68,68,.12); }
-  .area-del:hover svg { stroke: var(--red); }
-  .add-area-row { display: flex; gap: 8px; align-items: center; }
-  .add-area-input {
-    flex: 1; background: var(--bg4);
-    border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text); font-family: var(--font); font-size: 12px;
-    padding: 7px 10px; outline: none; transition: border-color .15s;
-  }
-  .add-area-input:focus { border-color: var(--blue); }
-  .add-area-input::placeholder { color: var(--muted2); }
-  .add-area-btn {
-    padding: 7px 12px; border-radius: 8px; border: none;
-    background: var(--blue); color: white;
-    font-size: 12px; font-weight: 600; font-family: var(--font);
-    cursor: pointer; transition: all .15s; white-space: nowrap;
-    display: flex; align-items: center; gap: 5px; flex-shrink: 0;
-  }
-  .add-area-btn:hover { background: #2563eb; }
-  .add-area-btn svg { width: 12px; height: 12px; stroke: white; fill: none; }
   .sector-footer-row {
     display: flex; align-items: center; gap: 8px;
     margin-top: 14px; padding-top: 14px;
@@ -671,7 +627,7 @@
   <div style="display:flex;gap:10px">
     <button class="sector-btn" onclick="openSectorModal()">
       <svg viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Setores e Áreas
+      Setores
     </button>
     <button class="new-btn" onclick="openModal()">
       <svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -687,7 +643,7 @@
       <tr>
         <th>Usuário</th>
         <th class="hide-sm">CPF</th>
-        <th class="hide-sm">Departamento</th>
+        <th class="hide-sm">Setor</th>
         <th>Perfil</th>
         <th>Status</th>
         <th style="text-align:right">Ações</th>
@@ -740,7 +696,7 @@
       </div>
 
       <div class="mfield">
-          <label class="required-star" for="fDept">Departamento</label>
+          <label class="required-star" for="fDept">Setor</label>
           <div class="sel-wrap">
             <select id="fDept">
               <option value="">Selecione...</option>
@@ -755,7 +711,7 @@
               <option value="9">Áreas Externas</option>
             </select>
           </div>
-          <div class="field-error" id="fDeptErr">Selecione um departamento</div>
+          <div class="field-error" id="fDeptErr">Selecione um setor</div>
         </div>
 
       <div class="mfield-row">
@@ -781,6 +737,18 @@
           </div>
           <div class="field-error" id="fPassErr">Senha deve ter ao menos 8 caracteres</div>
         </div>
+
+        <!-- Campo de senha na edição — simples e direto -->
+        <div class="mfield" id="changePassBlock" style="display:none">
+          <label for="fEditPass">Senha</label>
+          <div class="pw-wrap">
+            <input type="password" id="fEditPass" placeholder="Digite para alterar a senha">
+            <button type="button" class="pw-toggle" onclick="togglePwEdit()">
+              <svg id="eyeIconEdit" viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="field-error" id="fEditPassErr">Senha deve ter ao menos 8 caracteres</div>
+        </div>
       </div>
     </div>
 
@@ -799,8 +767,8 @@
   <div class="sector-modal">
     <div class="modal-header">
       <div>
-        <div class="modal-title">Setores e Áreas</div>
-        <div class="modal-sub">Gerencie os setores e suas áreas específicas</div>
+        <div class="modal-title">Setores</div>
+        <div class="modal-sub">Gerencie os setores da empresa</div>
       </div>
       <button class="modal-close" onclick="closeSectorModal()">✕</button>
     </div>
@@ -853,12 +821,12 @@ const deptNames = {
 };
 
 let users = [
-  { id:1, name:'Ana Paula Ferreira',  cpf:'12345678901', email:'ana.paula@unisales.edu.br',  company:'UniSales', role:'analyst',  number:'27999991111', status_usuario:true,  department_id:3 },
-  { id:2, name:'Carlos Meirelles',    cpf:'23456789012', email:'carlos.m@unisales.edu.br',   company:'UniSales', role:'employee', number:'27988882222', status_usuario:true,  department_id:1 },
-  { id:3, name:'Fernanda Costa',      cpf:'34567890123', email:'fernanda.c@unisales.edu.br', company:'UniSales', role:'analyst',  number:'27977773333', status_usuario:false, department_id:5 },
-  { id:4, name:'João Lima',           cpf:'45678901234', email:'joao.lima@unisales.edu.br',  company:'UniSales', role:'employee', number:'27966664444', status_usuario:true,  department_id:4 },
-  { id:5, name:'Maria Souza',         cpf:'56789012345', email:'maria.s@unisales.edu.br',    company:'UniSales', role:'employee', number:'27955555555', status_usuario:true,  department_id:2 },
-  { id:6, name:'Ricardo Santos',      cpf:'67890123456', email:'ricardo.s@unisales.edu.br',  company:'UniSales', role:'manager',  number:'27944446666', status_usuario:true,  department_id:8 },
+  { id:1, name:'Ana Paula Ferreira',  cpf:'12345678901', email:'ana.paula@unisales.edu.br',  company:'UniSales', role:'analyst',  number:'27999991111', status_usuario:true,  department_id:3, password:'senha123' },
+  { id:2, name:'Carlos Meirelles',    cpf:'23456789012', email:'carlos.m@unisales.edu.br',   company:'UniSales', role:'employee', number:'27988882222', status_usuario:true,  department_id:1, password:'senha123' },
+  { id:3, name:'Fernanda Costa',      cpf:'34567890123', email:'fernanda.c@unisales.edu.br', company:'UniSales', role:'analyst',  number:'27977773333', status_usuario:false, department_id:5, password:'senha123' },
+  { id:4, name:'João Lima',           cpf:'45678901234', email:'joao.lima@unisales.edu.br',  company:'UniSales', role:'employee', number:'27966664444', status_usuario:true,  department_id:4, password:'senha123' },
+  { id:5, name:'Maria Souza',         cpf:'56789012345', email:'maria.s@unisales.edu.br',    company:'UniSales', role:'employee', number:'27955555555', status_usuario:true,  department_id:2, password:'senha123' },
+  { id:6, name:'Ricardo Santos',      cpf:'67890123456', email:'ricardo.s@unisales.edu.br',  company:'UniSales', role:'manager',  number:'27944446666', status_usuario:true,  department_id:8, password:'senha123' },
 ];
 
 let nextId = 7;
@@ -1014,6 +982,7 @@ function openModal() {
   document.getElementById('modalSub').textContent   = 'Preencha os dados para criar a conta';
   document.getElementById('saveBtnLabel').textContent = 'Criar usuário';
   document.getElementById('passwordField').style.display = '';
+  document.getElementById('changePassBlock').style.display = 'none';
   document.getElementById('fPass').required = true;
   document.getElementById('formOverlay').classList.add('open');
 }
@@ -1035,6 +1004,9 @@ function openEdit(id) {
   document.getElementById('modalSub').textContent   = `Editando: ${u.name}`;
   document.getElementById('saveBtnLabel').textContent = 'Salvar alterações';
   document.getElementById('passwordField').style.display = 'none';
+  document.getElementById('changePassBlock').style.display = '';
+  document.getElementById('fEditPass').value = u.password || '';
+  document.getElementById('fEditPass').type = 'password';
   document.getElementById('formOverlay').classList.add('open');
 }
 
@@ -1047,7 +1019,7 @@ function closeModal() {
    FORM HELPERS
 ══════════════════════════════ */
 function clearForm() {
-  ['fName','fCpf','fEmail','fPhone','fPass'].forEach(id => {
+  ['fName','fCpf','fEmail','fPhone','fPass','fEditPass'].forEach(id => {
     document.getElementById(id).value = '';
     document.getElementById(id).classList.remove('err');
   });
@@ -1055,7 +1027,7 @@ function clearForm() {
     document.getElementById(id).value = '';
     document.getElementById(id).classList.remove('err');
   });
-  ['fNameErr','fCpfErr','fEmailErr','fPhoneErr','fDeptErr','fRoleErr','fPassErr'].forEach(id => {
+  ['fNameErr','fCpfErr','fEmailErr','fPhoneErr','fDeptErr','fRoleErr','fPassErr','fEditPassErr'].forEach(id => {
     document.getElementById(id).classList.remove('show');
   });
 }
@@ -1094,10 +1066,16 @@ function saveUser() {
   setErr('fCpf', 'fCpfErr', cpfRaw.length !== 11 || cpfTaken);
   if (cpfRaw.length !== 11 || cpfTaken) valid = false;
 
-  // Senha só obrigatória em criação
+  // Senha obrigatória na criação; na edição valida só se preenchida
   if (isNew) {
     setErr('fPass', 'fPassErr', pass.length < 8);
     if (pass.length < 8) valid = false;
+  } else {
+    const editPass = document.getElementById('fEditPass').value;
+    if (editPass.length < 8) {
+      setErr('fEditPass', 'fEditPassErr', true);
+      valid = false;
+    }
   }
 
   if (!valid) return;
@@ -1110,14 +1088,18 @@ function saveUser() {
       number: phone.replace(/\D/g,''),
       status_usuario: true,
       department_id: parseInt(dept),
+      password: pass,
     });
     showToast('Usuário criado com sucesso', 'success');
   } else {
     const u = users.find(u => u.id === editingId);
+    const editPass = document.getElementById('fEditPass').value;
     Object.assign(u, {
       name, cpf: cpfRaw, email, role,
+      company: u.company,
       number: phone.replace(/\D/g,''),
       department_id: parseInt(dept),
+      password: editPass,
     });
     showToast('Usuário atualizado', 'success');
   }
@@ -1159,6 +1141,22 @@ function togglePw() {
   input.type = input.type === 'password' ? 'text' : 'password';
 }
 
+function togglePwEdit() {
+  const input = document.getElementById('fEditPass');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function toggleChangePass() {
+  const show = document.getElementById('changePassToggle').checked;
+  document.getElementById('changePassFields').style.display = show ? '' : 'none';
+  if (!show) {
+    document.getElementById('fNewPass').value = '';
+    document.getElementById('fConfPass').value = '';
+    ['fNewPass','fConfPass'].forEach(id => document.getElementById(id).classList.remove('err'));
+    ['fNewPassErr','fConfPassErr'].forEach(id => document.getElementById(id).classList.remove('show'));
+  }
+}
+
 /* ══════════════════════════════
    TOAST
 ══════════════════════════════ */
@@ -1182,15 +1180,15 @@ function showToast(msg, type = 'success') {
 const sectorColors = ['#e8550a','#3b82f6','#0fb884','#a78bfa','#f59e0b','#ec4899','#14b8a6','#6366f1','#84cc16'];
 
 let sectors = [
-  { id:1, name:'Bloco Acadêmico', areas:['Salas de aula — 1º andar','Salas de aula — 2º andar','Salas de aula — 3º andar','Auditório','Sala dos professores','Coordenação acadêmica','Secretaria acadêmica','Corredor — 1º andar','Corredor — 2º andar','Corredor — 3º andar','Banheiros — 1º andar','Banheiros — 2º andar','Banheiros — 3º andar'] },
-  { id:2, name:'Escola Integrada', areas:['Salas de aula — Ensino Fundamental','Salas de aula — Ensino Médio','Sala de reuniões pedagógicas','Coordenação escolar','Secretaria escolar','Corredor da escola','Banheiros'] },
-  { id:3, name:'Laboratórios', areas:['Lab. de Informática 1','Lab. de Informática 2','Lab. de Informática 3','Lab. de Informática 4','Lab. de Informática 5','Lab. de Biomedicina','Lab. de Farmácia','Lab. de Fisioterapia','Lab. de Anatomia','Lab. de Microbiologia','Almoxarifado de laboratórios'] },
-  { id:4, name:'Esportes e Lazer', areas:['Quadra poliesportiva coberta','Quadra externa','Piscina — Natação','Vestiário masculino','Vestiário feminino','Academia de musculação','Depósito de equipamentos esportivos'] },
-  { id:5, name:'Biblioteca', areas:['Acervo geral','Sala de informática','Cabines de estudo individual','Sala de estudo em grupo','Atendimento / Balcão'] },
-  { id:6, name:'Pastoral e Capela', areas:['Capela','Sala de pastoral','Sala de reuniões da pastoral'] },
-  { id:7, name:'Serviços e Apoio', areas:['Lanchonete / Cantina','Copa dos funcionários','Gráfica','Recepção principal','Guarita / Portaria','Estacionamento','Depósito de limpeza'] },
-  { id:8, name:'Administrativo', areas:['Reitoria / Diretoria','RH','Financeiro','Marketing','TI / Suporte','Almoxarifado geral','Sala de reuniões administrativa'] },
-  { id:9, name:'Áreas Externas', areas:['Calçadas e acessos','Jardins e áreas verdes','Playground / Área infantil','Fachada do prédio','Iluminação externa'] },
+  { id:1, name:'Bloco Acadêmico' },
+  { id:2, name:'Escola Integrada' },
+  { id:3, name:'Laboratórios' },
+  { id:4, name:'Esportes e Lazer' },
+  { id:5, name:'Biblioteca' },
+  { id:6, name:'Pastoral e Capela' },
+  { id:7, name:'Serviços e Apoio' },
+  { id:8, name:'Administrativo' },
+  { id:9, name:'Áreas Externas' },
 ];
 let nextSectorId = 10;
 
@@ -1215,47 +1213,20 @@ function renderSectors() {
     item.id = 'sector-' + s.id;
 
     item.innerHTML = `
-      <div class="sector-header" onclick="toggleSector(${s.id})">
+      <div class="sector-header" style="cursor:default">
         <div class="sector-header-left">
           <div class="sector-color-dot" style="background:${color}"></div>
-          <div>
-            <div class="sector-name">${s.name}</div>
-            <div class="sector-count">${s.areas.length} área${s.areas.length !== 1 ? 's' : ''}</div>
-          </div>
+          <div class="sector-name">${s.name}</div>
         </div>
         <div class="sector-header-right">
           <button class="icon-btn del" title="Excluir setor" onclick="deleteSector(event, ${s.id})">
             <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-          </button>
-          <svg class="sector-chevron" viewBox="0 0 24 24" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
-      <div class="sector-areas">
-        <div class="areas-list" id="areas-${s.id}">
-          ${s.areas.map((a, ai) => `
-            <div class="area-row" id="area-${s.id}-${ai}">
-              <span class="area-row-name">${a}</span>
-              <button class="area-del" title="Remover área" onclick="deleteArea(${s.id}, ${ai})">
-                <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-              </button>
-            </div>`).join('')}
-        </div>
-        <div class="add-area-row">
-          <input type="text" class="add-area-input" id="areaInput-${s.id}" placeholder="Nome da nova área...">
-          <button class="add-area-btn" onclick="addArea(${s.id})">
-            <svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Adicionar
           </button>
         </div>
       </div>
     `;
     list.appendChild(item);
   });
-}
-
-function toggleSector(id) {
-  const el = document.getElementById('sector-' + id);
-  el.classList.toggle('open');
 }
 
 function deleteSector(e, id) {
@@ -1269,38 +1240,6 @@ function deleteSector(e, id) {
   showToast(`Setor "${s.name}" removido`, 'success');
 }
 
-function addArea(sectorId) {
-  const input = document.getElementById('areaInput-' + sectorId);
-  const name = input.value.trim();
-  if (!name) return;
-  const s = sectors.find(s => s.id === sectorId);
-  if (!s) return;
-  s.areas.push(name);
-  input.value = '';
-  renderSectors();
-  // reabre o setor
-  setTimeout(() => {
-    const el = document.getElementById('sector-' + sectorId);
-    if (el) el.classList.add('open');
-  }, 10);
-  syncDeptOptions();
-  showToast(`Área "${name}" adicionada`, 'success');
-}
-
-function deleteArea(sectorId, areaIdx) {
-  const s = sectors.find(s => s.id === sectorId);
-  if (!s) return;
-  const areaName = s.areas[areaIdx];
-  s.areas.splice(areaIdx, 1);
-  renderSectors();
-  setTimeout(() => {
-    const el = document.getElementById('sector-' + sectorId);
-    if (el) el.classList.add('open');
-  }, 10);
-  syncDeptOptions();
-  showToast(`Área "${areaName}" removida`, 'success');
-}
-
 function addSector() {
   const input = document.getElementById('newSectorInput');
   const name = input.value.trim();
@@ -1309,7 +1248,7 @@ function addSector() {
     showToast('Já existe um setor com esse nome', 'error');
     return;
   }
-  sectors.push({ id: nextSectorId++, name, areas: [] });
+  sectors.push({ id: nextSectorId++, name });
   input.value = '';
   renderSectors();
   syncDeptOptions();
@@ -1356,10 +1295,10 @@ document.getElementById('sectorOverlay').addEventListener('click', function(e) {
 });
 
 /* limpa erro ao digitar */
-['fName','fCpf','fEmail','fPhone','fPass'].forEach(id => {
+['fName','fCpf','fEmail','fPhone','fPass','fEditPass'].forEach(id => {
   document.getElementById(id).addEventListener('input', function() {
     this.classList.remove('err');
-    const errMap = { fName:'fNameErr', fCpf:'fCpfErr', fEmail:'fEmailErr', fPhone:'fPhoneErr', fPass:'fPassErr' };
+    const errMap = { fName:'fNameErr', fCpf:'fCpfErr', fEmail:'fEmailErr', fPhone:'fPhoneErr', fPass:'fPassErr', fEditPass:'fEditPassErr' };
     document.getElementById(errMap[id])?.classList.remove('show');
   });
 });
