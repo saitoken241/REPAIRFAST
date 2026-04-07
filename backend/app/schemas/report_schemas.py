@@ -39,7 +39,7 @@ class ReportResponse(BaseModel):
     category: str
     priority: PriorityEnum
     status:      StatusEnum 
-
+    department_id: int
     class Config:
         from_attributes = True
 
