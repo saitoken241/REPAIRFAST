@@ -7,6 +7,7 @@ from ..schemas.report_schemas import UserCreateReport, ReportResponse, UserUpdat
 from ..models.department_model import Department
 from ..routers.auth import get_current_user
 from ..routers.auth import require_roles
+from sqlalchemy import func, case
 
 
 router = APIRouter(
@@ -48,7 +49,32 @@ def list_reports(db: Session = Depends(get_db),current_user: User = Depends(get_
         return db.query(Report).filter(
         Report.user_id == current_user.id
      ).all()
+    
+@router.get("/me/resumo")
+def get_reports_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    query = db.query(
+        func.count(Report.id).label("total"),
+        func.sum(case((Report.status == "open", 1), else_=0)).label("aberto"),
+        func.sum(case((Report.status == "in_progress", 1), else_=0)).label("andamento"),
+        func.sum(case((Report.status == "closed", 1), else_=0)).label("resolvido"),
+    )
 
+    if current_user.role in ("manager", "analyst"):
+        query = query.filter(Report.department_id == current_user.department_id)
+    else:
+        query = query.filter(Report.user_id == current_user.id)
+
+    result = query.one()
+
+    return {
+        "total": result.total or 0,
+        "aberto": result.aberto or 0,
+        "andamento": result.andamento or 0,
+        "resolvido": result.resolvido or 0,
+    }
 
 @router.get("/{report_id}", response_model=ReportResponse)
 def get_report(report_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -87,8 +113,11 @@ def update_report(
             raise HTTPException(status_code=403, detail="Not authorized")
 
 
-    allowed_fields = ["title", "description", "attachment", "category", "priority"]
-
+    allowed_fields = ["title", "description", "attachment", "category"]
+    
+    if current_user.role in ("manager", "analyst"):
+        allowed_fields.append("priority")
+        allowed_fields.append("status")
     for key, value in report_data.dict(exclude_unset=True).items():
         if key in allowed_fields:
             setattr(report, key, value)
@@ -119,3 +148,7 @@ def delete_report(report_id: int, db: Session = Depends(get_db), current_user: U
     db.commit()
 
     return {"detail": "Report deleted"}
+
+
+
+
