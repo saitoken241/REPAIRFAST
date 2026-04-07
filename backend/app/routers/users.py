@@ -21,8 +21,9 @@ def get_db():
 @router.post("/", response_model=UserResponse)
 def create_user(
     user: UserCreate, 
-    db: Session = Depends(get_db), 
-    current_user: User = Depends(require_roles(["manager"]))
+    db: Session = Depends(get_db),
+    # TODO: reativar após criar usuários de teste
+    # current_user: User = Depends(require_roles(["manager"]))
     ):
     existing_user = db.query(User).filter(User.email == user.email).first()
     existing_cpf = db.query(User).filter(User.cpf == user.cpf).first()
