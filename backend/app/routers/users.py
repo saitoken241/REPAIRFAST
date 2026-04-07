@@ -22,7 +22,7 @@ def get_db():
 def create_user(
     user: UserCreate, 
     db: Session = Depends(get_db), 
-    current_user: User = Depends(require_roles(["manager"]))
+    #current_user: User = Depends(require_roles(["manager"]))
     ):
     existing_user = db.query(User).filter(User.email == user.email).first()
     existing_cpf = db.query(User).filter(User.cpf == user.cpf).first()
@@ -73,6 +73,7 @@ def update_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_d
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if user_data.department_id is not None:
+        
         department = db.query(Department).filter(Department.id == user_data.department_id).first()
         if not department:
             raise HTTPException(status_code=400, detail="Department not found")
