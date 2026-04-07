@@ -76,7 +76,7 @@ def get_reports_summary(
         "resolvido": result.resolvido or 0,
     }
 
-@router.get("/setor/resumo")
+@router.get("/department/resume")
 def get_department_reports_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -118,7 +118,7 @@ def get_report(report_id: int, db: Session = Depends(get_db), current_user: User
 
     return report
 
-@router.get("/deparment/critical", response_model=list[ReportCriticoResponse])
+@router.get("/department/critical", response_model=list[ReportCriticoResponse])
 def get_critical_reports_by_department(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
