@@ -38,9 +38,16 @@ class ReportResponse(BaseModel):
     attachment: str | None = None
     category: str
     priority: PriorityEnum
+    status:      StatusEnum 
 
     class Config:
         from_attributes = True
 
 
-
+class ReportCriticoResponse(BaseModel):
+    id: int
+    title: str
+    department: str | None
+    status: str
+    reporter: str | None
+    date: str

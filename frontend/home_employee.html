@@ -196,9 +196,10 @@ const STATUS_SVG = {
 };
 
 function renderUsuario(u) {
+  const nome = (u.name || u.nome || 'Usuário').split(' ')[0];
   document.getElementById("greeting").innerHTML =
-    `${saudacao()}, <span>${u.nome.toUpperCase()}</span>`;
-  setText("sub-greeting", `${diaSemana()}, ${dataHoje()} · ${u.turno} · ${u.setor}`);
+    `${saudacao()}, <span>${nome.toUpperCase()}</span>`;
+  setText("sub-greeting", `${diaSemana()}, ${dataHoje()}`);
 }
 
 function renderResumo(r) {
@@ -292,9 +293,14 @@ function abrirNovoReporte() {
   }
 }());
 
-function abrirReporte(id) {
-  const reporte = _reportes.find(r => r.id === id);
-  if (reporte) sessionStorage.setItem('reporteAtual', JSON.stringify({ id: reporte.id, ...reporte }));
+async function abrirReporte(id) {
+  try {
+    const reporte = await getReportePorId(id);
+    if (reporte) sessionStorage.setItem('reporteAtual', JSON.stringify(reporte));
+  } catch(e) {
+    const fallback = _reportes.find(r => r.id === id);
+    if (fallback) sessionStorage.setItem('reporteAtual', JSON.stringify(fallback));
+  }
   window.location.href = 'report_detail_tracking.html';
 }
 

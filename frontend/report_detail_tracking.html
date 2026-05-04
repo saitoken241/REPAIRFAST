@@ -854,23 +854,20 @@ function init() {
 
     if (dados.titulo)    { document.getElementById("rh-titulo").textContent     = dados.titulo;    document.getElementById("info-titulo").textContent    = dados.titulo;    document.title = `RepairFast — ${dados.titulo}`; }
     if (dados.descricao)   document.getElementById("info-descricao").textContent = dados.descricao;
-    if (dados.categoria) { document.getElementById("info-categoria").textContent = dados.categoria; document.getElementById("rh-cat").textContent          = dados.categoria; }
-    if (dados.tipo)      { document.getElementById("info-tipo").textContent      = dados.tipo;      document.getElementById("rh-tipo").textContent         = dados.tipo; }
-    if (dados.setor)       document.getElementById("info-setor").textContent     = dados.setor;
-    if (dados.reporter) {
-      const ini = dados.reporter.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
-      document.getElementById("reporter-av").textContent   = ini;
-      document.getElementById("reporter-nome").textContent = dados.reporter;
-    }
+    if (dados.setor)     { document.getElementById("info-categoria").textContent = dados.setor;     document.getElementById("rh-cat").textContent          = dados.setor; }
+    document.getElementById("info-tipo").textContent  = '—';
+    document.getElementById("rh-tipo").textContent    = '—';
+    document.getElementById("info-setor").textContent = dados.setor || '—';
+    document.getElementById("reporter-av").textContent   = '?';
+    document.getElementById("reporter-nome").textContent = '—';
     if (dados.data) {
       document.getElementById("meta-abertura").textContent    = dados.data;
       document.getElementById("meta-atualizacao").textContent = dados.data;
     }
-    if (Array.isArray(dados.anexos)) renderAnexos(dados.anexos);
-    else renderAnexos([]);
+    renderAnexos(Array.isArray(dados.anexos) ? dados.anexos : []);
     renderStatus(dados.status || 'aberto');
-    _historico = Array.isArray(dados.historico) ? [...dados.historico] : [...HISTORICO_MOCK];
-    const planoAtual = Array.isArray(dados.plano) ? dados.plano : PLANO_MOCK;
+    _historico = Array.isArray(dados.historico) ? [...dados.historico] : [];
+    const planoAtual = Array.isArray(dados.plano) ? dados.plano : [];
     injetarPlanoNoHistorico(planoAtual);
     renderHistorico(_historico);
     renderPlano(planoAtual);
@@ -880,19 +877,12 @@ function init() {
       setTimeout(() => ativarViewEncerrado(dados), 0);
     }
   } else {
-    /* ── Dados mock (demonstração) ── */
-    const svg1 = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='800' height='600' fill='%231A1A1A'/><rect x='60' y='80' width='680' height='440' rx='8' fill='%232E2E2E'/><text x='400' y='300' font-family='sans-serif' font-size='18' fill='%23666' text-anchor='middle'>foto_corredor_b.jpg</text></svg>`;
-    const svg2 = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='800' height='600' fill='%23111'/><rect x='60' y='80' width='680' height='440' rx='8' fill='%23222'/><text x='400' y='300' font-family='sans-serif' font-size='18' fill='%23666' text-anchor='middle'>area_risco.png</text></svg>`;
-    renderAnexos([
-      { name:"foto_corredor_b.jpg",    size:184320, type:"image/jpeg",      data:"data:image/svg+xml," + encodeURIComponent(svg1.replace(/%23/g,'#')) },
-      { name:"area_risco.png",         size:97280,  type:"image/png",       data:"data:image/svg+xml," + encodeURIComponent(svg2.replace(/%23/g,'#')) },
-      { name:"relatorio_inspecao.pdf", size:250880, type:"application/pdf", data:"" },
-    ]);
+    /* Sem dados — limpa tudo */
+    renderAnexos([]);
     renderStatus('aberto');
-    _historico = [...HISTORICO_MOCK];
-    injetarPlanoNoHistorico(PLANO_MOCK);
-    renderHistorico(_historico);
-    renderPlano(PLANO_MOCK);
+    _historico = [];
+    renderHistorico([]);
+    renderPlano([]);
   }
 }
 

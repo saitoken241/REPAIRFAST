@@ -238,7 +238,7 @@ async function getGestorMe() {
  * TODO: remover "|| true" quando backend criar GET /reports/me/resumo
  */
 async function getResumoFuncionario() {
-  if (USE_MOCK || true) return MOCK.resumoFuncionario;
+  if (USE_MOCK) return MOCK.resumoFuncionario;
   const res = await fetch(`${API_BASE}/reports/me/resumo`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar resumo");
   return res.json();
@@ -311,8 +311,8 @@ async function patchNotificacaoLida(id) {
  * TODO: remover "|| true" quando backend criar GET /reports/setor/resumo
  */
 async function getResumoSetor() {
-  if (USE_MOCK || true) return MOCK.resumoAnalista;
-  const res = await fetch(`${API_BASE}/reports/setor/resumo`, { headers: authHeaders() });
+  if (USE_MOCK) return MOCK.resumoAnalista;
+  const res = await fetch(`${API_BASE}/reports/department/resume`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar resumo do setor");
   return res.json();
 }
@@ -323,8 +323,8 @@ async function getResumoSetor() {
  * TODO: remover "|| true" quando backend criar GET /reports/setor/criticos
  */
 async function getReportesCriticos() {
-  if (USE_MOCK || true) return MOCK.criticos;
-  const res = await fetch(`${API_BASE}/reports/setor/criticos`, { headers: authHeaders() });
+  if (USE_MOCK) return MOCK.criticos;
+  const res = await fetch(`${API_BASE}/reports/department/critical`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar críticos");
   return res.json();
 }
@@ -339,6 +339,18 @@ async function getReportesSetor() {
   if (!res.ok) throw new Error("Erro ao buscar reportes do setor");
   const data = await res.json();
   return data.map(normalizarReport);
+}
+
+/**
+ * GET /reports/:id — busca um reporte completo pelo ID.
+ * @param {number} id
+ */
+async function getReportePorId(id) {
+  if (USE_MOCK) return null;
+  const res = await fetch(`${API_BASE}/reports/${id}`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Erro ao buscar reporte');
+  const r = await res.json();
+  return normalizarReport(r);
 }
 
 /**
