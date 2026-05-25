@@ -1406,8 +1406,8 @@ document.getElementById('sectorOverlay').addEventListener('click', function(e) {
    redirecionados para o home correto.
 ──────────────────────────────────────────────────────────────────── */
 (function protegerRota() {
-  const token  = localStorage.getItem('token');
-  const perfil = localStorage.getItem('perfil');
+  const token  = sessionStorage.getItem('token');
+  const perfil = sessionStorage.getItem('perfil');
 
   if (!token) {
     window.location.replace('login.html');

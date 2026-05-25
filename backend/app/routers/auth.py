@@ -84,6 +84,7 @@ def me(current_user: User = Depends(get_current_user)):
         "name": current_user.name,
         "email": current_user.email,
         "role": current_user.role,
+        "department_id": current_user.department_id,
     }
 # ------------------------------------------------------------------ #
 #  funcao pra decidir permissao                                      #

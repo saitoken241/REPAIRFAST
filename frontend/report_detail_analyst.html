@@ -145,7 +145,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 .plan-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--dark3);border:1px solid var(--border);border-radius:8px}
 .plan-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .plan-check.done{background:var(--green);border-color:var(--green)}
-.plan-check.done::after{content:'✓';color:white;font-size:10px;font-weight:700}
+.plan-check.done{display:flex;align-items:center;justify-content:center}
 .plan-body{flex:1;min-width:0}
 .plan-title{font-size:12px;font-weight:500;margin-bottom:3px}
 .plan-title.done-txt{text-decoration:line-through;color:var(--text-muted)}
@@ -242,7 +242,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 .toast.green{border-color:var(--green-b)}
 .toast.blue{border-color:var(--blue-b)}
 .toast.red{border-color:var(--red-b)}
-.toast-icon{font-size:16px;flex-shrink:0}
+.toast-icon{flex-shrink:0;display:flex;align-items:center}
 .toast-msg{flex:1;color:var(--text)}
 
 @media(max-width:1024px){.detail-grid{grid-template-columns:1fr}}
@@ -332,7 +332,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
       </div>
       <div class="rh-actions">
         <a href="home_analyst.html" id="btn-voltar" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:10px;font-family:var(--fb);font-size:13px;text-decoration:none;transition:all .2s;white-space:nowrap">← Voltar</a>
-        <button class="btn-danger" id="btn-encerrar" onclick="confirmarEncerramento()" style="width:auto" disabled title="Conclua todos os planos de ação para encerrar">🔒 Encerrar</button>
+        <button class="btn-danger" id="btn-encerrar" onclick="confirmarEncerramento()" style="width:auto" disabled title="Conclua todos os planos de ação para encerrar"style="display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Encerrar</button>
       </div>
     </div>
 
@@ -432,8 +432,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
             <div class="meta-row">
               <span class="meta-key">Responsável</span>
               <div class="meta-person">
-                <div class="meta-av" id="meta-resp-av">RS</div>
-                <span class="meta-val" id="meta-resp-nome">Ricardo Santos</span>
+                <div class="meta-av" id="meta-resp-av" style="display:none">—</div>
+                <span class="meta-val" id="meta-resp-nome" style="color:var(--text-dim)">Não atribuído</span>
               </div>
             </div>
             <div class="meta-row">
@@ -461,13 +461,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 
           <div class="status-selector">
             <div class="status-opt active" style="--c:var(--orange);--dim:var(--orange-dim)" onclick="selecionarStatus('Aberto',this)">
-              <div class="status-dot" style="background:var(--orange)"></div><span>Aberto</span><span class="status-check">✓</span>
+              <div class="status-dot" style="background:var(--orange)"></div><span>Aberto</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
             </div>
             <div class="status-opt" style="--c:var(--teal);--dim:var(--teal-dim)" onclick="selecionarStatus('Em andamento',this)">
-              <div class="status-dot" style="background:var(--teal)"></div><span>Em andamento</span><span class="status-check">✓</span>
+              <div class="status-dot" style="background:var(--teal)"></div><span>Em andamento</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
             </div>
             <div class="status-opt" style="--c:var(--green);--dim:var(--green-dim)" onclick="selecionarStatus('Resolvido',this)">
-              <div class="status-dot" style="background:var(--green)"></div><span>Resolvido</span><span class="status-check">✓</span>
+              <div class="status-dot" style="background:var(--green)"></div><span>Resolvido</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
             </div>
           </div>
           <button class="btn-primary" style="margin-top:10px" onclick="salvarStatus()">Salvar Status</button>
@@ -574,7 +574,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
     <div class="modal-sub" id="modalReabrir-sub">Reporte #1248 — Confirme a reabertura</div>
 
     <div style="background:var(--dark4);border:1px solid var(--yellow-b);border-radius:8px;padding:12px 14px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start">
-      <span style="font-size:18px;flex-shrink:0">⚠️</span>
+      <span style="flex-shrink:0;display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
       <div style="font-size:12px;color:var(--text-muted);line-height:1.6">
         Ao reabrir, o reporte voltará ao status <strong style="color:var(--orange)">Aberto</strong> e você poderá registrar novas ações, atualizações e planos. Essa ação será registrada no histórico.
       </div>
@@ -600,33 +600,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 /* ══════════════════════════════════════════════════
    DADOS MOCK (substituídos por sessionStorage se disponível)
 ══════════════════════════════════════════════════ */
-const ANALISTAS = [
-  { value:"rs", nome:"Ricardo Santos",     ini:"RS" },
-  { value:"ap", nome:"Ana Paula Ferreira", ini:"AP" },
-  { value:"ce", nome:"ken",     ini:"CE" },
-  { value:"mv", nome:"Marcos Vinícius",    ini:"MV" },
-  { value:"fs", nome:"Fernanda Silva",     ini:"FS" },
-  { value:"jb", nome:"João Batista",       ini:"JB" },
-];
-
-let _responsavelAtual = ANALISTAS[0];
+let _usuariosDept = []; // carregado do backend
+let _responsavelAtual = { value: null, nome: "—", ini: "?" };
 let _statusAtual      = "Aberto";
 let _statusPendente   = "Aberto";
 let _reporteId        = "1248";
 
-const HISTORICO = [
-  { quem:"João Lima",      tempo:"21/03/2025 · 08:42", acao:"Reporte aberto",               cor:"var(--orange)", dot:"var(--orange)", desc:"Reporte registrado via aplicativo mobile com 2 imagens e 1 documento anexados." },
-  { quem:"Sistema",        tempo:"21/03/2025 · 08:43", acao:"Atribuído automaticamente",    cor:"var(--blue)",   dot:"var(--blue)",   desc:"Reporte encaminhado ao analista Ricardo Santos." },
-  { quem:"Ricardo Santos", tempo:"21/03/2025 · 09:10", acao:"Status alterado — Aberto", cor:"var(--blue)",   dot:"var(--blue)",   desc:null },
-  { quem:"Ricardo Santos", tempo:"22/03/2025 · 14:30", acao:"Comentário registrado",        cor:"var(--teal)",   dot:"var(--teal)",   comentario:"Confirmada ausência de sinalização. Solicitado orçamento para placas definitivas e instalação de sinalização provisória de emergência." },
-  { quem:"Ana Paula",      tempo:"25/03/2025 · 10:15", acao:"Plano de ação atualizado",      cor:"var(--green)",  dot:"var(--green)",  desc:"Sinalização provisória instalada e marcada como concluída no plano de ação." },
-];
+const HISTORICO = []; // sem mock — histórico virá do backend futuramente
 
-let _plano = [
-  { id:1, desc:"Instalar sinalização provisória de emergência (fitas e cones)",        resp:"Ana Paula Ferreira", prazo:"2025-03-22", done:true  },
-  { id:2, desc:"Solicitar orçamento para placas de sinalização definitiva NR-26",      resp:"Ricardo Santos",     prazo:"2025-03-28", done:false },
-  { id:3, desc:"Realizar inspeção pós-instalação e registrar conformidade no sistema", resp:"Ricardo Santos",     prazo:"2025-04-05", done:false },
-];
+let _plano = []; // sem mock — plano de ação virá do backend futuramente
 
 
 /* ══════════════════════════════════════════════════
@@ -666,18 +648,30 @@ function registrarHist(acao, quem, desc = null, comentario = null, cor = "var(--
   HISTORICO.push({ quem, tempo: agora(), acao, cor, dot, desc, comentario });
   renderHistorico();
   document.getElementById("meta-atualizacao").textContent = agora();
+
 }
 
 /* ══════════════════════════════════════════════════
    SELECTS COM ANALISTAS
 ══════════════════════════════════════════════════ */
-function preencherSelects() {
+async function preencherSelects() {
+  try {
+    _usuariosDept = await getUsuariosDepartamento();
+  } catch(e) {
+    _usuariosDept = [];
+  }
   ["assignSelect", "plano-resp", "prev-resp"].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.innerHTML = ANALISTAS.map(a =>
-      `<option value="${a.value}" data-ini="${a.ini}"${a.value === _responsavelAtual.value && id === "assignSelect" ? ' selected' : ''}>${a.nome}${a.value === ANALISTAS[0].value && id === "assignSelect" ? ' (você)' : ''}</option>`
-    ).join('');
+    if (!_usuariosDept.length) {
+      el.innerHTML = '<option value="">Nenhum usuário encontrado</option>';
+      return;
+    }
+    el.innerHTML = _usuariosDept.map(u => {
+      const ini = u.name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+      const selected = _responsavelAtual.value === u.id && id === "assignSelect" ? ' selected' : '';
+      return `<option value="${u.id}" data-ini="${ini}"${selected}>${u.name}</option>`;
+    }).join('');
   });
 }
 
@@ -736,17 +730,25 @@ function renderPlano() {
   const badgeTxt = document.getElementById("sla-badge-txt");
   const metaSla  = document.getElementById("meta-sla");
   badge.className = "sla-badge";
+  badge.style.display = "none"; /* oculta por padrão, mostra só se houver plano */
 
-  if (pendentes.length === 0) {
+  if (total === 0) {
+    /* Sem ações no plano — mantém oculto */
+    metaSla.style.color = "var(--text-dim)"; metaSla.textContent = "—";
+  } else if (pendentes.length === 0) {
+    badge.style.display = "";
     badge.classList.add("ok");   badgeTxt.textContent = "Todos os prazos cumpridos";
-    metaSla.style.color = "var(--green)"; metaSla.textContent = "Todos concluídos ✓";
+    metaSla.style.color = "var(--green)"; metaSla.textContent = "Todos concluídos";
   } else if (todosVenc) {
+    badge.style.display = "";
     badge.classList.add("bad");  badgeTxt.textContent = "Vencido";
     metaSla.style.color = "var(--red)";   metaSla.textContent = "Vencido";
   } else if (algumVenc) {
+    badge.style.display = "";
     badge.classList.add("warn"); badgeTxt.textContent = "Prazo parcialmente vencido";
     metaSla.style.color = "var(--yellow)"; metaSla.textContent = "Parcialmente vencido";
   } else {
+    badge.style.display = "";
     badge.classList.add("ok");   badgeTxt.textContent = "Dentro do prazo";
     metaSla.style.color = "var(--green)"; metaSla.textContent = "Dentro do prazo";
   }
@@ -764,8 +766,8 @@ function renderPlano() {
       <div class="plan-body">
         <div class="plan-title${p.done ? ' done-txt' : ''}">${p.desc}</div>
         <div class="plan-meta">
-          <span>👤 ${p.resp}</span>
-          <span class="plan-due${v ? ' overdue' : ''}">📅 ${fmtPrazo(p.prazo)}${v ? ' · vencido' : ''}</span>
+          <span style="display:inline-flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${p.resp}</span>
+          <span class="plan-due${v ? ' overdue' : ''}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${fmtPrazo(p.prazo)}${v ? ' · vencido' : ''}</span>
         </div>
       </div>
       <button onclick="excluirAcaoPlano(${p.id})" title="Excluir ação" style="flex-shrink:0;width:26px;height:26px;border-radius:6px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseover="this.style.background='rgba(239,68,68,.12)'" onmouseout="this.style.background='none'">
@@ -775,46 +777,83 @@ function renderPlano() {
   }).join('');
 }
 
-function togglePlano(id) {
+async function togglePlano(id) {
   const item = _plano.find(p => p.id === id);
   if (!item) return;
   item.done = !item.done;
   renderPlano();
+
+  try {
+    await atualizarItemPlano(parseInt(_reporteId), id, { done: item.done });
+  } catch(e) { console.warn('togglePlano:', e); }
+
   if (item.done) {
-    showToast("✅", "Ação concluída", "green");
+    showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>", "Ação concluída", "green");
     registrarHist("Ação do plano concluída", _responsavelAtual.nome, `"${item.desc}" marcada como concluída.`, null, "var(--green)", "var(--green)");
+    try { await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Ação do plano concluída', description: `"${item.desc}" marcada como concluída.`, color: 'var(--green)' }); } catch(e) {}
   } else {
-    showToast("↩️", "Ação reaberta", "blue");
+    showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='1 4 1 10 7 10'/><path d='M3.51 15a9 9 0 1 0 .49-3.51'/></svg>", "Ação reaberta", "blue");
     registrarHist("Ação do plano reaberta", _responsavelAtual.nome, `"${item.desc}" marcada como pendente novamente.`, null, "var(--yellow)", "var(--yellow)");
+    try { await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Ação do plano reaberta', description: `"${item.desc}" marcada como pendente novamente.`, color: 'var(--yellow)' }); } catch(e) {}
   }
 }
 
-function excluirAcaoPlano(id) {
+async function excluirAcaoPlano(id) {
   const item = _plano.find(p => p.id === id);
   if (!item) return;
+
+  try {
+    await excluirItemPlano(parseInt(_reporteId), id);
+  } catch(e) { console.warn('excluirAcaoPlano:', e); }
+
   _plano = _plano.filter(p => p.id !== id);
   renderPlano();
-  showToast("🗑️", `Ação "${item.desc.slice(0, 40)}${item.desc.length > 40 ? '…' : ''}" removida`, "blue");
+  showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'/><path d='M10 11v6'/><path d='M14 11v6'/><path d='M9 6V4h6v2'/></svg>", `Ação "${item.desc.slice(0, 40)}${item.desc.length > 40 ? '…' : ''}" removida`, "blue");
   registrarHist("Ação do plano removida", _responsavelAtual.nome, `"${item.desc}" foi excluída do plano.`, null, "var(--red)", "var(--red)");
+  try { await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Ação do plano removida', description: `"${item.desc}" foi excluída do plano.`, color: 'var(--red)' }); } catch(e) {}
 }
 
 
 
 function abrirModalPlano() { abrirModal('modalPlano'); }
 
-function adicionarAcaoPlano() {
+async function adicionarAcaoPlano() {
   const desc  = document.getElementById("plano-desc").value.trim();
   const resp  = document.getElementById("plano-resp");
   const prazo = document.getElementById("plano-prazo").value;
-  if (!desc) { showToast("⚠️", "Preencha a descrição", "red"); return; }
-  const nomeResp = resp.options[resp.selectedIndex].text;
-  _plano.push({ id: Date.now(), desc, resp: nomeResp, prazo: prazo || '—', done: false });
-  renderPlano();
+  if (!desc) { showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg>", "Preencha a descrição", "red"); return; }
+
+  const respId   = parseInt(resp.value) || null;
+  const nomeResp = resp.options[resp.selectedIndex]?.text || 'Não atribuído';
+
   fecharModal('modalPlano');
   document.getElementById("plano-desc").value  = '';
   document.getElementById("plano-prazo").value = '';
-  showToast("📋", "Nova ação adicionada ao plano", "blue");
+
+  try {
+    const novo = await adicionarItemPlano(parseInt(_reporteId), {
+      description: desc,
+      assigned_to: respId,
+      due_date:    prazo || null,
+    });
+    _plano.push({
+      id:    novo.id,
+      desc:  novo.description,
+      resp:  novo.assignee_name || nomeResp,
+      respId: novo.assigned_to,
+      prazo: novo.due_date || '—',
+      done:  false,
+    });
+  } catch(e) {
+    console.warn('adicionarAcaoPlano:', e);
+    // fallback local
+    _plano.push({ id: Date.now(), desc, resp: nomeResp, prazo: prazo || '—', done: false });
+  }
+
+  renderPlano();
+  showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48'/></svg>", "Nova ação adicionada ao plano", "blue");
   registrarHist("Nova ação adicionada ao plano", _responsavelAtual.nome, `"${desc}" — Responsável: ${nomeResp} · Prazo: ${fmtPrazo(prazo) || '—'}`, null, "var(--blue)", "var(--blue)");
+  try { await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Nova ação adicionada ao plano', description: `"${desc}" — Responsável: ${nomeResp} · Prazo: ${fmtPrazo(prazo) || '—'}`, color: 'var(--blue)' }); } catch(e) {}
 }
 
 /* ══════════════════════════════════════════════════
@@ -826,16 +865,23 @@ function selecionarStatus(val, btn) {
   _statusPendente = val;
 }
 
-function salvarStatus() {
+async function salvarStatus() {
   if (_statusPendente === _statusAtual) return;
   const anterior = _statusAtual;
   _statusAtual   = _statusPendente;
   const map = { "Aberto":"s-aberto", "Em andamento":"s-andamento", "Resolvido":"s-resolvido" };
+  const statusEnMap = { "Aberto":"open", "Em andamento":"in_progress", "Resolvido":"closed" };
   const badge = document.getElementById("rh-status-badge");
   badge.className   = `tag ${map[_statusAtual] || ''}`;
   badge.textContent = _statusAtual;
-  showToast("✅", `Status atualizado para "${_statusAtual}"`, "green");
+  try {
+    await patchReporteStatus(parseInt(_reporteId), statusEnMap[_statusAtual]);
+  } catch(e) {
+    console.error("Erro ao salvar status:", e);
+  }
+  showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>", `Status atualizado para "${_statusAtual}"`, "green");
   registrarHist(`Status alterado — ${_statusAtual}`, _responsavelAtual.nome, `Status anterior: ${anterior}.`, null, "var(--blue)", "var(--blue)");
+  try { await registrarHistoricoReporte(parseInt(_reporteId), { action: `Status alterado — ${_statusAtual}`, description: `Status anterior: ${anterior}.`, color: 'var(--blue)' }); } catch(e) {}
 
   /* Se status for Resolvido, habilita o botão Encerrar */
   const btnEncerrar = document.getElementById("btn-encerrar");
@@ -857,30 +903,37 @@ function salvarStatus() {
 /* ══════════════════════════════════════════════════
    RESPONSÁVEL
 ══════════════════════════════════════════════════ */
-function salvarAtribuicao() {
+async function salvarAtribuicao() {
   const sel  = document.getElementById("assignSelect");
   const opt  = sel.options[sel.selectedIndex];
-  const val  = opt.value;
+  const val  = parseInt(opt.value);
   const ini  = opt.dataset.ini;
-  const nome = opt.text.replace(' (você)', '');
+  const nome = opt.text;
   if (val === _responsavelAtual.value) return;
   const anterior = _responsavelAtual.nome;
   _responsavelAtual = { value: val, nome, ini };
   document.getElementById("meta-resp-av").textContent   = ini;
   document.getElementById("meta-resp-nome").textContent = nome;
-  showToast("👤", `Responsável alterado para ${nome}`, "blue");
+  try {
+    await patchReporteAtribuir(parseInt(_reporteId), val);
+  } catch(e) {
+    console.error("Erro ao atribuir responsável:", e);
+  }
+  showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>", `Responsável alterado para ${nome}`, "blue");
   registrarHist("Responsável alterado", "Sistema", `Reatribuído de ${anterior} para ${nome}.`, null, "var(--teal)", "var(--teal)");
+  try { await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Responsável alterado', description: `Reatribuído de ${anterior} para ${nome}.`, color: 'var(--teal)' }); } catch(e) {}
 }
 
 /* ══════════════════════════════════════════════════
    COMENTÁRIO
 ══════════════════════════════════════════════════ */
-function adicionarComentario() {
+async function adicionarComentario() {
   const txt = document.getElementById("commentInput").value.trim();
   if (!txt) return;
   registrarHist("Atualização registrada", _responsavelAtual.nome, null, txt, "var(--teal)", "var(--teal)");
   document.getElementById("commentInput").value = '';
-  showToast("💬", "Atualização registrada no histórico", "green");
+  showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/></svg>", "Atualização registrada no histórico", "green");
+  try { await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Atualização registrada', comment: txt, color: 'var(--teal)' }); } catch(e) {}
 }
 
 /* ══════════════════════════════════════════════════
@@ -893,7 +946,7 @@ function adicionarComentario() {
 function confirmarEncerramento() {
   const pend = _plano.filter(p => !p.done).length;
   if (pend > 0) {
-    showToast("⚠️", `Conclua ${pend} ação${pend !== 1 ? 'ões' : ''} do plano antes de encerrar`, "red");
+    showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg>", `Conclua ${pend} ação${pend !== 1 ? 'ões' : ''} do plano antes de encerrar`, "red");
     return;
   }
   renderMiniHistorico();
@@ -939,20 +992,26 @@ function renderMiniHistorico() {
   el.scrollTop = el.scrollHeight;
 }
 
-function encerrarReporte() {
+async function encerrarReporte() {
   const motivo = document.getElementById("enc-motivo").value;
   fecharModal('modalEncerrar');
-  showToast("🔒", `Reporte #${_reporteId} encerrado`, "red");
+
+  try {
+    await patchReporteStatus(parseInt(_reporteId), "closed");
+    await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Reporte encerrado', description: `Motivo: ${motivo}.`, color: 'var(--red)' });
+  } catch(e) { console.warn('encerrarReporte:', e); }
+
+  showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>", `Reporte #${_reporteId} encerrado`, "red");
   registrarHist("Reporte encerrado", _responsavelAtual.nome, `Motivo: ${motivo}.`, null, "var(--red)", "var(--red)");
   _statusAtual = "Resolvido";
 
-  /* Persiste motivo e data no sessionStorage para o colaborador ver no tracking */
+  /* Persiste motivo, data e histórico no sessionStorage — lê DEPOIS do registrarHist para não perder o histórico */
   try {
-    const dados = JSON.parse(sessionStorage.getItem("reporteAtual") || "{}");
+    const dados = JSON.parse(sessionStorage.getItem("reporteAtual_analista") || "{}");
     dados.status      = "resolvido";
     dados.motivo      = motivo;
     dados.encerradoEm = new Date().toLocaleDateString('pt-BR') + ' · ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-    sessionStorage.setItem("reporteAtual", JSON.stringify(dados));
+    sessionStorage.setItem("reporteAtual_analista", JSON.stringify(dados));
   } catch(e) {}
 
   /* Atualiza badge de status no header */
@@ -1009,10 +1068,10 @@ function ativarViewEncerrado(motivo) {
   const planoHtml = _plano.length
     ? _plano.map(p => `
       <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-        <div style="width:14px;height:14px;border-radius:3px;background:${p.done ? 'var(--green)' : 'var(--mid)'};border:1.5px solid ${p.done ? 'var(--green)' : 'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:9px;color:white;font-weight:700">${p.done ? '✓' : ''}</div>
+        <div style="width:14px;height:14px;border-radius:3px;background:${p.done ? 'var(--green)' : 'var(--mid)'};border:1.5px solid ${p.done ? 'var(--green)' : 'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:9px;color:white;font-weight:700">${p.done ? '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:500;">${p.desc}</div>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:2px">👤 ${p.resp} · 📅 ${fmtPrazo(p.prazo)}</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:2px;display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${p.resp} · <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${fmtPrazo(p.prazo)}</div>
         </div>
       </div>`).join('')
     : `<div style="font-size:12px;color:var(--text-dim);text-align:center;padding:12px 0">Nenhuma ação registrada</div>`;
@@ -1028,12 +1087,12 @@ function ativarViewEncerrado(motivo) {
       return `
         <div class="ev-thumb" onclick="abrirLightbox(${idx})" style="cursor:pointer">
           <img src="${a.data}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover">
-          <div class="ev-overlay">🔍</div>
+          <div class="ev-overlay"style="display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         </div>`;
     }
     return `
       <div class="ev-thumb" onclick="abrirLightbox(${idx})" style="cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px">
-        <span style="font-size:26px">🎬</span>
+        <span style="display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span>
         <span style="font-size:10px;color:var(--text-muted);text-align:center;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px">${a.name}</span>
         <div class="ev-overlay">▶</div>
       </div>`;
@@ -1048,7 +1107,7 @@ function ativarViewEncerrado(motivo) {
           <div class="ev-doc-name">${a.name}</div>
           <div class="ev-doc-size">${formatSize(a.size)}${a.type ? ' · ' + a.type.split('/')[1]?.toUpperCase() : ''}</div>
         </div>
-        <span style="color:var(--orange);font-size:13px">👁</span>
+        <span style="color:var(--orange);display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
       </div>`;
   }).join('');
 
@@ -1087,13 +1146,13 @@ function ativarViewEncerrado(motivo) {
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           Voltar
         </a>
-        <button class="btn-reopen" onclick="solicitarReabertura()">🔓 Reabrir Reporte</button>
+        <button class="btn-reopen" onclick="solicitarReabertura()"style="display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg> Reabrir Reporte</button>
       </div>
     </div>
 
     <!-- Banner encerrado -->
     <div class="closed-banner">
-      <span class="closed-banner-icon">✅</span>
+      <span class="closed-banner-icon" style="display:flex"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
       <div class="closed-banner-body">
         <div class="closed-banner-title">REPORTE ENCERRADO</div>
         <div class="closed-banner-sub">Encerrado em ${encerradoEm} · Motivo: ${motivo}</div>
@@ -1193,10 +1252,10 @@ function ativarViewEncerrado(motivo) {
         <!-- Botão reabrir em destaque -->
         <div class="panel" style="border-color:var(--blue-b)">
           <div style="text-align:center;padding:4px 0 12px">
-            <div style="font-size:28px;margin-bottom:8px">🔓</div>
+            <div style="display:flex;justify-content:center;margin-bottom:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
             <div style="font-family:var(--fd);font-size:15px;letter-spacing:.5px;margin-bottom:6px">REABRIR REPORTE</div>
             <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">O reporte voltará ao status <strong style="color:var(--orange)">Aberto</strong> e poderá receber novas ações.</div>
-            <button class="btn-reopen" style="width:100%;justify-content:center" onclick="solicitarReabertura()">🔓 Reabrir Reporte</button>
+            <button class="btn-reopen" style="width:100%;justify-content:center" onclick="solicitarReabertura()"style="display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg> Reabrir Reporte</button>
           </div>
         </div>
 
@@ -1214,9 +1273,14 @@ function solicitarReabertura() {
   abrirModal('modalReabrir');
 }
 
-function confirmarReabertura() {
+async function confirmarReabertura() {
   const motivo = document.getElementById("reabrir-motivo").value;
   fecharModal('modalReabrir');
+
+  try {
+    await patchReporteStatus(parseInt(_reporteId), "open");
+    await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Reporte reaberto', description: `Motivo: ${motivo}.`, color: 'var(--blue)' });
+  } catch(e) { console.warn('confirmarReabertura:', e); }
 
   /* Restaura a view de analista */
   document.querySelector('.app').style.display = 'flex';
@@ -1236,7 +1300,7 @@ function confirmarReabertura() {
   /* Reabilita o botão Encerrar (já vai ser desabilitado por renderPlano se houver pendências) */
   renderPlano();
 
-  /* Registra no histórico */
+  /* Registra no histórico primeiro, depois persiste tudo junto no sessionStorage */
   registrarHist(
     "Reporte reaberto",
     _responsavelAtual.nome,
@@ -1246,7 +1310,16 @@ function confirmarReabertura() {
     "var(--blue)"
   );
 
-  showToast("🔓", "Reporte reaberto e em análise", "blue");
+  /* Persiste novo status + histórico no sessionStorage */
+  try {
+    const dados = JSON.parse(sessionStorage.getItem("reporteAtual_analista") || "{}");
+    dados.status      = "aberto";
+    dados.motivo      = null;
+    dados.encerradoEm = null;
+    sessionStorage.setItem("reporteAtual_analista", JSON.stringify(dados));
+  } catch(e) {}
+
+  showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 9.9-1'/></svg>", "Reporte reaberto e em análise", "blue");
 }
 
 /* ══════════════════════════════════════════════════
@@ -1261,11 +1334,11 @@ let _lbIndex  = 0;
 function getIconeTipo(type, name) {
   if (!type && name) type = name.split('.').pop().toLowerCase();
   if (typeof type === 'string') {
-    if (type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name)) return '🖼️';
-    if (type.startsWith('video/') || /\.(mp4|mov|avi|webm)$/i.test(name))           return '🎬';
-    if (type === 'application/pdf' || /\.pdf$/i.test(name))                          return '📄';
+    if (type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name)) return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+    if (type.startsWith('video/') || /\.(mp4|mov|avi|webm)$/i.test(name))           return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>';
+    if (type === 'application/pdf' || /\.pdf$/i.test(name))                          return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
   }
-  return '📎';
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>';
 }
 
 function isImagem(a) {
@@ -1311,12 +1384,12 @@ function renderAnexos(anexos) {
         return `
         <div class="ev-thumb" onclick="abrirLightbox(${idx})">
           <img src="${a.data}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover">
-          <div class="ev-overlay">🔍</div>
+          <div class="ev-overlay"style="display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         </div>`;
       } else {
         return `
         <div class="ev-thumb" onclick="abrirLightbox(${idx})" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px">
-          <span style="font-size:26px">🎬</span>
+          <span style="display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span>
           <span style="font-size:10px;color:var(--text-muted);text-align:center;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px">${a.name}</span>
           <div class="ev-overlay">▶</div>
         </div>`;
@@ -1337,7 +1410,7 @@ function renderAnexos(anexos) {
           <div class="ev-doc-name">${a.name}</div>
           <div class="ev-doc-size">${formatSize(a.size)}${a.type ? ' · ' + a.type.split('/')[1]?.toUpperCase() : ''}</div>
         </div>
-        <span style="color:var(--orange);font-size:13px">👁</span>
+        <span style="color:var(--orange);display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
       </div>`;
     }).join('');
   }
@@ -1437,20 +1510,11 @@ function abrirDoc()      { if (_anexos.length) abrirLightbox(_anexos.findIndex(a
 ══════════════════════════════════════════════════ */
 function carregarDadosReporte() {
   let dados = null;
-  try { dados = JSON.parse(sessionStorage.getItem("reporteAtual") || "null"); } catch(e) {}
+  try { dados = JSON.parse(sessionStorage.getItem("reporteAtual_analista") || "null"); } catch(e) {}
 
-  /* Se não houver dados reais, usa anexos mock para demonstração */
+  /* Se não houver dados reais, exibe vazio */
   if (!dados) {
-    /* SVGs sem emojis (btoa não aceita UTF-8 multibyte) */
-    const svg1 = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='800' height='600' fill='%231A1A1A'/><rect x='60' y='80' width='680' height='440' rx='8' fill='%232E2E2E'/><text x='400' y='300' font-family='sans-serif' font-size='22' fill='%23666' text-anchor='middle'>foto_corredor_b.jpg</text><rect x='300' y='200' width='200' height='150' rx='4' fill='%23444'/><line x1='300' y1='200' x2='500' y2='350' stroke='%23555' stroke-width='2'/><line x1='500' y1='200' x2='300' y2='350' stroke='%23555' stroke-width='2'/></svg>`;
-    const svg2 = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='800' height='600' fill='%23111'/><rect x='60' y='80' width='680' height='440' rx='8' fill='%23222'/><text x='400' y='300' font-family='sans-serif' font-size='22' fill='%23666' text-anchor='middle'>area_risco.png</text><circle cx='400' cy='240' r='60' fill='none' stroke='%23555' stroke-width='3'/><line x1='400' y1='180' x2='400' y2='300' stroke='%23555' stroke-width='3'/><line x1='340' y1='240' x2='460' y2='240' stroke='%23555' stroke-width='3'/></svg>`;
-
-    const mockAnexos = [
-      { name:"foto_corredor_b.jpg",  size:184320, type:"image/jpeg",       data:"data:image/svg+xml," + encodeURIComponent(svg1.replace(/%23/g,'#')) },
-      { name:"area_risco.png",       size:97280,  type:"image/png",        data:"data:image/svg+xml," + encodeURIComponent(svg2.replace(/%23/g,'#')) },
-      { name:"relatorio_inspecao.pdf", size:250880, type:"application/pdf", data:"" }
-    ];
-    renderAnexos(mockAnexos);
+    renderAnexos([]);
     return;
   }
 
@@ -1502,12 +1566,30 @@ function carregarDadosReporte() {
     document.getElementById("reporter-nome").textContent = dados.reporter;
   }
 
-  /* Anexos reais vindos do formulário */
-  if (Array.isArray(dados.anexos)) {
-    renderAnexos(dados.anexos);
-  } else if (dados.semAnexos) {
+  /* Responsável atribuído */
+  if (dados.assigned_to && dados.assigned_to_name) {
+    const ini = dados.assigned_to_name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+    _responsavelAtual = { value: dados.assigned_to, nome: dados.assigned_to_name, ini };
+    const avEl   = document.getElementById("meta-resp-av");
+    const nomeEl = document.getElementById("meta-resp-nome");
+    if (avEl)   { avEl.textContent = ini; avEl.style.display = ""; }
+    if (nomeEl) { nomeEl.textContent = dados.assigned_to_name; nomeEl.style.color = ""; }
+    /* Seleciona no dropdown */
+    const sel = document.getElementById("assignSelect");
+    if (sel) sel.value = dados.assigned_to;
+  }
+
+  /* Anexos — backend retorna string URL em attachment */
+  if (dados.attachment) {
+    const nome = dados.attachment.split('/').pop() || 'anexo';
+    renderAnexos([{ name: nome, size: 0, type: '', data: dados.attachment }]);
+  } else {
     renderAnexos([]);
   }
+
+  /* Reporter — não existe no backend ainda */
+  const reporterRow = document.getElementById("reporter-av")?.closest('.meta-row');
+  if (reporterRow && !dados.reporter) reporterRow.style.display = 'none';
 
   /* Aplica o status do reporte na interface */
   if (dados.status) {
@@ -1548,13 +1630,75 @@ function carregarDadosReporte() {
 }
 
 /* ══════════════════════════════════════════════════
+   ADAPTAR HISTÓRICO DO BACKEND
+══════════════════════════════════════════════════ */
+function adaptarHistorico(entries) {
+  return (entries || []).map(e => ({
+    acao:       e.action,
+    quem:       e.user_name || 'Sistema',
+    tempo:      e.created_at
+                  ? new Date(e.created_at).toLocaleDateString('pt-BR') + ' · ' +
+                    new Date(e.created_at).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})
+                  : '—',
+    cor:        e.color || 'var(--teal)',
+    dot:        e.color || 'var(--teal)',
+    desc:       e.description || null,
+    comentario: e.comment    || null,
+  }));
+}
+
+/* ══════════════════════════════════════════════════
    INIT
 ══════════════════════════════════════════════════ */
-function init() {
-  preencherSelects();
-  renderHistorico();
-  renderPlano();
+async function init() {
+  await preencherSelects();
+  /* Busca status atualizado do backend antes de renderizar */
+  try {
+    const dadosSS = JSON.parse(sessionStorage.getItem('reporteAtual_analista') || 'null');
+    if (dadosSS && dadosSS.id) {
+      const atualizado = await getReportePorId(dadosSS.id);
+      if (atualizado) {
+        const merged = { ...dadosSS, ...atualizado };
+        sessionStorage.setItem('reporteAtual_analista', JSON.stringify(merged));
+      }
+    }
+  } catch(e) { console.warn('Falha ao atualizar reporte:', e); }
+
   carregarDadosReporte();
+
+  /* Pré-seleciona o responsável no select agora que _responsavelAtual foi definido */
+  if (_responsavelAtual.value) {
+    const sel = document.getElementById("assignSelect");
+    if (sel) sel.value = _responsavelAtual.value;
+  }
+
+  const id = parseInt(JSON.parse(sessionStorage.getItem('reporteAtual_analista') || '{}').id);
+
+  /* Carrega histórico do backend */
+  try {
+    if (id) {
+      const entries = await getHistoricoReporte(id);
+      HISTORICO.length = 0;
+      adaptarHistorico(entries).forEach(e => HISTORICO.push(e));
+    }
+  } catch(e) { console.warn('Histórico:', e); }
+  renderHistorico();
+
+  /* Carregar plano de ação do backend */
+  try {
+    if (id) {
+      const items = await getPlanoReporte(id);
+      _plano = items.map(i => ({
+        id:     i.id,
+        desc:   i.description,
+        resp:   i.assignee_name || 'Não atribuído',
+        respId: i.assigned_to,
+        prazo:  i.due_date || '—',
+        done:   i.done,
+      }));
+    }
+  } catch(e) { console.warn('Plano:', e); }
+  renderPlano();
 }
 
 init();

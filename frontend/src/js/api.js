@@ -27,11 +27,28 @@
 const USE_MOCK = false;
 const API_BASE = "http://localhost:8000";
 
-/** Headers padrão — inclui token JWT salvo no login */
-const authHeaders = () => ({
-  "Content-Type": "application/json",
-  "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
-});
+/** Headers padrão — inclui token JWT salvo no login.
+ *  Lê do sessionStorage (padrão atual). Se não encontrar,
+ *  migra automaticamente do localStorage (sessões antigas). */
+const authHeaders = () => {
+  let token = sessionStorage.getItem('token');
+  if (!token) {
+    const legacy = localStorage.getItem('token');
+    if (legacy) {
+      // Migra para sessionStorage e limpa localStorage
+      sessionStorage.setItem('token', legacy);
+      const perfil = localStorage.getItem('perfil');
+      if (perfil) sessionStorage.setItem('perfil', perfil);
+      localStorage.removeItem('token');
+      localStorage.removeItem('perfil');
+      token = legacy;
+    }
+  }
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token || ""}`
+  };
+};
 
 /* ══════════════════════════════════════════
    MOCK DATA
@@ -185,18 +202,28 @@ function normalizarReport(r) {
     medium: 'media',
     high:   'alta',
   };
+  const tipoMap = {
+    failure:     'Falha',
+    risk:        'Risco',
+    improvement: 'Melhoria',
+  };
 
   return {
-    id:         r.id,
-    titulo:     r.title,
-    descricao:  r.description,
-    setor:      r.category,
-    prioridade: prioMap[r.priority]  || r.priority,
-    status:     statusMap[r.status]  || r.status,
-    data:       r.created_at
-                  ? new Date(r.created_at).toLocaleDateString('pt-BR')
-                  : '—',
-    attachment: r.attachment || null,
+    id:               r.id,
+    titulo:           r.title,
+    descricao:        r.description,
+    categoria:        r.category,
+    setor:            r.department_name || null,
+    prioridade:       prioMap[r.priority]  || r.priority,
+    status:           statusMap[r.status]  || r.status,
+    tipo:             tipoMap[r.occurrence_type] || null,
+    data:             r.created_at
+                        ? new Date(r.created_at).toLocaleDateString('pt-BR')
+                        : '—',
+    attachment:       r.attachment || null,
+    reporter:         r.reporter_name || null,
+    assigned_to:      r.assigned_to   || null,
+    assigned_to_name: r.assigned_to_name || null,
   };
 }
 
@@ -341,6 +368,23 @@ async function getReportesSetor() {
   return data.map(normalizarReport);
 }
 
+/** GET /reports/company/resume — resumo de toda a empresa (apenas gestor). */
+async function getResumoEmpresa() {
+  if (USE_MOCK) return { total: 850, aberto: 241, andamento: 357, resolvido: 185 };
+  const res = await fetch(`${API_BASE}/reports/company/resume`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar resumo da empresa");
+  return res.json();
+}
+
+/** GET /reports/company/reports — todos os reportes da empresa (apenas gestor). */
+async function getReportesEmpresa() {
+  if (USE_MOCK) return MOCK.reportesAnalista;
+  const res = await fetch(`${API_BASE}/reports/company/reports`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar reportes da empresa");
+  const data = await res.json();
+  return data.map(normalizarReport);
+}
+
 /**
  * GET /reports/:id — busca um reporte completo pelo ID.
  * @param {number} id
@@ -360,12 +404,105 @@ async function getReportePorId(id) {
  * @param {number} id            — ID do reporte
  * @param {object} reportCompleto — { title, description, category, priority, attachment? }
  */
-async function patchReporteStatus(id, reportCompleto) {
+/**
+ * GET /users/analysts — lista analistas e gestores do mesmo departamento.
+ * Usado para popular selects de atribuição no report_detail_analyst.html.
+ */
+async function getUsuariosDepartamento() {
+  if (USE_MOCK) {
+    return [
+      { id: 1, name: "Ricardo Santos",  role: "analyst" },
+      { id: 2, name: "Ana Paula Lima",  role: "analyst" },
+      { id: 3, name: "Felipe Moura",    role: "manager" },
+    ];
+  }
+  const res = await fetch(`${API_BASE}/users/analysts`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar usuários do departamento");
+  return res.json();
+}
+
+/**
+ * GET /reports/:id/history — busca histórico de eventos do reporte.
+ * PENDENTE: rota ainda não existe no backend → retorna array vazio.
+ * TODO: remover mock quando backend criar GET /reports/:id/history
+ */
+async function getHistoricoReporte(id) {
+  if (USE_MOCK) return [];
+  const res = await fetch(`${API_BASE}/reports/${id}/history`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar histórico");
+  return res.json();
+}
+
+/**
+ * POST /reports/:id/history — registra um evento no histórico do reporte.
+ * PENDENTE: rota ainda não existe no backend → no-op.
+ * TODO: implementar quando backend criar POST /reports/:id/history
+ * @param {number} id
+ * @param {{ action: string, description?: string, comment?: string, color?: string }} payload
+ */
+async function registrarHistoricoReporte(id, payload) {
+  if (USE_MOCK) return;
+  await fetch(`${API_BASE}/reports/${id}/history`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * GET /reports/:id/plan — busca plano de ação do reporte.
+ */
+async function getPlanoReporte(id) {
+  const res = await fetch(`${API_BASE}/reports/${id}/plan`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar plano de ação");
+  return res.json();
+}
+
+/**
+ * POST /reports/:id/plan — adiciona item ao plano de ação.
+ */
+async function adicionarItemPlano(id, payload) {
+  const res = await fetch(`${API_BASE}/reports/${id}/plan`, {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Erro ao adicionar item ao plano");
+  return res.json();
+}
+
+/**
+ * PUT /reports/:id/plan/:itemId — atualiza item do plano (marcar done, editar).
+ */
+async function atualizarItemPlano(reportId, itemId, payload) {
+  const res = await fetch(`${API_BASE}/reports/${reportId}/plan/${itemId}`, {
+    method: "PUT",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Erro ao atualizar item do plano");
+  return res.json();
+}
+
+/**
+ * DELETE /reports/:id/plan/:itemId — remove item do plano.
+ */
+async function excluirItemPlano(reportId, itemId) {
+  const res = await fetch(`${API_BASE}/reports/${reportId}/plan/${itemId}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error("Erro ao excluir item do plano");
+  return res.json();
+}
+
+
+async function patchReporteStatus(id, novoStatus) {
   if (USE_MOCK) return;
   await fetch(`${API_BASE}/reports/${id}`, {
     method: "PUT",
     headers: authHeaders(),
-    body: JSON.stringify(reportCompleto)
+    body: JSON.stringify({ status: novoStatus })
   });
 }
 
@@ -457,8 +594,8 @@ async function postLogin(email, senha) {
     };
     const perfil = perfis[email.toLowerCase()] || 'funcionario';
     const token  = `mock-token-${perfil}-12345`;
-    localStorage.setItem('token',  token);
-    localStorage.setItem('perfil', perfil);
+    sessionStorage.setItem('token',  token);
+    sessionStorage.setItem('perfil', perfil);
     return { token, perfil };
   }
 
@@ -473,7 +610,7 @@ async function postLogin(email, senha) {
 
   const data = await res.json();
   // Backend retorna: { access_token: "...", token_type: "bearer" }
-  localStorage.setItem('token', data.access_token);
+  sessionStorage.setItem('token', data.access_token);
 
   // 2. Busca o role do usuário em /auth/me
   const meRes = await fetch(`${API_BASE}/auth/me`, {
@@ -489,14 +626,14 @@ async function postLogin(email, senha) {
     'manager':  'gestor'
   };
   const perfil = roleMap[me.role] || 'funcionario';
-  localStorage.setItem('perfil', perfil);
+  sessionStorage.setItem('perfil', perfil);
 
   return { token: data.access_token, perfil };
 }
 
 /** Remove o token e redireciona para o login */
 function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("perfil");
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('perfil');
   window.location.href = "login.html";
 }

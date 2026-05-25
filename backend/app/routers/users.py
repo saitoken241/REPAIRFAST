@@ -5,7 +5,7 @@ from ..models.user_model import User
 from ..schemas.user_schemas import UserCreate, UserResponse, UserUpdate
 from ..utils.security import hash_password
 from ..models.department_model import Department
-from ..routers.auth import require_roles
+from ..routers.auth import require_roles, get_current_user
 
 router = APIRouter(
     prefix="/users",
@@ -21,9 +21,8 @@ def get_db():
 @router.post("/", response_model=UserResponse)
 def create_user(
     user: UserCreate, 
-    db: Session = Depends(get_db),
-    # TODO: reativar após criar usuários de teste
-    # current_user: User = Depends(require_roles(["manager"]))
+    db: Session = Depends(get_db), 
+    #current_user: User = Depends(require_roles(["manager"]))
     ):
     existing_user = db.query(User).filter(User.email == user.email).first()
     existing_cpf = db.query(User).filter(User.cpf == user.cpf).first()
@@ -56,6 +55,18 @@ def list_users(db: Session = Depends(get_db),current_user: User = Depends(requir
     User.department_id == current_user.department_id
 ).all()
 
+
+@router.get("/analysts")
+def list_analysts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Retorna analistas e gestores do mesmo departamento — acessível por analyst e manager."""
+    if current_user.role not in ("manager", "analyst"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    users = db.query(User).filter(
+        User.department_id == current_user.department_id,
+        User.role.in_(["analyst", "manager"])
+    ).all()
+    return [{"id": u.id, "name": u.name, "email": u.email, "role": u.role} for u in users]
+
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_roles(["manager"]))):
     user = db.query(User).filter(User.id == user_id).first()
@@ -74,6 +85,7 @@ def update_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_d
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if user_data.department_id is not None:
+        
         department = db.query(Department).filter(Department.id == user_data.department_id).first()
         if not department:
             raise HTTPException(status_code=400, detail="Department not found")

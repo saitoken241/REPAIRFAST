@@ -196,7 +196,7 @@ const STATUS_SVG = {
 };
 
 function renderUsuario(u) {
-  const nome = (u.name || u.nome || 'Usuário').split(' ')[0];
+  const nome = u.name || u.nome || 'Usuário';
   document.getElementById("greeting").innerHTML =
     `${saudacao()}, <span>${nome.toUpperCase()}</span>`;
   setText("sub-greeting", `${diaSemana()}, ${dataHoje()}`);
@@ -263,7 +263,7 @@ async function init() {
 }
 
 function abrirNovoReporte() {
-  localStorage.setItem('perfil', 'funcionario');
+  sessionStorage.setItem('perfil', 'funcionario');
   window.location.href = 'report_create.html';
 }
 
@@ -274,8 +274,8 @@ function abrirNovoReporte() {
    correto do perfil detectado.
 ──────────────────────────────────────────────────────────────────── */
 (function protegerRota() {
-  const token  = localStorage.getItem('token');
-  const perfil = localStorage.getItem('perfil');
+  const token  = sessionStorage.getItem('token');
+  const perfil = sessionStorage.getItem('perfil');
 
   if (!token) {
     window.location.replace('login.html');
@@ -294,14 +294,20 @@ function abrirNovoReporte() {
 }());
 
 async function abrirReporte(id) {
+  let reporte = null;
   try {
-    const reporte = await getReportePorId(id);
-    if (reporte) sessionStorage.setItem('reporteAtual', JSON.stringify(reporte));
+    reporte = await getReportePorId(id);
+    if (!reporte) reporte = _reportes.find(r => r.id === id) || null;
   } catch(e) {
-    const fallback = _reportes.find(r => r.id === id);
-    if (fallback) sessionStorage.setItem('reporteAtual', JSON.stringify(fallback));
+    reporte = _reportes.find(r => r.id === id) || null;
   }
-  window.location.href = 'report_detail_tracking.html';
+  if (reporte) sessionStorage.setItem('reporteAtual_funcionario', JSON.stringify(reporte));
+
+  /* Redireciona para a página correta baseado no status */
+  const isClosed = reporte && reporte.status === 'resolvido';
+  window.location.href = isClosed
+    ? 'report_detail_tracking_closed.html'
+    : 'report_detail_tracking.html';
 }
 
 init();

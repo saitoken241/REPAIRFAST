@@ -25,10 +25,11 @@ class User(Base):
     number = Column(String(20), index=True, nullable=True)
     status_usuario = Column(Boolean, nullable=False, default=False) # False = off/True = On
     reports = relationship(
-        "Report", 
+        "Report",
         back_populates="user",
-        cascade = "all, delete",
-        uselist = True # 1:N
+        foreign_keys="[Report.user_id]",
+        cascade="all, delete",
+        uselist=True
         )
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=False, default=1)
 

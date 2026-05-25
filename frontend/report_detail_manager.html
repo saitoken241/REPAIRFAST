@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepairFast — Reporte (Gestor)</title>
+
+<link rel="stylesheet" href="src/css/global.css">
+<link rel="stylesheet" href="src/css/components.css">
+<script src="src/js/api.js"></script>
+<script src="src/js/utils.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --orange:#E85C1A; --orange-bright:#FF6B2B;
+  --orange-dim:rgba(232,92,26,0.12); --orange-border:rgba(232,92,26,0.25);
+  --dark:#0A0A0A; --dark2:#111111; --dark3:#1A1A1A; --dark4:#222222; --mid:#2E2E2E;
+  --text:#F0EDE8; --text-muted:#888880; --text-dim:#444440;
+  --green:#3DBA7A; --green-dim:rgba(61,186,122,0.12); --green-b:rgba(61,186,122,0.2);
+  --yellow:#F5C842; --yellow-dim:rgba(245,200,66,0.12); --yellow-b:rgba(245,200,66,0.2);
+  --blue:#4A9EE8; --blue-dim:rgba(74,158,232,0.12); --blue-b:rgba(74,158,232,0.2);
+  --red:#E8504A; --red-dim:rgba(232,80,74,0.12); --red-b:rgba(232,80,74,0.2);
+  --purple:#9B6FE8; --purple-dim:rgba(155,111,232,0.12);
+  --teal:#2EC4B6; --teal-dim:rgba(46,196,182,0.12); --teal-b:rgba(46,196,182,0.2);
+  --border:rgba(255,255,255,0.07);
+  --fd:'Bebas Neue',sans-serif; --fb:'DM Sans',sans-serif; --fm:'DM Mono',monospace;
+  --r:12px; --pad:28px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{font-family:var(--fb);font-weight:300;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;padding:var(--pad);padding-bottom:48px}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.35;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseOrange{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+
+/* TAGS */
+.tag{padding:2px 8px;border-radius:6px;font-size:11px;white-space:nowrap}
+.s-aberto   {background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border)}
+.s-andamento{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-b)}
+.s-resolvido{background:var(--green-dim);color:var(--green);border:1px solid var(--green-b)}
+.p-alto     {background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border)}
+.p-medio    {background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow-b)}
+.p-baixo    {background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-b)}
+
+/* BREADCRUMB */
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);margin-bottom:18px;flex-wrap:wrap;animation:fadeUp .25s ease both}
+.breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .15s}
+.breadcrumb a:hover{color:var(--orange)}
+.breadcrumb-sep{color:var(--text-dim)}
+
+/* HEADER */
+.report-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:24px;flex-wrap:wrap;animation:fadeUp .3s ease both}
+.rh-left{flex:1;min-width:0}
+.rh-id{font-family:var(--fm);font-size:12px;color:var(--text-dim);margin-bottom:6px}
+.rh-titulo{font-family:var(--fd);font-size:clamp(22px,3vw,32px);letter-spacing:.5px;line-height:1.15;margin-bottom:10px}
+.rh-badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* GRID PRINCIPAL */
+.main-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+
+/* PANEL */
+.panel{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);padding:20px;animation:fadeUp .35s ease both}
+.panel-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.panel-title{font-family:var(--fd);font-size:14px;letter-spacing:1px}
+.panel-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* INFO BLOCKS (coluna esquerda) */
+.info-block{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.info-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.field-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);margin-bottom:5px}
+.field-val{font-size:13px;color:var(--text);line-height:1.6}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-item{padding:10px 12px;background:var(--dark3);border:1px solid var(--border);border-radius:8px}
+.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);margin-bottom:4px}
+.info-val{font-size:13px;font-weight:500}
+
+/* EVIDÊNCIAS */
+.evidencias-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.ev-thumb{aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--dark3);border:1px solid var(--border);cursor:pointer;position:relative;transition:border-color .15s}
+.ev-thumb:hover{border-color:var(--orange-border)}
+.ev-thumb .ev-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;font-size:20px}
+.ev-thumb:hover .ev-overlay{opacity:1}
+.ev-doc{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--dark3);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .15s}
+.ev-doc:hover{border-color:var(--orange-border)}
+.ev-doc-icon{font-size:20px;flex-shrink:0}
+.ev-doc-info{min-width:0}
+.ev-doc-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-doc-size{font-size:11px;color:var(--text-dim);font-family:var(--fm)}
+.ev-empty{padding:20px;text-align:center;color:var(--text-dim);font-size:12px;background:var(--dark3);border:1px dashed var(--border);border-radius:8px}
+
+/* AÇÕES PREVENTIVAS */
+.prev-item{background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.prev-item:last-child{margin-bottom:0}
+.prev-tipo{font-size:10px;font-weight:600;color:var(--blue);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+.prev-desc{font-size:12px;color:var(--text-muted);margin-bottom:4px;line-height:1.4}
+.prev-meta{font-size:11px;color:var(--text-dim);display:flex;gap:8px;flex-wrap:wrap}
+
+/* PLANO DE AÇÃO */
+.plano-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.plano-item:last-child{border-bottom:none}
+.plano-check{width:14px;height:14px;border-radius:3px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:white;font-weight:700}
+.plano-check.done{background:var(--green)}
+.plano-check.pend{background:var(--mid);border:1.5px solid var(--border)}
+.plano-desc{font-size:12px;font-weight:500;margin-bottom:3px}
+.plano-meta{font-size:11px;color:var(--text-dim);display:flex;gap:8px;flex-wrap:wrap}
+
+/* HISTÓRICO */
+.tl-item{display:grid;grid-template-columns:auto 1fr;gap:0 12px}
+.tl-left{display:flex;flex-direction:column;align-items:center}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.tl-line{width:1px;flex:1;background:var(--border);margin:3px auto 0;min-height:18px}
+.tl-body{padding-bottom:14px}
+.tl-header{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:3px}
+.tl-action{font-size:11px;font-weight:500}
+.tl-who{font-size:10px;color:var(--text-muted)}
+.tl-time{font-size:10px;color:var(--text-dim);font-family:var(--fm);margin-left:auto;white-space:nowrap}
+.tl-desc{font-size:11px;color:var(--text-muted);line-height:1.5}
+.tl-comment{font-size:11px;color:var(--text-muted);font-style:italic;padding:5px 8px;background:var(--dark3);border-radius:5px;margin-top:3px;line-height:1.5}
+
+/* META (coluna direita) */
+.meta-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.meta-row:last-child{border-bottom:none}
+.meta-key{color:var(--text-muted);flex-shrink:0}
+.meta-val{font-weight:500;text-align:right}
+.meta-av{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+
+/* STATUS CARD (coluna direita) */
+.status-card{padding:16px;border-radius:10px;text-align:center;border:1px solid var(--border);background:var(--dark3)}
+.sc-icon{font-size:32px;margin-bottom:8px}
+.sc-label{font-family:var(--fd);font-size:17px;letter-spacing:.5px;margin-bottom:6px}
+.sc-desc{font-size:12px;color:var(--text-muted);line-height:1.6}
+.sc-pulse{width:8px;height:8px;border-radius:50%;margin:10px auto 0;animation:pulseOrange 1.4s infinite}
+
+/* SLA BADGE */
+.sla-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:500}
+.sla-badge.ok  {background:var(--green-dim);color:var(--green);border:1px solid var(--green-b)}
+.sla-badge.warn{background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--yellow-b)}
+.sla-badge.bad {background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
+
+/* LIGHTBOX */
+.lightbox-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:14px;backdrop-filter:blur(6px)}
+.lightbox-overlay.open{display:flex}
+.lightbox-close{position:absolute;top:16px;right:16px;background:var(--dark4);border:1px solid var(--border);color:var(--text-muted);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .15s;z-index:2}
+.lightbox-close:hover{background:var(--red-dim);color:var(--red);border-color:var(--red-b)}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:var(--dark4);border:1px solid var(--border);color:var(--text-muted);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all .15s;z-index:2;user-select:none}
+.lightbox-nav:hover{background:var(--dark3);color:var(--text)}
+.lightbox-nav.prev{left:16px}.lightbox-nav.next{right:16px}
+.lightbox-img{max-width:90vw;max-height:78vh;border-radius:8px;object-fit:contain;animation:fadeUp .2s ease;display:block}
+.lightbox-iframe{width:88vw;height:78vh;border:none;border-radius:8px;background:white;display:block}
+.lightbox-video{max-width:90vw;max-height:78vh;border-radius:8px;display:block;outline:none}
+.lightbox-footer{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--dark3);border:1px solid var(--border);border-radius:8px;max-width:88vw;min-width:200px}
+.lightbox-footer-name{font-size:12px;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.lightbox-footer-info{font-size:11px;color:var(--text-dim);font-family:var(--fm);white-space:nowrap}
+.lightbox-counter{font-size:11px;color:var(--text-muted);font-family:var(--fm);background:var(--dark4);padding:3px 12px;border-radius:20px;border:1px solid var(--border)}
+
+/* TOAST */
+.toast-area{position:fixed;bottom:24px;right:20px;z-index:900;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--dark3);border:1px solid var(--border);border-radius:10px;font-size:13px;min-width:240px;max-width:320px;animation:fadeUp .25s ease both;pointer-events:all}
+.toast.green{border-color:var(--green-b)}
+.toast.blue{border-color:var(--blue-b)}
+.toast-icon{font-size:16px;flex-shrink:0}
+.toast-msg{flex:1;color:var(--text)}
+
+.rh-actions{display:flex;gap:8px;align-items:flex-start;flex-shrink:0}
+#btn-voltar:hover{background:var(--dark3);color:var(--text);border-color:rgba(255,255,255,.12)}
+@media(max-width:1024px){.main-grid{grid-template-columns:1fr}}
+@media(max-width:768px){:root{--pad:16px}.info-grid{grid-template-columns:1fr}}
+@media(max-width:480px){:root{--pad:14px}.rh-titulo{font-size:22px}}
+
+/* ══ VIEW DE REPORTE ENCERRADO (colaborador) ══ */
+.closed-banner{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--green-dim);border:1px solid var(--green-b);border-radius:var(--r);margin-bottom:20px;animation:fadeUp .3s ease both}
+.closed-banner-icon{flex-shrink:0}
+.closed-banner-body{flex:1}
+.closed-banner-title{font-family:var(--fd);font-size:15px;letter-spacing:.5px;color:var(--green);margin-bottom:2px}
+.closed-banner-sub{font-size:12px;color:var(--text-muted)}
+.closed-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+.closed-info-block{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.closed-info-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.closed-field-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);margin-bottom:5px}
+.closed-field-val{font-size:13px;color:var(--text);line-height:1.6}
+.closed-meta-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.closed-meta-row:last-child{border-bottom:none}
+.closed-meta-key{color:var(--text-muted)}
+.closed-meta-val{font-weight:500;text-align:right}
+.closed-tl-item{display:grid;grid-template-columns:auto 1fr;gap:0 12px}
+.closed-tl-left{display:flex;flex-direction:column;align-items:center}
+.closed-tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.closed-tl-line{width:1px;flex:1;background:var(--border);margin:3px auto 0;min-height:18px}
+.closed-tl-body{padding-bottom:14px}
+.closed-tl-action{font-size:11px;font-weight:500}
+.closed-tl-who{font-size:10px;color:var(--text-muted)}
+.closed-tl-time{font-size:10px;color:var(--text-dim);font-family:var(--fm)}
+.closed-tl-desc{font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.5}
+.closed-tl-comment{font-size:11px;color:var(--text-muted);font-style:italic;padding:5px 8px;background:var(--dark3);border-radius:5px;margin-top:3px;line-height:1.5}
+@media(max-width:1024px){.closed-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="#" id="home-link">← Início</a>
+  <span class="breadcrumb-sep">/</span>
+  <span id="bc-section">Meus Reportes</span>
+  <span class="breadcrumb-sep">/</span>
+  <span style="color:var(--text-dim);font-family:var(--fm)" id="bc-id">#1248</span>
+</div>
+
+<!-- HEADER -->
+<div class="report-header">
+  <div class="rh-left">
+    <div class="rh-id" id="rh-id">REPORTE #1248 · ABERTO EM 21/03/2025</div>
+    <div class="rh-titulo" id="rh-titulo">Falta de sinalização em área de risco — Corredor B</div>
+    <div class="rh-badges">
+      <span class="tag p-alto" id="rh-tipo">Risco</span>
+      <span class="tag s-aberto" id="rh-status">Aberto</span>
+      <span class="tag" style="background:var(--dark3);border:1px solid var(--border);color:var(--text-muted)" id="rh-cat">Segurança e acessibilidade</span>
+    </div>
+  </div>
+  <div class="rh-actions">
+    <a href="#" id="btn-voltar" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:10px;font-family:var(--fb);font-size:13px;text-decoration:none;transition:all .2s;white-space:nowrap">
+      ← Voltar
+    </a>
+  </div>
+</div>
+
+<!-- GRID PRINCIPAL -->
+<div class="main-grid">
+
+  <!-- ═══ COLUNA ESQUERDA ═══ -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <!-- Informações do reporte -->
+    <div class="panel" style="animation-delay:.05s">
+      <div class="panel-hd">
+        <div>
+          <div class="panel-title">INFORMAÇÕES DO REPORTE</div>
+          <div class="panel-sub">Dados registrados pelo colaborador</div>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <div class="field-label">Título</div>
+        <div class="field-val" id="info-titulo" style="font-weight:500;font-size:14px">Falta de sinalização em área de risco — Corredor B</div>
+      </div>
+
+      <div class="info-block">
+        <div class="field-label">Descrição</div>
+        <div class="field-val" id="info-descricao">Foi identificada a ausência completa de sinalização de segurança no Corredor B, setor de Laminação a Quente. O trecho possui histórico de acidentes e o fluxo de materiais é constante. As placas de advertência foram removidas durante manutenção e não foram recolocadas.</div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item"><div class="info-label">Categoria</div><div class="info-val" id="info-categoria">Segurança e acessibilidade</div></div>
+        <div class="info-item"><div class="info-label">Tipo de ocorrência</div><div class="info-val" id="info-tipo">Risco</div></div>
+        <div class="info-item"><div class="info-label">Setor</div><div class="info-val" id="info-setor">Segurança do Trabalho</div></div>
+      </div>
+    </div>
+
+    <!-- Evidências -->
+    <div class="panel" style="animation-delay:.08s">
+      <div class="panel-hd">
+        <div><div class="panel-title">EVIDÊNCIAS</div><div class="panel-sub">Arquivos anexados ao reporte</div></div>
+        <span style="font-size:11px;color:var(--text-dim);font-family:var(--fm)" id="ev-count">—</span>
+      </div>
+      <div class="evidencias-grid" id="ev-grid"></div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px" id="ev-docs"></div>
+    </div>
+
+    <!-- Plano de ação (aparece quando houver) -->
+    <div class="panel" id="panel-plano" style="animation-delay:.14s;display:none">
+      <div class="panel-hd">
+        <div>
+          <div class="panel-title">PLANO DE AÇÃO</div>
+          <div class="panel-sub" id="plano-sub">—</div>
+        </div>
+        <span style="font-size:11px;color:var(--text-dim);font-family:var(--fm)" id="plano-pct">—</span>
+      </div>
+      <div style="height:3px;background:var(--mid);border-radius:10px;overflow:hidden;margin-bottom:14px">
+        <div id="plano-bar" style="height:100%;background:var(--green);border-radius:10px;width:0%;transition:width .8s ease"></div>
+      </div>
+      <div id="plano-list"></div>
+    </div>
+
+    <!-- Histórico completo -->
+    <div class="panel" style="animation-delay:.17s">
+      <div class="panel-hd">
+        <div><div class="panel-title">HISTÓRICO</div><div class="panel-sub">Todos os registros e atualizações do reporte</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column" id="timeline"></div>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- ═══ COLUNA DIREITA ═══ -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <!-- Informações resumidas -->
+    <div class="panel" style="animation-delay:.12s">
+      <div class="panel-hd"><div class="panel-title">INFORMAÇÕES</div></div>
+      <div>
+
+        <div class="meta-row">
+          <span class="meta-key">Analista responsável</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="meta-av" style="background:var(--mid);color:var(--text-muted)" id="resp-av">—</div>
+            <span class="meta-val" id="resp-nome">Não atribuído</span>
+          </div>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">Aberto em</span>
+          <span class="meta-val" style="font-family:var(--fm);font-size:11px" id="meta-abertura">21/03/2025 · 08:42</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">Última atualização</span>
+          <span class="meta-val" style="font-family:var(--fm);font-size:11px" id="meta-atualizacao">25/03/2025 · 10:15</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">Prazo</span>
+          <span class="meta-val" id="meta-sla">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">ID do Reporte</span>
+          <span class="meta-val" style="font-family:var(--fm);color:var(--text-dim)" id="meta-id">#1248</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right-col -->
+</div><!-- /main-grid -->
+
+<!-- VIEW ENCERRADO (colaborador) -->
+<div id="viewEncerrado" style="display:none"></div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="lightboxClickFora(event)">
+  <button class="lightbox-close" onclick="fecharLightbox()">×</button>
+  <button class="lightbox-nav prev" id="lbPrev" onclick="lightboxNav(-1)">‹</button>
+  <button class="lightbox-nav next" id="lbNext" onclick="lightboxNav(+1)">›</button>
+  <div id="lightboxContent"></div>
+  <div class="lightbox-footer" id="lightboxFooter"></div>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   DADOS MOCK
+══════════════════════════════════════════════════ */
+const STATUS_CFG = {
+  aberto:    { icon:"📋", label:"ABERTO",       desc:"Seu reporte foi recebido e está aguardando análise.",  cor:"var(--orange)", cls:"s-aberto",    pulse:"var(--orange)" },
+  andamento: { icon:"⚙️", label:"EM ANDAMENTO", desc:"Ações corretivas estão sendo executadas pela equipe.", cor:"var(--blue)",   cls:"s-andamento", pulse:"var(--blue)"   },
+  resolvido: { icon:"✅", label:"RESOLVIDO",     desc:"Ocorrência encerrada. Obrigado pelo seu reporte!",     cor:"var(--green)",  cls:"s-resolvido", pulse:"var(--green)"  },
+};
+
+const HISTORICO_MOCK = [
+  { quem:"João Lima",      tempo:"21/03/2025 · 08:42", acao:"Reporte aberto",              cor:"var(--orange)", dot:"var(--orange)", desc:"Reporte registrado com 2 imagens e 1 documento anexados." },
+  { quem:"Sistema",        tempo:"21/03/2025 · 08:43", acao:"Atribuído automaticamente",   cor:"var(--blue)",   dot:"var(--blue)",   desc:"Reporte encaminhado ao analista Ricardo Santos." },
+  { quem:"Ricardo Santos", tempo:"21/03/2025 · 09:10", acao:"Status alterado — Aberto",    cor:"var(--blue)",   dot:"var(--blue)",   desc:null },
+  { quem:"Ricardo Santos", tempo:"22/03/2025 · 14:30", acao:"Comentário registrado",       cor:"var(--teal)",   dot:"var(--teal)",   comentario:"Confirmada ausência de sinalização. Solicitado orçamento para placas definitivas e instalação de sinalização provisória de emergência." },
+  { quem:"Ana Paula",      tempo:"25/03/2025 · 10:15", acao:"Plano de ação atualizado",    cor:"var(--green)",  dot:"var(--green)",  desc:"Sinalização provisória instalada e marcada como concluída no plano de ação." },
+];
+
+const PLANO_MOCK = [
+  { desc:"Instalar sinalização provisória de emergência (fitas e cones)",        resp:"Ana Paula Ferreira", prazo:"2025-03-22", done:true  },
+  { desc:"Solicitar orçamento para placas de sinalização definitiva NR-26",      resp:"Ricardo Santos",     prazo:"2025-03-28", done:false },
+  { desc:"Realizar inspeção pós-instalação e registrar conformidade no sistema", resp:"Ricardo Santos",     prazo:"2025-04-05", done:false },
+];
+
+/* ══════════════════════════════════════════════════
+   UTILITÁRIOS
+══════════════════════════════════════════════════ */
+function fmtPrazo(iso) {
+  if (!iso || iso === '—') return '—';
+  const [a,m,d] = iso.split('-');
+  return `${d}/${m}/${a}`;
+}
+function formatSize(b) {
+  if (!b) return '';
+  if (b < 1024)    return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+function getIconeTipo(type, name) {
+  if (type?.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name||''))
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+  if (type?.startsWith('video/') || /\.(mp4|mov|avi|webm)$/i.test(name||''))
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>';
+  if (type === 'application/pdf' || /\.pdf$/i.test(name||''))
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>';
+}
+function isImagem(a) { return a.type?.startsWith('image/') || a.data?.startsWith('data:image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(a.name||''); }
+function isVideo(a)  { return a.type?.startsWith('video/')  || /\.(mp4|mov|avi|webm)$/i.test(a.name||''); }
+function isPDF(a)    { return a.type === 'application/pdf'  || /\.pdf$/i.test(a.name||''); }
+function vencido(iso, done) { if (done || !iso || iso === '—') return false; return new Date(iso) < new Date(); }
+
+/* ══════════════════════════════════════════════════
+   RENDER — STATUS CARD
+══════════════════════════════════════════════════ */
+function renderStatus(key) {
+  const cfg = STATUS_CFG[key] || STATUS_CFG.analise;
+
+  /* Badge no header */
+  const badge = document.getElementById("rh-status");
+  if (badge) { badge.className = `tag ${cfg.cls}`; badge.textContent = cfg.label.charAt(0) + cfg.label.slice(1).toLowerCase().replace('em andamento','Em andamento').replace('aberto','Aberto').replace('resolvido','Resolvido'); }
+
+  /* Card lateral */
+  const card  = document.getElementById("status-card");
+  const icon  = document.getElementById("sc-icon");
+  const label = document.getElementById("sc-label");
+  const desc  = document.getElementById("sc-desc");
+  const pulse = document.getElementById("sc-pulse");
+  if (card)  card.style.borderColor  = cfg.cor;
+  if (icon)  icon.textContent         = cfg.icon;
+  if (label) { label.textContent = cfg.label; label.style.color = cfg.cor; }
+  if (desc)  desc.textContent         = cfg.desc;
+  if (pulse) { pulse.style.background = cfg.pulse; pulse.style.display = key === 'resolvido' ? 'none' : 'block'; }
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER — HISTÓRICO
+══════════════════════════════════════════════════ */
+function renderHistorico(lista) {
+  const el = document.getElementById("timeline");
+  if (!lista.length) {
+    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px">Nenhum registro ainda</div>`;
+    return;
+  }
+  el.innerHTML = lista.map((h, i) => `
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot" style="background:${h.dot}"></div>
+        ${i < lista.length - 1 ? '<div class="tl-line"></div>' : ''}
+      </div>
+      <div class="tl-body">
+        <div class="tl-header">
+          <span class="tl-action" style="color:${h.cor}">${h.acao}</span>
+          <span class="tl-who">· ${h.quem}</span>
+          <span class="tl-time">${h.tempo}</span>
+        </div>
+        ${h.desc       ? `<div class="tl-desc">${h.desc}</div>`              : ''}
+        ${h.comentario ? `<div class="tl-comment">"${h.comentario}"</div>`  : ''}
+      </div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER — PLANO DE AÇÃO
+══════════════════════════════════════════════════ */
+function renderPlano(plano) {
+  if (!plano || !plano.length) return;
+  document.getElementById("panel-plano").style.display = 'block';
+
+  const done  = plano.filter(p => p.done).length;
+  const total = plano.length;
+  const pend  = total - done;
+  const pct   = total ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById("plano-sub").textContent = `${done} de ${total} concluída${done !== 1 ? 's' : ''}`;
+  document.getElementById("plano-pct").textContent = `${pct}%`;
+  setTimeout(() => { document.getElementById("plano-bar").style.width = pct + '%'; }, 400);
+
+  /* SLA: vencido só se todos os prazos pendentes passaram */
+  const pendentes  = plano.filter(p => !p.done);
+  const comPrazo   = pendentes.filter(p => p.prazo && p.prazo !== '—');
+  const todosVenc  = comPrazo.length > 0 && comPrazo.every(p => vencido(p.prazo, false));
+  const algumVenc  = comPrazo.some(p => vencido(p.prazo, false));
+  const metaSla    = document.getElementById("meta-sla");
+  if (metaSla) {
+    if (pendentes.length === 0)  { metaSla.style.color = "var(--green)";  metaSla.textContent = "Todos concluídos ✓"; }
+    else if (todosVenc)          { metaSla.style.color = "var(--red)";    metaSla.textContent = "Vencido"; }
+    else if (algumVenc)          { metaSla.style.color = "var(--yellow)"; metaSla.textContent = "Parcialmente vencido"; }
+    else                         { metaSla.style.color = "var(--green)";  metaSla.textContent = "Dentro do prazo"; }
+  }
+
+  document.getElementById("plano-list").innerHTML = plano.map(p => {
+    const v = vencido(p.prazo, p.done);
+    return `
+    <div class="plano-item">
+      <div class="plano-check ${p.done ? 'done' : 'pend'}">${p.done ? '✓' : ''}</div>
+      <div style="flex:1;min-width:0">
+        <div class="plano-desc">${p.desc}</div>
+        <div class="plano-meta">
+          <span style="display:inline-flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${p.resp}</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:${v ? 'var(--red)' : 'var(--text-dim)'}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${fmtPrazo(p.prazo)}${v ? ' · vencido' : ''}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   HISTÓRICO — array mutável para injetar entradas dinâmicas
+══════════════════════════════════════════════════ */
+let _historico = [];
+
+function registrarNoHistorico(acao, quem, cor, dot, desc, comentario) {
+  _historico.push({ acao, quem, cor, dot, desc: desc || null, comentario: comentario || null,
+    tempo: new Date().toLocaleDateString('pt-BR') + ' · ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) });
+  renderHistorico(_historico);
+}
+
+/* Injetam entradas de prevencoes e plano no histórico (sem painel separado) */
+function injetarPlanoNoHistorico(plano) {
+  if (!plano || !plano.length) return;
+  plano.filter(p => p.done).forEach(p => {
+    _historico.push({
+      quem: p.resp || 'Analista',
+      tempo: p.prazo ? fmtPrazo(p.prazo) : '—',
+      acao: 'Ação do plano concluída',
+      cor: 'var(--green)', dot: 'var(--green)',
+      desc: `"${p.desc}" marcada como concluída.`,
+      comentario: null
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   LIGHTBOX
+══════════════════════════════════════════════════ */
+let _anexos  = [];
+let _lbIndex = 0;
+
+function renderAnexos(anexos) {
+  _anexos = anexos || [];
+  const gridEl  = document.getElementById("ev-grid");
+  const docsEl  = document.getElementById("ev-docs");
+  const countEl = document.getElementById("ev-count");
+
+  if (countEl) countEl.textContent = _anexos.length
+    ? `${_anexos.length} arquivo${_anexos.length !== 1 ? 's' : ''}`
+    : '0 arquivos';
+
+  const imagens = _anexos.filter(a => isImagem(a));
+  const videos  = _anexos.filter(a => isVideo(a));
+  const docs    = _anexos.filter(a => !isImagem(a) && !isVideo(a));
+
+  gridEl.innerHTML = [...imagens, ...videos].map(a => {
+    const idx = _anexos.indexOf(a);
+    if (isImagem(a)) return `
+      <div class="ev-thumb" onclick="abrirLightbox(${idx})">
+        <img src="${a.data}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover">
+        <div class="ev-overlay"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+      </div>`;
+    return `
+      <div class="ev-thumb" onclick="abrirLightbox(${idx})" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px">
+        <span style="display:flex">${getIconeTipo(a.type, a.name)}</span>
+        <span style="font-size:10px;color:var(--text-muted);text-align:center;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px">${a.name}</span>
+        <div class="ev-overlay">▶</div>
+      </div>`;
+  }).join('');
+
+  docsEl.innerHTML = docs.map(a => {
+    const idx = _anexos.indexOf(a);
+    return `
+    <div class="ev-doc" onclick="abrirLightbox(${idx})">
+      <div class="ev-doc-icon">${getIconeTipo(a.type, a.name)}</div>
+      <div class="ev-doc-info">
+        <div class="ev-doc-name">${a.name}</div>
+        <div class="ev-doc-size">${formatSize(a.size)}</div>
+      </div>
+      <span style="color:var(--orange);display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+    </div>`;
+  }).join('');
+
+  if (_anexos.length === 0) {
+    gridEl.innerHTML = `<div class="ev-empty" style="grid-column:1/-1">Nenhum arquivo anexado</div>`;
+  }
+}
+
+function abrirLightbox(idx) {
+  if (!_anexos.length) return;
+  _lbIndex = idx;
+  _renderLightboxItem();
+  document.getElementById("lightboxOverlay").classList.add('open');
+  document.addEventListener('keydown', _lbKey);
+}
+function fecharLightbox() {
+  document.getElementById("lightboxOverlay").classList.remove('open');
+  document.removeEventListener('keydown', _lbKey);
+  const v = document.querySelector('#lightboxContent video');
+  if (v) v.pause();
+}
+function lightboxClickFora(e) { if (e.target === document.getElementById("lightboxOverlay")) fecharLightbox(); }
+function lightboxNav(dir) { _lbIndex = (_lbIndex + dir + _anexos.length) % _anexos.length; _renderLightboxItem(); }
+function _lbKey(e) {
+  if (e.key === 'Escape') fecharLightbox();
+  if (e.key === 'ArrowLeft')  lightboxNav(-1);
+  if (e.key === 'ArrowRight') lightboxNav(+1);
+}
+function _renderLightboxItem() {
+  const a       = _anexos[_lbIndex];
+  const content = document.getElementById("lightboxContent");
+  const footer  = document.getElementById("lightboxFooter");
+  const counter = document.getElementById("lightboxCounter");
+  const prev    = document.getElementById("lbPrev");
+  const next    = document.getElementById("lbNext");
+  const showNav = _anexos.length > 1;
+  if (prev) prev.style.display = showNav ? 'flex' : 'none';
+  if (next) next.style.display = showNav ? 'flex' : 'none';
+  if (counter) counter.textContent = showNav ? `${_lbIndex + 1} / ${_anexos.length}` : '';
+  const oldV = content.querySelector('video');
+  if (oldV) oldV.pause();
+  if (isImagem(a))             content.innerHTML = `<img class="lightbox-img" src="${a.data}" alt="${a.name}">`;
+  else if (isVideo(a))         content.innerHTML = `<video class="lightbox-video" src="${a.data}" controls autoplay></video>`;
+  else if (isPDF(a) && a.data) content.innerHTML = `<iframe class="lightbox-iframe" src="${a.data}" title="${a.name}"></iframe>`;
+  else content.innerHTML = `
+    <div style="text-align:center;padding:40px;background:var(--dark3);border-radius:12px;border:1px solid var(--border)">
+      <div style="font-size:48px;margin-bottom:12px">${getIconeTipo(a.type,a.name)}</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:16px">${a.name}</div>
+      ${a.data ? `<a href="${a.data}" target="_blank" style="padding:9px 18px;background:var(--orange);color:white;border-radius:8px;font-size:13px;text-decoration:none">Abrir arquivo ↗</a>` : ''}
+    </div>`;
+  if (footer) footer.innerHTML = `
+    <span style="font-size:18px">${getIconeTipo(a.type,a.name)}</span>
+    <span class="lightbox-footer-name">${a.name}</span>
+    ${a.size ? `<span class="lightbox-footer-info">${formatSize(a.size)}</span>` : ''}`;
+}
+
+/* ══════════════════════════════════════════════════
+   VIEW ENCERRADO — colaborador (somente leitura)
+══════════════════════════════════════════════════ */
+function ativarViewEncerrado(dados) {
+  document.querySelector('.breadcrumb').style.display   = 'none';
+  document.querySelector('.report-header').style.display = 'none';
+  document.querySelector('.main-grid').style.display    = 'none';
+  document.getElementById('viewEncerrado').style.display = 'block';
+
+  const titulo    = dados.titulo    || document.getElementById("rh-titulo")?.textContent    || '—';
+  const idReporte = dados.id        ? `REPORTE #${dados.id}` : '—';
+  const descricao = dados.descricao || document.getElementById("info-descricao")?.textContent || '—';
+  const categoria = dados.categoria || document.getElementById("info-categoria")?.textContent || '—';
+  const tipo      = dados.tipo      || document.getElementById("info-tipo")?.textContent      || '—';
+  const setor     = dados.setor     || document.getElementById("info-setor")?.textContent     || '—';
+  const reporter  = dados.reporter  || document.getElementById("reporter-nome")?.textContent  || '—';
+  const reporterIni = reporter.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+  const abertura  = dados.data      || document.getElementById("meta-abertura")?.textContent  || '—';
+  const reporteId = dados.id ? `#${dados.id}` : '#—';
+  const destino   = 'home_manager.html';
+  const motivo    = dados.motivo    || 'Problema resolvido — ação corretiva aplicada';
+  const encerradoEm = dados.encerradoEm || new Date().toLocaleDateString('pt-BR') + ' · ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+
+  /* Badge de prioridade */
+  const prioMap = {
+    alta:  { cls:'p-alta',  label:'Alta'  },
+    media: { cls:'p-media', label:'Média' },
+    baixa: { cls:'p-baixa', label:'Baixa' },
+  };
+  const prio = prioMap[dados.prioridade] || null;
+  const prioBadge = prio ? `<span class="tag ${prio.cls}">${prio.label}</span>` : '';
+
+  /* Histórico */
+  const hist = Array.isArray(dados.historico) ? dados.historico : _historico;
+  const histHtml = hist.length ? hist.map((h, i) => `
+    <div class="closed-tl-item">
+      <div class="closed-tl-left">
+        <div class="closed-tl-dot" style="background:${h.dot || h.cor || 'var(--teal)'}"></div>
+        ${i < hist.length - 1 ? '<div class="closed-tl-line"></div>' : ''}
+      </div>
+      <div class="closed-tl-body">
+        <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
+          <span class="closed-tl-action" style="color:${h.cor || 'var(--teal)'}">${h.acao}</span>
+          <span class="closed-tl-who">· ${h.quem}</span>
+          <span class="closed-tl-time" style="margin-left:auto">${h.tempo}</span>
+        </div>
+        ${h.desc       ? `<div class="closed-tl-desc">${h.desc}</div>`             : ''}
+        ${h.comentario ? `<div class="closed-tl-comment">"${h.comentario}"</div>` : ''}
+      </div>
+    </div>`).join('')
+  : `<div style="font-size:12px;color:var(--text-dim);text-align:center;padding:12px 0">Nenhum registro encontrado</div>`;
+
+  /* Evidências */
+  const imagens = _anexos.filter(a => isImagem(a));
+  const videos  = _anexos.filter(a => isVideo(a));
+  const docs    = _anexos.filter(a => !isImagem(a) && !isVideo(a));
+  const thumbsHtml = [...imagens, ...videos].map(a => {
+    const idx = _anexos.indexOf(a);
+    return isImagem(a)
+      ? `<div class="ev-thumb" onclick="abrirLightbox(${idx})" style="cursor:pointer"><img src="${a.data}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover"><div class="ev-overlay">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div></div>`
+      : `<div class="ev-thumb" onclick="abrirLightbox(${idx})" style="cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          <span style="font-size:10px;color:var(--text-muted);text-align:center;padding:0 4px">${a.name}</span>
+          <div class="ev-overlay">▶</div>
+        </div>`;
+  }).join('');
+  const docsHtml = docs.map(a => {
+    const idx = _anexos.indexOf(a);
+    return `<div class="ev-doc" onclick="abrirLightbox(${idx})" style="cursor:pointer">
+      <div class="ev-doc-icon">${getIconeTipo(a.type, a.name)}</div>
+      <div class="ev-doc-info"><div class="ev-doc-name">${a.name}</div><div class="ev-doc-size">${formatSize(a.size)}</div></div>
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </div>`;
+  }).join('');
+  const anexoCount = _anexos.length;
+  const evidenciasHtml = anexoCount === 0
+    ? `<div class="ev-empty">Nenhuma evidência anexada</div>`
+    : `${thumbsHtml ? `<div class="evidencias-grid">${thumbsHtml}</div>` : ''}
+       ${docsHtml   ? `<div style="display:flex;flex-direction:column;gap:8px;${thumbsHtml?'margin-top:10px':''}">${docsHtml}</div>` : ''}`;
+
+  document.getElementById('viewEncerrado').innerHTML = `
+  <div style="min-height:100vh;background:var(--dark);padding:var(--pad);padding-bottom:48px">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb" style="animation:fadeUp .25s ease both;margin-bottom:18px">
+      <a href="${destino}" style="color:var(--text-muted);text-decoration:none">← Início</a>
+      <span style="color:var(--text-dim)">/</span>
+      <span style="color:var(--text-muted)">Meus Reportes</span>
+      <span style="color:var(--text-dim)">/</span>
+      <span style="color:var(--text-dim);font-family:var(--fm)">${reporteId}</span>
+    </div>
+
+    <!-- Header -->
+    <div class="report-header" style="display:flex;align-items:flex-start;gap:16px;margin-bottom:24px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--fm);font-size:12px;color:var(--text-dim);margin-bottom:6px">${idReporte}</div>
+        <div style="font-family:var(--fd);font-size:clamp(22px,3vw,32px);letter-spacing:.5px;line-height:1.15;margin-bottom:10px">${titulo}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span class="tag s-resolvido">Encerrado</span>
+          ${prioBadge}
+          <span class="tag" style="background:var(--dark3);border:1px solid var(--border);color:var(--text-muted)">${categoria}</span>
+        </div>
+      </div>
+      <div>
+        <a href="${destino}" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:10px;font-family:var(--fb);font-size:13px;text-decoration:none;transition:all .2s;white-space:nowrap">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Voltar
+        </a>
+      </div>
+    </div>
+
+    <!-- Banner encerrado -->
+    <div class="closed-banner">
+      <div class="closed-banner-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="closed-banner-body">
+        <div class="closed-banner-title">REPORTE ENCERRADO</div>
+        <div class="closed-banner-sub">Encerrado em ${encerradoEm} · Motivo: ${motivo}</div>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="closed-grid">
+
+      <!-- Coluna esquerda -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <div class="panel">
+          <div class="panel-hd"><div><div class="panel-title">INFORMAÇÕES DO REPORTE</div><div class="panel-sub">Dados registrados por você</div></div></div>
+          <div class="closed-info-block">
+            <div class="closed-field-label">Título</div>
+            <div class="closed-field-val" style="font-weight:500;font-size:14px">${titulo}</div>
+          </div>
+          <div class="closed-info-block">
+            <div class="closed-field-label">Descrição</div>
+            <div class="closed-field-val">${descricao}</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="info-item"><div class="info-label">Categoria</div><div class="info-val">${categoria}</div></div>
+            <div class="info-item"><div class="info-label">Tipo de ocorrência</div><div class="info-val">${tipo}</div></div>
+            <div class="info-item"><div class="info-label">Setor</div><div class="info-val">${setor}</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <div><div class="panel-title">EVIDÊNCIAS</div><div class="panel-sub">Arquivos que você anexou</div></div>
+            <span style="font-size:11px;color:var(--text-dim);font-family:var(--fm)">${anexoCount} arquivo${anexoCount !== 1 ? 's' : ''}</span>
+          </div>
+          ${evidenciasHtml}
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd"><div><div class="panel-title">HISTÓRICO</div><div class="panel-sub">Linha do tempo do reporte</div></div></div>
+          <div style="display:flex;flex-direction:column">${histHtml}</div>
+        </div>
+
+      </div>
+
+      <!-- Coluna direita -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <div class="panel">
+          <div class="panel-hd"><div class="panel-title">INFORMAÇÕES</div></div>
+          <div>
+            <div class="closed-meta-row">
+              <span class="closed-meta-key">Reportado por</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:22px;height:22px;border-radius:50%;background:var(--orange-dim);color:var(--orange);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">${reporterIni}</div>
+                <span class="closed-meta-val">${reporter}</span>
+              </div>
+            </div>
+            <div class="closed-meta-row">
+              <span class="closed-meta-key">Aberto em</span>
+              <span class="closed-meta-val" style="font-family:var(--fm);font-size:11px">${abertura}</span>
+            </div>
+            <div class="closed-meta-row">
+              <span class="closed-meta-key">Status</span>
+              <span class="tag s-resolvido">Encerrado</span>
+            </div>
+            <div class="closed-meta-row">
+              <span class="closed-meta-key">ID do Reporte</span>
+              <span class="closed-meta-val" style="font-family:var(--fm);color:var(--text-dim)">${reporteId}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card de confirmação -->
+        <div class="panel" style="border-color:var(--green-b);text-align:center;padding:24px 20px">
+          <div style="margin-bottom:12px">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div style="font-family:var(--fd);font-size:15px;letter-spacing:.5px;color:var(--green);margin-bottom:8px">OCORRÊNCIA RESOLVIDA</div>
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.6">A equipe responsável tratou e encerrou este reporte. Se o problema persistir, abra um novo reporte.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>`;
+}
+
+
+function adaptarHistorico(entries) {
+  return (entries || []).map(e => ({
+    acao:       e.action,
+    quem:       e.user_name || 'Sistema',
+    tempo:      e.created_at
+                  ? new Date(e.created_at).toLocaleDateString('pt-BR') + ' · ' +
+                    new Date(e.created_at).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})
+                  : '—',
+    cor:        e.color || 'var(--teal)',
+    dot:        e.color || 'var(--teal)',
+    desc:       e.description || null,
+    comentario: e.comment    || null,
+  }));
+}
+
+async function init() {
+  /* Proteção de rota */
+  const _token = sessionStorage.getItem('token');
+  if (!_token) { window.location.replace('login.html'); return; }
+
+  /* Breadcrumb */
+  const homeLink  = document.getElementById("home-link");
+  const bcSec     = document.getElementById("bc-section");
+  const btnVoltar = document.getElementById("btn-voltar");
+  if (homeLink)  homeLink.href      = 'home_manager.html';
+  if (btnVoltar) btnVoltar.href     = 'home_manager.html';
+  if (bcSec)     bcSec.textContent  = 'Reportes do Setor';
+
+  /* Dados do sessionStorage */
+  let dados = null;
+  try { dados = JSON.parse(sessionStorage.getItem("reporteAtual_gestor") || "null"); } catch(e) {}
+  if (!dados) { window.location.replace('home_manager.html'); return; }
+
+  /* Busca status atualizado do backend — garante que atualizar a página reflete mudanças do analista */
+  try {
+    const atualizado = await getReportePorId(dados.id);
+    if (atualizado) {
+      dados = { ...dados, ...atualizado };
+      sessionStorage.setItem('reporteAtual_gestor', JSON.stringify(dados));
+    }
+  } catch(e) { console.warn('Falha ao atualizar reporte:', e); }
+
+  /* Se resolvido → redireciona para closed */
+  if (dados.status === 'resolvido') {
+    window.location.replace('report_detail_manager_closed.html');
+    return;
+  }
+
+  /* Preenche campos estáticos */
+  const id      = dados.id || '—';
+  const dataStr = dados.data ? dados.data.split(' ·')[0] : '';
+  document.getElementById("bc-id").textContent   = `#${id}`;
+  document.getElementById("rh-id").textContent   = `REPORTE #${id}${dataStr ? ' · ABERTO EM ' + dataStr : ''}`;
+  document.getElementById("meta-id").textContent = `#${id}`;
+  if (dados.titulo)    { document.getElementById("rh-titulo").textContent      = dados.titulo;    document.getElementById("info-titulo").textContent    = dados.titulo;    document.title = `RepairFast — ${dados.titulo}`; }
+  if (dados.descricao)   document.getElementById("info-descricao").textContent = dados.descricao;
+  if (dados.categoria) { document.getElementById("info-categoria").textContent = dados.categoria; document.getElementById("rh-cat").textContent          = dados.categoria; }
+  if (dados.tipo)      { document.getElementById("info-tipo").textContent      = dados.tipo;      document.getElementById("rh-tipo").textContent         = dados.tipo; }
+  if (dados.setor)       document.getElementById("info-setor").textContent     = dados.setor;
+  if (dados.data) {
+    document.getElementById("meta-abertura").textContent    = dados.data;
+    document.getElementById("meta-atualizacao").textContent = dados.data;
+  }
+
+  /* Responsável */
+  const respNome = dados.assigned_to_name || null;
+  if (respNome) {
+    const ini = respNome.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('resp-av').textContent   = ini;
+    document.getElementById('resp-nome').textContent = respNome;
+  }
+
+  /* Prioridade */
+  if (dados.prioridade) {
+    const prioMap   = { alta:'p-alto', media:'p-medio', baixa:'p-baixo' };
+    const prioLabel = { alta:'Alta',   media:'Média',   baixa:'Baixa'   };
+    const badges = document.querySelector('.rh-badges');
+    const span = document.createElement('span');
+    span.className   = `tag ${prioMap[dados.prioridade] || ''}`;
+    span.textContent = prioLabel[dados.prioridade] || dados.prioridade;
+    if (badges) badges.insertBefore(span, badges.firstChild);
+  }
+
+  /* Status badge */
+  renderStatus(dados.status || 'aberto');
+
+  /* Anexo — backend retorna string URL */
+  if (dados.attachment) {
+    const nome = dados.attachment.split('/').pop() || 'anexo';
+    renderAnexos([{ name: nome, size: 0, type: '', data: dados.attachment }]);
+  } else {
+    renderAnexos([]);
+  }
+
+  /* Histórico do backend */
+  try {
+    const entries = await getHistoricoReporte(id);
+    _historico = adaptarHistorico(entries);
+  } catch(e) { console.warn('Histórico manager:', e); _historico = []; }
+  renderHistorico(_historico);
+
+  /* Plano de ação do backend */
+  try {
+    const items = await getPlanoReporte(id);
+    const plano = items.map(i => ({
+      desc:  i.description,
+      resp:  i.assignee_name || 'Não atribuído',
+      prazo: i.due_date || '—',
+      done:  i.done,
+    }));
+    renderPlano(plano);
+  } catch(e) { console.warn('Plano manager:', e); }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -252,10 +252,11 @@
 
 /* ── Render ── */
 function renderAnalista(a) {
+  const nome = a.name || a.nome || 'Analista';
   document.getElementById("greeting").innerHTML =
-    `${saudacao()}, <span>${a.nome.toUpperCase()}</span>`;
-  setText("sub-greeting", `${diaSemana()}, ${dataHoje()} · Analista · ${a.setor}`);
-  setText("setor-nome", a.setor);
+    `${saudacao()}, <span>${nome.toUpperCase()}</span>`;
+  setText("sub-greeting", `${diaSemana()}, ${dataHoje()}`);
+  setText("setor-nome", '');
 }
 
 function renderResumo(r) {
@@ -284,7 +285,7 @@ function aplicarFiltros() {
     const okPrio   = _filtrosPrio  === 'todos' || r.prioridade === _filtrosPrio;
     const okBusca  = !busca || r.titulo.toLowerCase().includes(busca)
                             || String(r.id).includes(busca)
-                            || r.reporter.toLowerCase().includes(busca);
+                            || (r.reporter || '').toLowerCase().includes(busca);
     return okStatus && okPrio && okBusca;
   });
   _pagina = 1;
@@ -308,14 +309,14 @@ function _drawTabela() {
     body.innerHTML = pagina.map(r => {
       const st  = STATUS_MAP[r.status]         || { cls:"", label:r.status };
       const pr  = PRIORIDADE_MAP[r.prioridade] || { cls:"", label:r.prioridade };
-      const ini = r.reporter.split(" ").map(w => w[0]).join("").slice(0,2);
+      const ini = (r.reporter || '??').split(" ").map(w => w[0]).join("").slice(0,2);
       return `
       <tr class="report-row" onclick="abrirReporte(${r.id})">
         <td><span class="row-id">#${r.id}</span></td>
         <td><div class="row-title">${r.titulo}</div></td>
         <td class="hide-md">
           <div class="row-reporter">
-            <div class="row-av">${ini}</div>${r.reporter}
+            <div class="row-av">${ini}</div>${r.reporter || '—'}
           </div>
         </td>
         <td><span class="tag ${pr.cls}">${pr.label}</span></td>
@@ -420,14 +421,35 @@ async function init() {
   }
 }
 
-function abrirReporte(id) {
-  const reporte = _reportes.find(r => r.id === id);
-  if (reporte) sessionStorage.setItem('reporteAtual', JSON.stringify({ id: reporte.id, ...reporte }));
-  window.location.href = 'report_detail_analyst.html';
+async function abrirReporte(id) {
+  let reporte = null;
+  try {
+    reporte = await getReportePorId(id);
+    if (!reporte) reporte = _reportes.find(r => r.id === id) || null;
+  } catch(e) {
+    reporte = _reportes.find(r => r.id === id) || null;
+  }
+
+  const myDeptId = parseInt(sessionStorage.getItem('department_id'));
+  const isOtherDept = reporte && myDeptId && reporte.setor && reporte.department_id && reporte.department_id !== myDeptId;
+
+  if (isOtherDept) {
+    // Reporte criado por este analista para outro setor — visão somente leitura
+    sessionStorage.setItem('reporteAtual_funcionario', JSON.stringify(reporte));
+    const isClosed = reporte.status === 'resolvido';
+    window.location.href = isClosed ? 'report_detail_tracking_closed.html' : 'report_detail_tracking.html';
+    return;
+  }
+
+  if (reporte) sessionStorage.setItem('reporteAtual_analista', JSON.stringify(reporte));
+  const isClosed = reporte && reporte.status === 'resolvido';
+  window.location.href = isClosed
+    ? 'report_detail_analyst_closed.html'
+    : 'report_detail_analyst.html';
 }
 
 function abrirNovoReporte() {
-  localStorage.setItem('perfil', 'analista');
+  sessionStorage.setItem('perfil', 'analista');
   window.location.href = 'report_create.html';
 }
 
@@ -438,8 +460,8 @@ function abrirNovoReporte() {
    correto do perfil detectado.
 ──────────────────────────────────────────────────────────────────── */
 (function protegerRota() {
-  const token  = localStorage.getItem('token');
-  const perfil = localStorage.getItem('perfil');
+  const token  = sessionStorage.getItem('token');
+  const perfil = sessionStorage.getItem('perfil');
 
   if (!token) {
     window.location.replace('login.html');
