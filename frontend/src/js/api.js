@@ -306,6 +306,28 @@ async function criarReport(payload) {
 }
 
 /**
+ * GET /departments/ — lista todos os departamentos.
+ */
+async function listarDepartamentos() {
+  const res = await fetch(`${API_BASE}/departments/`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Erro ao listar departamentos');
+  return res.json();
+}
+
+/**
+ * PUT /reports/:id — atualiza dados do reporte (ex: priority pelo analyst).
+ */
+async function atualizarPrioridade(reportId, priority) {
+  const res = await fetch(`${API_BASE}/reports/${reportId}`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({ priority }),
+  });
+  if (!res.ok) throw new Error('Erro ao atualizar prioridade');
+  return res.json();
+}
+
+/**
  * GET /notificacoes/me — notificações do usuário.
  * PENDENTE: rota ainda não existe no backend → força mock.
  * TODO: remover "|| true" quando backend criar GET /notificacoes/me

@@ -460,14 +460,36 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
           <div class="panel-hd"><div class="panel-title">STATUS DO REPORTE</div></div>
 
           <div class="status-selector">
-            <div class="status-opt active" style="--c:var(--orange);--dim:var(--orange-dim)" onclick="selecionarStatus('Aberto',this)">
+            <div class="status-opt active" id="status-aberto" style="--c:var(--orange);--dim:var(--orange-dim)" onclick="selecionarStatus('Aberto',this)">
               <div class="status-dot" style="background:var(--orange)"></div><span>Aberto</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
             </div>
-            <div class="status-opt" style="--c:var(--teal);--dim:var(--teal-dim)" onclick="selecionarStatus('Em andamento',this)">
+            <div class="status-opt" id="status-andamento" style="--c:var(--teal);--dim:var(--teal-dim)" onclick="selecionarStatus('Em andamento',this)">
               <div class="status-dot" style="background:var(--teal)"></div><span>Em andamento</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
             </div>
           </div>
           <button class="btn-primary" style="margin-top:10px" onclick="salvarStatus()">Salvar Status</button>
+        </div>
+
+        <!-- Prioridade -->
+        <div class="panel" style="animation-delay:.14s">
+          <div class="panel-hd">
+            <div>
+              <div class="panel-title">PRIORIDADE</div>
+              <div class="panel-sub">Classificada automaticamente · Você pode corrigir</div>
+            </div>
+          </div>
+          <div class="status-selector">
+            <div class="status-opt" id="prio-low" style="--c:var(--green);--dim:var(--green-dim)" onclick="selecionarPrioridade('low',this)">
+              <div class="status-dot" style="background:var(--green)"></div><span>Baixa</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            </div>
+            <div class="status-opt" id="prio-medium" style="--c:var(--yellow);--dim:var(--yellow-dim)" onclick="selecionarPrioridade('medium',this)">
+              <div class="status-dot" style="background:var(--yellow)"></div><span>Média</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            </div>
+            <div class="status-opt" id="prio-high" style="--c:var(--red);--dim:var(--red-dim)" onclick="selecionarPrioridade('high',this)">
+              <div class="status-dot" style="background:var(--red)"></div><span>Alta</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            </div>
+          </div>
+          <button class="btn-primary" style="margin-top:10px" onclick="salvarPrioridade()">Salvar Prioridade</button>
         </div>
 
         <!-- Responsável -->
@@ -861,7 +883,11 @@ async function adicionarAcaoPlano() {
    STATUS
 ══════════════════════════════════════════════════ */
 function selecionarStatus(val, btn) {
-  document.querySelectorAll('.status-opt').forEach(o => o.classList.remove('active'));
+  // Remove active apenas dos opts de STATUS (não toca nos de prioridade)
+  ['status-aberto','status-andamento'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
   btn.classList.add('active');
   _statusPendente = val;
 }
@@ -895,6 +921,77 @@ async function salvarStatus() {
     btnEncerrar.title    = pend > 0
       ? `Conclua ${pend} ação${pend !== 1 ? 'ões' : ''} do plano para encerrar`
       : "Encerrar este reporte";
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   PRIORIDADE
+══════════════════════════════════════════════════ */
+let _prioridadePendente = null;
+let _prioridadeAtual    = null;
+
+function _aplicarPrioridadeUI(prio) {
+  const map = { low: 'prio-low', medium: 'prio-medium', high: 'prio-high' };
+  const labelMap = { low: 'Baixa', medium: 'Média', high: 'Alta' };
+  const colorMap = { low: 'var(--green)', medium: 'var(--yellow)', high: 'var(--red)' };
+  const bgMap    = { low: 'var(--green-dim)', medium: 'var(--yellow-dim)', high: 'var(--red-dim)' };
+
+  // Marca opção ativa — cuidado: usa classe que só tem nos prio-* opts
+  ['prio-low','prio-medium','prio-high'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  const activeEl = document.getElementById(map[prio]);
+  if (activeEl) activeEl.classList.add('active');
+
+  // badge removido — prioridade atual é indicada pela opção marcada
+}
+
+function selecionarPrioridade(val, btn) {
+  // Remove active apenas dos opts de prioridade (não toca nos de status)
+  ['prio-low','prio-medium','prio-high'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  btn.classList.add('active');
+  _prioridadePendente = val;
+}
+
+async function salvarPrioridade() {
+  if (!_prioridadePendente || _prioridadePendente === _prioridadeAtual) {
+    showToast('', 'Nenhuma alteração de prioridade selecionada.', 'yellow');
+    return;
+  }
+  try {
+    await atualizarPrioridade(parseInt(_reporteId), _prioridadePendente);
+    _prioridadeAtual = _prioridadePendente;
+    _aplicarPrioridadeUI(_prioridadeAtual);
+    const labelMap = { low: 'Baixa', medium: 'Média', high: 'Alta' };
+    showToast(
+      "<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>",
+      `Prioridade atualizada para "${labelMap[_prioridadeAtual]}"`,
+      'green'
+    );
+    _prioridadePendente = null;
+
+    // Recarrega histórico do backend para mostrar a nova entrada
+    try {
+      const entries = await getHistoricoReporte(parseInt(_reporteId));
+      HISTORICO.length = 0;
+      adaptarHistorico(entries).forEach(e => HISTORICO.push(e));
+      renderHistorico();
+      // Atualiza última atualização
+      const ultima = entries[entries.length - 1];
+      if (ultima?.created_at) {
+        const d = new Date(ultima.created_at);
+        const fmt = d.toLocaleDateString('pt-BR') + ' · ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('meta-atualizacao').textContent = fmt;
+      }
+    } catch(e) { console.warn('Reload histórico:', e); }
+
+  } catch(e) {
+    console.error('Erro ao salvar prioridade:', e);
+    showToast('', 'Erro ao salvar prioridade. Tente novamente.', 'red');
   }
 }
 
@@ -1034,7 +1131,10 @@ async function encerrarReporte() {
   const badge = document.getElementById("rh-status-badge");
   badge.className   = "tag s-resolvido";
   badge.textContent = "Resolvido";
-  document.querySelectorAll('.status-opt').forEach((o, i) => { o.classList.remove('active'); if (i === 2) o.classList.add('active'); });
+  ['status-aberto','status-andamento'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
 
   /* Após pequeno delay para o toast aparecer, monta e exibe a view de encerrado */
   setTimeout(() => ativarViewEncerrado(motivo), 600);
@@ -1308,10 +1408,12 @@ async function confirmarReabertura() {
   const badge = document.getElementById("rh-status-badge");
   badge.className   = "tag s-aberto";
   badge.textContent = "Aberto";
-  document.querySelectorAll('.status-opt').forEach((o, i) => {
-    o.classList.remove('active');
-    if (i === 0) o.classList.add('active'); /* "Aberto" é sempre o índice 0 */
+  ['status-aberto','status-andamento'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
   });
+  const elAberto = document.getElementById('status-aberto');
+  if (elAberto) elAberto.classList.add('active');
 
   /* Reabilita o botão Encerrar (já vai ser desabilitado por renderPlano se houver pendências) */
   renderPlano();
@@ -1631,11 +1733,23 @@ function carregarDadosReporte() {
       _statusPendente = cfg.label;
       const badge = document.getElementById('rh-status-badge');
       if (badge) { badge.className = `tag ${cfg.cls}`; badge.textContent = cfg.label; }
-      document.querySelectorAll('.status-opt').forEach((o, i) => {
-        o.classList.remove('active');
-        if (i === cfg.idx) o.classList.add('active');
+      ['status-aberto','status-andamento'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
       });
+      const statusEl = document.getElementById(cfg.idx === 0 ? 'status-aberto' : 'status-andamento');
+      if (statusEl) statusEl.classList.add('active');
     }
+  }
+
+  /* Aplica a prioridade do reporte na interface */
+  if (dados.prioridade) {
+    const prioMap = { baixa: 'low', media: 'medium', alta: 'high',
+                      low: 'low', medium: 'medium', high: 'high' };
+    const prioVal = prioMap[dados.prioridade] || 'medium';
+    _prioridadeAtual    = prioVal;
+    _prioridadePendente = prioVal;
+    _aplicarPrioridadeUI(prioVal);
   }
 }
 

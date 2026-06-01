@@ -15,6 +15,7 @@ class Report(Base):
         Enum("open", "closed", "in_progress", name="status_enum"),
         default="open", nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=True)
     closed_at = Column(DateTime, nullable=True)
     priority = Column(
         Enum("low", "medium", "high", name="priority_enum"),

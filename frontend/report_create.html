@@ -953,14 +953,16 @@
 
       const prioMap = { alta: 'high', media: 'medium', baixa: 'low' };
       const tipoMap = { 'Falha': 'failure', 'Risco': 'risk', 'Melhoria': 'improvement' };
+      const setorEl   = document.getElementById('setor');
+      const setorNome = setorEl.options[setorEl.selectedIndex]?.text || '';
       const payload = {
         title:           document.getElementById('titulo').value.trim(),
         description:     document.getElementById('descricao').value.trim(),
         category:        document.getElementById('categoria').value,
-        priority:        prioMap[document.getElementById('prioridade')?.value] || 'medium',
         occurrence_type: tipoMap[document.getElementById('tipo').value] || null,
         attachment:      null,
-        department_id:   parseInt(document.getElementById('setor').value) || null,
+        department_id:   parseInt(setorEl.value) || null,
+        sector:          setorNome,  // nome do setor para o classificador Groq
       };
 
       const btn = document.querySelector('.btn-primary[onclick]');

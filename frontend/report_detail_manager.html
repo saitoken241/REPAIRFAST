@@ -887,6 +887,11 @@ async function init() {
     document.getElementById("meta-abertura").textContent    = dados.data;
     document.getElementById("meta-atualizacao").textContent = dados.data;
   }
+  if (dados.updated_at) {
+    const fmtUpd = new Date(dados.updated_at).toLocaleDateString('pt-BR') + ' · ' +
+                   new Date(dados.updated_at).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById("meta-atualizacao").textContent = fmtUpd;
+  }
 
   /* Responsável */
   const respNome = dados.assigned_to_name || null;
@@ -922,6 +927,27 @@ async function init() {
   try {
     const entries = await getHistoricoReporte(id);
     _historico = adaptarHistorico(entries);
+
+    const fmtData = (iso) => {
+      if (!iso) return null;
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-BR') + ' · ' +
+        d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    };
+
+    // Abertura — primeira entrada do histórico
+    const primeira = entries[0];
+    if (primeira?.created_at) {
+      const dataAbertura = fmtData(primeira.created_at);
+      if (dataAbertura) document.getElementById('meta-abertura').textContent = dataAbertura;
+    }
+
+    // Última atualização — última entrada do histórico
+    const ultima = entries[entries.length - 1];
+    if (ultima?.created_at) {
+      const dataUltima = fmtData(ultima.created_at);
+      if (dataUltima) document.getElementById('meta-atualizacao').textContent = dataUltima;
+    }
   } catch(e) { console.warn('Histórico manager:', e); _historico = []; }
   renderHistorico(_historico);
 

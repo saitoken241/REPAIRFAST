@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 from enum import Enum
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 
 class PriorityEnum(str, Enum):
     low    = "low"
@@ -21,6 +21,7 @@ class UserCreateReport(BaseModel):
     priority:        Optional[PriorityEnum] = None
     occurrence_type: Optional[str]          = None
     department_id:   Optional[int]          = None
+    sector:          Optional[str]          = None  # Nome do setor — usado pelo classificador Groq
 
 class UserUpdateReport(BaseModel):
     title:           Optional[str]          = None
@@ -49,6 +50,13 @@ class ReportHistoryResponse(BaseModel):
     created_at:  datetime
     user_name:   Optional[str] = None
     model_config = {"from_attributes": True}
+
+    @field_serializer("created_at")
+    def serialize_created_at(self, v: datetime) -> str:
+        if v is None:
+            return None
+        # Garante que o JS recebe o sufixo +00:00 para converter para horário local
+        return v.isoformat() + ("+00:00" if v.utcoffset() is None else "")
 
 # ── Plano de Ação ──
 class ActionPlanCreate(BaseModel):
