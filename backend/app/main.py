@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 # cria tabelas
-#Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 # registra rotas
 app.include_router(users.router)

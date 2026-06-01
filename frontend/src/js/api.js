@@ -214,12 +214,14 @@ function normalizarReport(r) {
     descricao:        r.description,
     categoria:        r.category,
     setor:            r.department_name || null,
+    department_id:    r.department_id   || null,
     prioridade:       prioMap[r.priority]  || r.priority,
     status:           statusMap[r.status]  || r.status,
     tipo:             tipoMap[r.occurrence_type] || null,
     data:             r.created_at
                         ? new Date(r.created_at).toLocaleDateString('pt-BR')
                         : '—',
+    updated_at:       r.updated_at || null,
     attachment:       r.attachment || null,
     reporter:         r.reporter_name || null,
     assigned_to:      r.assigned_to   || null,
@@ -357,6 +359,17 @@ async function getReportesCriticos() {
 }
 
 /**
+ * GET /reports/me — reportes criados pelo próprio analista logado.
+ */
+async function getMeusReportes() {
+  if (USE_MOCK) return MOCK.reportesFuncionario;
+  const res = await fetch(`${API_BASE}/reports/me`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar meus reportes");
+  const data = await res.json();
+  return data.map(normalizarReport);
+}
+
+/**
  * GET /reports/ — todos os reportes do setor (analista/gestor).
  * O backend filtra automaticamente por department_id quando role = analyst ou manager.
  */
@@ -364,6 +377,15 @@ async function getReportesSetor() {
   if (USE_MOCK) return MOCK.reportesAnalista;
   const res = await fetch(`${API_BASE}/reports/`, { headers: authHeaders() });
   if (!res.ok) throw new Error("Erro ao buscar reportes do setor");
+  const data = await res.json();
+  return data.map(normalizarReport);
+}
+
+/** GET /reports/me — reportes criados pelo analista logado (qualquer setor). */
+async function getReportesCriados() {
+  if (USE_MOCK) return MOCK.reportesFuncionario;
+  const res = await fetch(`${API_BASE}/reports/me`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Erro ao buscar meus reportes");
   const data = await res.json();
   return data.map(normalizarReport);
 }
@@ -499,11 +521,17 @@ async function excluirItemPlano(reportId, itemId) {
 
 async function patchReporteStatus(id, novoStatus) {
   if (USE_MOCK) return;
-  await fetch(`${API_BASE}/reports/${id}`, {
+  const res = await fetch(`${API_BASE}/reports/${id}`, {
     method: "PUT",
     headers: authHeaders(),
     body: JSON.stringify({ status: novoStatus })
   });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => res.status);
+    throw new Error(`Erro ao atualizar status: ${detail}`);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 /**
@@ -512,12 +540,18 @@ async function patchReporteStatus(id, novoStatus) {
  * TODO: implementar quando backend criar rota de atribuição
  */
 async function patchReporteAtribuir(id, usuario) {
-  if (USE_MOCK || true) return;
-  await fetch(`${API_BASE}/reports/${id}/atribuir`, {
-    method: "PATCH",
+  const res = await fetch(`${API_BASE}/reports/${id}`, {
+    method: "PUT",
     headers: authHeaders(),
-    body: JSON.stringify({ usuario })
+    body: JSON.stringify({ assigned_to: usuario })
   });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => res.status);
+    throw new Error(`Erro ao atribuir responsável: ${detail}`);
+  }
+  // Tenta parsear JSON; se vier vazio, retorna null (não é erro)
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 /**

@@ -173,28 +173,37 @@
     </div>
 
 
-    <!-- TODOS OS REPORTES -->
+    <!-- REPORTES — painel unificado com abas -->
     <div class="panel">
-      <div class="panel-hd">
+
+      <!-- HEADER: título à esquerda, abas à direita -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:0;flex-wrap:wrap">
         <div>
-          <div class="panel-title">REPORTES DO SETOR — <span id="setor-nome" style="color:var(--orange)">—</span></div>
-          <div class="panel-sub" id="panel-sub">Carregando...</div>
+          <div class="panel-title">REPORTES DO SETOR<span id="setor-nome" style="color:var(--orange)">—</span></div>
+          <div class="panel-sub" id="panel-sub" style="margin-top:2px">Carregando...</div>
+        </div>
+        <!-- ABAS -->
+        <div style="display:flex;gap:4px">
+          <button id="tab-setor" onclick="setTab('setor')" style="padding:7px 16px;background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:8px;color:var(--orange);font-family:var(--fb);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s">Setor</button>
+          <button id="tab-meus" onclick="setTab('meus')" style="padding:7px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-family:var(--fb);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px">Meus Reportes <span id="badge-meus" style="display:none;background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border);border-radius:10px;padding:1px 7px;font-size:10px">0</span></button>
         </div>
       </div>
 
-      <div class="filter-row">
-        <div class="search-box">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="searchInput" placeholder="Buscar por título, ID ou colaborador..." oninput="aplicarFiltros()">
-        </div>
-        <div class="filter-group" id="filterStatus">
+      <div style="height:1px;background:var(--border);margin:14px 0"></div>
+
+      <!-- FILTROS: status | busca | prioridade -->
+      <div class="filter-row" style="flex-wrap:nowrap;align-items:center">
+        <div class="filter-group" id="filterStatus" style="flex-shrink:0">
           <button class="filter-pill active" onclick="setFiltro('status','todos',this)">Todos</button>
           <button class="filter-pill" onclick="setFiltro('status','aberto',this)">Abertos</button>
           <button class="filter-pill" onclick="setFiltro('status','andamento',this)">Andamento</button>
           <button class="filter-pill" onclick="setFiltro('status','resolvido',this)">Resolvidos</button>
         </div>
-        <div class="filter-sep"></div>
-        <div class="filter-group" id="filterPrio">
+        <div class="search-box" style="flex:1;min-width:0;margin:0 10px">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Buscar por título, ID ou colaborador..." oninput="aplicarFiltros()">
+        </div>
+        <div class="filter-group" id="filterPrio" style="flex-shrink:0">
           <button class="filter-pill active" onclick="setFiltro('prio','todos',this)">Todas</button>
           <button class="filter-pill" onclick="setFiltro('prio','alta',this)">Alta</button>
           <button class="filter-pill" onclick="setFiltro('prio','media',this)">Média</button>
@@ -207,7 +216,7 @@
           <thead>
             <tr>
               <th>ID</th><th>Título</th>
-              <th class="hide-md">Colaborador</th>
+              <th class="hide-md" id="th-col3">Colaborador</th>
               <th>Prioridade</th><th>Status</th>
               <th class="hide-sm">Data</th>
             </tr>
@@ -247,78 +256,113 @@
 <script>
 /* ══════════════════════════════════════════════════
    ANALISTA — lógica específica desta página
-   Config, mock e utilitários vêm de api.js e utils.js
 ══════════════════════════════════════════════════ */
 
-/* ── Render ── */
+/* ── Render cabeçalho ── */
 function renderAnalista(a) {
   const nome = a.name || a.nome || 'Analista';
   document.getElementById("greeting").innerHTML =
     `${saudacao()}, <span>${nome.toUpperCase()}</span>`;
   setText("sub-greeting", `${diaSemana()}, ${dataHoje()}`);
-  setText("setor-nome", '');
+  setText("setor-nome", a.department_name || a.setor || '');
 }
 
 function renderResumo(r) {
-  setText("sum-total",        r.total);
-  setText("sum-aberto",       r.aberto);
-  setText("sum-andamento",    r.andamento);
-  setText("sum-resolvido",    r.resolvido);
-  setText("sb-badge-abertos", r.aberto);
-  setText("panel-sub",        `${r.total} reportes no setor · ${r.aberto} aguardando atenção`);
+  setText("sum-total",     r.total);
+  setText("sum-aberto",    r.aberto);
+  setText("sum-andamento", r.andamento);
+  setText("sum-resolvido", r.resolvido);
+  setText("panel-sub", `Exibindo reportes atribuídos ao seu setor`);
 }
 
+/* ── ABAS ── */
+let _abaAtiva = 'setor';
 
+function setTab(aba) {
+  _abaAtiva = aba;
+  const tabSetor = document.getElementById('tab-setor');
+  const tabMeus  = document.getElementById('tab-meus');
 
+  if (aba === 'setor') {
+    tabSetor.style.cssText = 'padding:7px 16px;background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:8px;color:var(--orange);font-family:var(--fb);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s';
+    tabMeus.style.cssText  = 'padding:7px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-family:var(--fb);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px';
+    setText('panel-title-aba', 'SETOR');
+  } else {
+    tabMeus.style.cssText  = 'padding:7px 16px;background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:8px;color:var(--orange);font-family:var(--fb);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px';
+    tabSetor.style.cssText = 'padding:7px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-family:var(--fb);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s';
+  }
 
-/* ── Tabela + Paginação ── */
+  document.getElementById('th-col3').textContent = aba === 'setor' ? 'Colaborador' : 'Setor';
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('#filterStatus .filter-pill').forEach((p,i) => p.classList.toggle('active', i===0));
+  document.querySelectorAll('#filterPrio .filter-pill').forEach((p,i)   => p.classList.toggle('active', i===0));
+  _filtroStatus = 'todos'; _filtrosPrio = 'todos';
+  aplicarFiltros();
+}
+
+/* ── Tabelas ── */
 const PER_PAGE = 8;
-let _reportes = [], _filtrados = [], _pagina = 1;
+let _reportes  = [], _filtrados  = [], _pagina  = 1;
+let _meusReportes = [], _meusFiltrados = [], _meusPagina = 1;
 let _filtroStatus = 'todos', _filtrosPrio = 'todos';
 
-function renderReportes(lista) { _reportes = lista; aplicarFiltros(); }
+function renderReportes(lista) {
+  const meusIds = new Set(_meusReportes.map(r => r.id));
+  _reportes = lista.filter(r => !meusIds.has(r.id));
+  aplicarFiltros();
+}
+
+function renderMeusReportes(lista) {
+  _meusReportes = lista;
+  const badge = document.getElementById('badge-meus');
+  if (badge) { badge.textContent = lista.length; badge.style.display = lista.length ? '' : 'none'; }
+  aplicarFiltros();
+}
 
 function aplicarFiltros() {
   const busca = document.getElementById("searchInput").value.toLowerCase();
-  _filtrados = _reportes.filter(r => {
+  const fonte = _abaAtiva === 'setor' ? _reportes : _meusReportes;
+  const filtrados = fonte.filter(r => {
     const okStatus = _filtroStatus === 'todos' || r.status === _filtroStatus;
     const okPrio   = _filtrosPrio  === 'todos' || r.prioridade === _filtrosPrio;
-    const okBusca  = !busca || r.titulo.toLowerCase().includes(busca)
-                            || String(r.id).includes(busca)
-                            || (r.reporter || '').toLowerCase().includes(busca);
+    const col3     = _abaAtiva === 'setor' ? (r.reporter || '') : (r.setor || '');
+    const okBusca  = !busca
+      || (r.titulo || '').toLowerCase().includes(busca)
+      || String(r.id).includes(busca)
+      || col3.toLowerCase().includes(busca);
     return okStatus && okPrio && okBusca;
   });
-  _pagina = 1;
+  if (_abaAtiva === 'setor') { _filtrados = filtrados; _pagina = 1; }
+  else                        { _meusFiltrados = filtrados; _meusPagina = 1; }
   _drawTabela();
 }
 
 function _drawTabela() {
   const body   = document.getElementById("reportTableBody");
-  const total  = _filtrados.length;
-  const inicio = (_pagina - 1) * PER_PAGE;
-  const pagina = _filtrados.slice(inicio, inicio + PER_PAGE);
+  const isMeus = _abaAtiva === 'meus';
+  const lista  = isMeus ? _meusFiltrados : _filtrados;
+  const pagina = isMeus ? _meusPagina    : _pagina;
+  const total  = lista.length;
+  const inicio = (pagina - 1) * PER_PAGE;
+  const slice  = lista.slice(inicio, inicio + PER_PAGE);
 
-  if (!pagina.length) {
-    body.innerHTML = `<tr><td colspan="7">
-      <div class="empty-state">
-        <div class="empty-icon"><svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--text-dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-        <div class="empty-title">Nenhum reporte encontrado</div>
-        <div class="empty-desc">Tente ajustar os filtros ou a busca.</div>
-      </div></td></tr>`;
+  if (!slice.length) {
+    body.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+      <div class="empty-icon"><svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--text-dim)" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <div class="empty-title">Nenhum reporte encontrado</div>
+      <div class="empty-desc">Tente ajustar os filtros ou a busca.</div>
+    </div></td></tr>`;
   } else {
-    body.innerHTML = pagina.map(r => {
-      const st  = STATUS_MAP[r.status]         || { cls:"", label:r.status };
-      const pr  = PRIORIDADE_MAP[r.prioridade] || { cls:"", label:r.prioridade };
-      const ini = (r.reporter || '??').split(" ").map(w => w[0]).join("").slice(0,2);
-      return `
-      <tr class="report-row" onclick="abrirReporte(${r.id})">
+    body.innerHTML = slice.map(r => {
+      const st  = STATUS_MAP[r.status]         || { cls:'', label: r.status };
+      const pr  = PRIORIDADE_MAP[r.prioridade] || { cls:'', label: r.prioridade };
+      const col3 = isMeus
+        ? `<td class="hide-md"><span style="font-size:12px;color:var(--text-muted)">${r.setor || '—'}</span></td>`
+        : `<td class="hide-md"><div class="row-reporter"><div class="row-av">${(r.reporter||'??').split(' ').map(w=>w[0]).join('').slice(0,2)}</div>${r.reporter||'—'}</div></td>`;
+      return `<tr class="report-row" onclick="abrirReporte(${r.id}, '${isMeus?'meus':'setor'}')">
         <td><span class="row-id">#${r.id}</span></td>
         <td><div class="row-title">${r.titulo}</div></td>
-        <td class="hide-md">
-          <div class="row-reporter">
-            <div class="row-av">${ini}</div>${r.reporter || '—'}
-          </div>
-        </td>
+        ${col3}
         <td><span class="tag ${pr.cls}">${pr.label}</span></td>
         <td><span class="tag ${st.cls}">${st.label}</span></td>
         <td class="hide-sm"><span class="row-date">${r.data}</span></td>
@@ -327,123 +371,68 @@ function _drawTabela() {
   }
 
   const totalPags = Math.ceil(total / PER_PAGE);
-  setText("pageInfo", `Mostrando ${Math.min(inicio+1,total)}–${Math.min(inicio+PER_PAGE,total)} de ${total} reportes`);
-  document.getElementById("pageBtns").innerHTML = Array.from({length: totalPags}, (_,i) =>
-    `<button class="page-btn${i+1===_pagina?' active':''}" onclick="irPagina(${i+1})">${i+1}</button>`
+  setText("pageInfo", `Mostrando ${Math.min(inicio+1,total)||0}–${Math.min(inicio+PER_PAGE,total)} de ${total} reportes`);
+  document.getElementById("pageBtns").innerHTML = Array.from({length:totalPags},(_,i)=>
+    `<button class="page-btn${i+1===pagina?' active':''}" onclick="irPagina(${i+1})">${i+1}</button>`
   ).join('');
 }
 
-function irPagina(n) { _pagina = n; _drawTabela(); }
+function irPagina(n) {
+  if (_abaAtiva === 'setor') _pagina = n; else _meusPagina = n;
+  _drawTabela();
+}
 
 function setFiltro(tipo, val, btn) {
   const grupo = tipo === 'status' ? '#filterStatus' : '#filterPrio';
   document.querySelectorAll(`${grupo} .filter-pill`).forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-  if (tipo === 'status') _filtroStatus = val;
-  else _filtrosPrio = val;
+  if (tipo === 'status') _filtroStatus = val; else _filtrosPrio = val;
   aplicarFiltros();
 }
 
 /* ── Modal ── */
-let _modalTipo = '', _modalId = null;
+function fecharModal() { document.getElementById("modalOverlay").classList.remove('open'); }
+document.getElementById("modalOverlay").addEventListener('click', function(e) { if (e.target===this) fecharModal(); });
 
-function abrirModal(tipo, id, titulo) {
-  _modalTipo = tipo; _modalId = id;
-  setText("modalSub", `Reporte #${id} — ${titulo}`);
-  const body = document.getElementById("modalBody");
-
-  if (tipo === 'atribuir') {
-    setText("modalTitle", "ATRIBUIR REPORTE");
-    body.innerHTML = `
-      <label class="modal-label">Responsável</label>
-      <select class="modal-select" id="modalInput">
-        <option value="">Selecione um colaborador</option>
-        <option>Ricardo Santos (você)</option>
-        <option>Ana Paula Ferreira</option>
-        <option>ken</option>
-        <option>Marcos Vinícius</option>
-      </select>`;
-  } else if (tipo === 'status') {
-    setText("modalTitle", "ATUALIZAR STATUS");
-    body.innerHTML = `
-      <label class="modal-label">Novo Status</label>
-      <select class="modal-select" id="modalInput">
-        <option value="aberto">Aberto</option>
-        <option value="andamento">Em andamento</option>
-        <option value="resolvido">Resolvido</option>
-      </select>`;
-  } else if (tipo === 'comentar') {
-    setText("modalTitle", "ADICIONAR COMENTÁRIO");
-    body.innerHTML = `
-      <label class="modal-label">Comentário</label>
-      <textarea class="modal-textarea" id="modalInput" placeholder="Descreva a atualização ou observação..."></textarea>`;
-  }
-
-  document.getElementById("modalOverlay").classList.add('open');
-}
-
-function fecharModal() {
-  document.getElementById("modalOverlay").classList.remove('open');
-}
-
-function confirmarAcao() {
-  const val = document.getElementById("modalInput")?.value;
-  if (!val) return;
-  if (_modalTipo === 'status')   patchReporteStatus(_modalId, val);
-  if (_modalTipo === 'atribuir') patchReporteAtribuir(_modalId, val);
-  if (_modalTipo === 'comentar') postComentario(_modalId, val);
-  // atualiza localmente no mock
-  if (_modalTipo === 'status') {
-    const r = MOCK.reportesAnalista.find(r => r.id === _modalId);
-    if (r) { r.status = val; aplicarFiltros(); }
-  }
-  fecharModal();
-}
-
-// fechar modal clicando fora
-document.getElementById("modalOverlay").addEventListener('click', function(e) {
-  if (e.target === this) fecharModal();
-});
+let _meuDepartmentId = null;
 
 /* ── Init ── */
 async function init() {
   try {
     showSkeleton("reportTableBody", 5, "40px");
-    const [analista, resumo, reportes] = await Promise.all([
-      getAnalistaMe(), getResumoSetor(), getReportesSetor()
+    const [analista, resumo, reportesSetor, meusReportes] = await Promise.all([
+      getAnalistaMe(), getResumoSetor(), getReportesSetor(), getReportesCriados()
     ]);
+    _meuDepartmentId = analista.department_id || null;
     renderAnalista(analista);
     renderResumo(resumo);
-    renderReportes(reportes);
+    renderMeusReportes(meusReportes);
+    renderReportes(reportesSetor);
   } catch(err) {
     console.error(err);
-    showError("reportTableBody", 7);
+    showError("reportTableBody", 6);
   }
 }
 
-async function abrirReporte(id) {
-  let reporte = null;
+async function abrirReporte(id, origem) {
+  const fonte = origem === 'meus' ? _meusReportes : _reportes;
+  let reporte = fonte.find(r => r.id === id) || null;
   try {
-    reporte = await getReportePorId(id);
-    if (!reporte) reporte = _reportes.find(r => r.id === id) || null;
-  } catch(e) {
-    reporte = _reportes.find(r => r.id === id) || null;
-  }
+    const fresco = await getReportePorId(id);
+    if (fresco) reporte = fresco;
+  } catch(e) {}
 
-  const myDeptId = parseInt(sessionStorage.getItem('department_id'));
-  const isOtherDept = reporte && myDeptId && reporte.setor && reporte.department_id && reporte.department_id !== myDeptId;
-
-  if (isOtherDept) {
-    // Reporte criado por este analista para outro setor — visão somente leitura
+  // Se o reporte é de outro setor → abre como employee (tracking)
+  if (_meuDepartmentId && reporte?.department_id && reporte.department_id !== _meuDepartmentId) {
     sessionStorage.setItem('reporteAtual_funcionario', JSON.stringify(reporte));
-    const isClosed = reporte.status === 'resolvido';
-    window.location.href = isClosed ? 'report_detail_tracking_closed.html' : 'report_detail_tracking.html';
+    window.location.href = reporte.status === 'resolvido'
+      ? 'report_detail_tracking_closed.html'
+      : 'report_detail_tracking.html';
     return;
   }
 
   if (reporte) sessionStorage.setItem('reporteAtual_analista', JSON.stringify(reporte));
-  const isClosed = reporte && reporte.status === 'resolvido';
-  window.location.href = isClosed
+  window.location.href = reporte?.status === 'resolvido'
     ? 'report_detail_analyst_closed.html'
     : 'report_detail_analyst.html';
 }
@@ -453,30 +442,13 @@ function abrirNovoReporte() {
   window.location.href = 'report_create.html';
 }
 
-/* ── Proteção de rota ──────────────────────────────────────────────
-   Verifica se o usuário está autenticado antes de renderizar a página.
-   Se não houver token no localStorage, redireciona para o login.
-   Se o perfil salvo não for "analista", redireciona para o home
-   correto do perfil detectado.
-──────────────────────────────────────────────────────────────────── */
+/* ── Proteção de rota ── */
 (function protegerRota() {
-  const token  = sessionStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   const perfil = sessionStorage.getItem('perfil');
-
-  if (!token) {
-    window.location.replace('login.html');
-    return;
-  }
-
-  const homeMap = {
-    funcionario: 'home_employee.html',
-    gestor:      'home_manager.html',
-    analista:    'home_analyst.html',
-  };
-
-  if (perfil && perfil !== 'analista' && homeMap[perfil]) {
-    window.location.replace(homeMap[perfil]);
-  }
+  if (!token) { window.location.replace('login.html'); return; }
+  const homeMap = { funcionario:'home_employee.html', gestor:'home_manager.html', analista:'home_analyst.html' };
+  if (perfil && perfil !== 'analista' && homeMap[perfil]) window.location.replace(homeMap[perfil]);
 }());
 
 init();

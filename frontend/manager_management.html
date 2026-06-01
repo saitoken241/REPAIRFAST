@@ -453,7 +453,8 @@
   .mfield input.err, .mfield select.err { border-color: var(--red) !important; }
 
   .pw-wrap { position: relative; }
-  .pw-wrap input { padding-right: 38px; }
+  .pw-wrap input { padding-right: 68px; }
+  .pw-wrap input.single-toggle { padding-right: 38px; }
   .pw-toggle {
     position: absolute; right: 10px; top: 50%;
     transform: translateY(-50%);
@@ -555,18 +556,6 @@
 <!-- ── TOPBAR ── -->
 <div class="topbar">
   <div class="topbar-left">
-    <a href="home_manager.html" class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none">
-          <path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="white" fill-opacity="0.25"/>
-          <line x1="7" y1="17" x2="15" y2="9" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M15 7 C16 6 18 6 18 8 C18 9 17 10 16 10 L14 10 L14 8 Z" fill="white"/>
-          <line x1="7" y1="17" x2="5.5" y2="18.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <span class="logo-name">RepairFast</span>
-    </a>
-    <div class="divider-v"></div>
     <div>
       <div class="page-title">Usuários</div>
       <div class="page-sub">Gerencie os usuários da plataforma</div>
@@ -666,7 +655,9 @@
         <div class="modal-title" id="modalTitle">Novo usuário</div>
         <div class="modal-sub" id="modalSub">Preencha os dados para criar a conta</div>
       </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
 
     <div class="modal-body">
@@ -731,24 +722,29 @@
         <div class="mfield" id="passwordField">
           <label class="required-star" for="fPass">Senha</label>
           <div class="pw-wrap">
-            <input type="password" id="fPass" placeholder="Mínimo 8 caracteres">
+            <input type="password" id="fPass" placeholder="Mínimo 6 caracteres" class="single-toggle">
             <button type="button" class="pw-toggle" onclick="togglePw()">
               <svg id="eyeIcon" viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
-          <div class="field-error" id="fPassErr">Senha deve ter ao menos 8 caracteres</div>
+          <div class="field-error" id="fPassErr">Senha deve ter ao menos 6 caracteres</div>
         </div>
 
-        <!-- Campo de senha na edição — simples e direto -->
+        <!-- Campo de senha na edição — visualizar / limpar / alterar -->
         <div class="mfield" id="changePassBlock" style="display:none">
-          <label for="fEditPass">Senha</label>
+          <label for="fEditPass">Senha <span style="color:var(--muted);font-weight:400;font-size:11px">(opcional — deixe para manter)</span></label>
           <div class="pw-wrap">
-            <input type="password" id="fEditPass" placeholder="Digite para alterar a senha">
-            <button type="button" class="pw-toggle" onclick="togglePwEdit()">
-              <svg id="eyeIconEdit" viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
+            <input type="password" id="fEditPass" placeholder="Deixe vazio para não alterar">
+            <div style="position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;gap:2px">
+              <button type="button" class="pw-toggle" onclick="togglePwEdit()" title="Mostrar/ocultar senha">
+                <svg id="eyeIconEdit" viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button type="button" class="pw-toggle" onclick="clearEditPass()" title="Limpar senha">
+                <svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
           </div>
-          <div class="field-error" id="fEditPassErr">Senha deve ter ao menos 8 caracteres</div>
+          <div class="field-error" id="fEditPassErr">Senha deve ter ao menos 6 caracteres</div>
         </div>
       </div>
     </div>
@@ -771,7 +767,9 @@
         <div class="modal-title">Setores</div>
         <div class="modal-sub">Gerencie os setores da empresa</div>
       </div>
-      <button class="modal-close" onclick="closeSectorModal()">✕</button>
+      <button class="modal-close" onclick="closeSectorModal()">
+        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
 
     <div class="modal-body">
@@ -805,34 +803,33 @@
 
 <script>
 /* ══════════════════════════════
-   MOCK DATA
+   STATE
 ══════════════════════════════ */
 
-/* Gestor atualmente logado — em produção vem do backend/session */
-const CURRENT_MANAGER = {
-  id: 6,
-  name: 'Ricardo Santos',
-  company: 'UniSales',
-};
+/* Gestor atualmente logado — preenchido no init via GET /auth/me */
+let CURRENT_MANAGER = { id: null, name: '', company: '' };
 
-const deptNames = {
-  1:'Bloco Acadêmico', 2:'Escola Integrada', 3:'Laboratórios',
-  4:'Esportes e Lazer', 5:'Biblioteca', 6:'Pastoral e Capela',
-  7:'Serviços e Apoio', 8:'Administrativo', 9:'Áreas Externas'
-};
+/* Mapa de setores: { [id]: name } — preenchido via GET /departments/ */
+let deptNames = {};
 
-let users = [
-  { id:1, name:'Ana Paula Ferreira',  cpf:'12345678901', email:'ana.paula@unisales.edu.br',  company:'UniSales', role:'analyst',  number:'27999991111', status_usuario:true,  department_id:3, password:'senha123' },
-  { id:2, name:'Carlos Meirelles',    cpf:'23456789012', email:'carlos.m@unisales.edu.br',   company:'UniSales', role:'employee', number:'27988882222', status_usuario:true,  department_id:1, password:'senha123' },
-  { id:3, name:'Fernanda Costa',      cpf:'34567890123', email:'fernanda.c@unisales.edu.br', company:'UniSales', role:'analyst',  number:'27977773333', status_usuario:false, department_id:5, password:'senha123' },
-  { id:4, name:'João Lima',           cpf:'45678901234', email:'joao.lima@unisales.edu.br',  company:'UniSales', role:'employee', number:'27966664444', status_usuario:true,  department_id:4, password:'senha123' },
-  { id:5, name:'Maria Souza',         cpf:'56789012345', email:'maria.s@unisales.edu.br',    company:'UniSales', role:'employee', number:'27955555555', status_usuario:true,  department_id:2, password:'senha123' },
-  { id:6, name:'Ricardo Santos',      cpf:'67890123456', email:'ricardo.s@unisales.edu.br',  company:'UniSales', role:'manager',  number:'27944446666', status_usuario:true,  department_id:8, password:'senha123' },
-];
-
-let nextId = 7;
+let users = [];
 let editingId = null;
 let deletingId = null;
+
+/* Normaliza um usuário vindo da API para o formato interno */
+function normalizarUsuario(u) {
+  return {
+    id:            u.id,
+    name:          u.name          || '',
+    email:         u.email         || '',
+    cpf:           u.cpf           || '',
+    company:       u.company       || '',
+    role:          u.role          || 'employee',
+    number:        u.number        || '',
+    department_id: u.department_id || null,
+    status_usuario: u.status_usuario ?? false,
+  };
+}
 
 /* ══════════════════════════════
    AVATAR
@@ -840,6 +837,7 @@ let deletingId = null;
 const avatarColors = ['#e8550a','#3b82f6','#0fb884','#a78bfa','#f59e0b','#ec4899','#14b8a6','#6366f1'];
 
 function getInitials(name) {
+  if (!name) return '?';
   const parts = name.trim().split(' ');
   return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
 }
@@ -909,7 +907,10 @@ function renderTable() {
       manager:  '<span class="role-badge role-manager">Gestor</span>',
     }[u.role] || '';
 
-    const cpfFmt = u.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');
+    const cpfRaw  = (u.cpf || '').replace(/\D/g,'');
+    const cpfFmt  = cpfRaw.length === 11
+      ? cpfRaw.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4')
+      : (u.cpf || '—');
     const deptLabel = deptNames[u.department_id] || '—';
 
     tr.innerHTML = `
@@ -972,15 +973,22 @@ async function toggleStatus(id) {
   const novoStatus = !u.status_usuario;
 
   try {
-    /* API real — PUT /users/:id com status invertido */
-    if (!USE_MOCK) {
-      const res = await fetch(`${API_BASE}/users/${id}`, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify({ ...u, status_usuario: novoStatus }),
-      });
-      if (!res.ok) throw new Error('Erro ao atualizar status');
-    }
+    const payload = {
+      name:          u.name,
+      cpf:           u.cpf,
+      email:         u.email,
+      company:       u.company || CURRENT_MANAGER.company,
+      role:          u.role,
+      number:        u.number,
+      department_id: u.department_id,
+      status_usuario: novoStatus,
+    };
+    const res = await fetch(`${API_BASE}/users/${id}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Erro ao atualizar status');
 
     u.status_usuario = novoStatus;
     showToast(novoStatus ? `${u.name} ativado` : `${u.name} desativado`, 'success');
@@ -1013,20 +1021,26 @@ function openEdit(id) {
   editingId = id;
   clearForm();
 
-  document.getElementById('fName').value    = u.name;
-  document.getElementById('fCpf').value     = u.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');
-  document.getElementById('fEmail').value   = u.email;
+  const cpfRaw = (u.cpf || '').replace(/\D/g,'');
+  document.getElementById('fName').value    = u.name  || '';
+  document.getElementById('fCpf').value     = cpfRaw.length === 11
+    ? cpfRaw.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4')
+    : (u.cpf || '');
+  document.getElementById('fEmail').value   = u.email  || '';
   document.getElementById('fPhone').value   = formatPhone(u.number || '');
-  document.getElementById('fDept').value    = u.department_id;
-  document.getElementById('fRole').value    = u.role;
+  document.getElementById('fDept').value    = u.department_id || '';
+  document.getElementById('fRole').value    = u.role   || '';
 
   document.getElementById('modalTitle').textContent = 'Editar usuário';
   document.getElementById('modalSub').textContent   = `Editando: ${u.name}`;
   document.getElementById('saveBtnLabel').textContent = 'Salvar alterações';
   document.getElementById('passwordField').style.display = 'none';
   document.getElementById('changePassBlock').style.display = '';
-  document.getElementById('fEditPass').value = u.password || '';
+  // A API não retorna a senha (hash) — campo começa vazio; preencher para alterar
+  document.getElementById('fEditPass').value = '';
   document.getElementById('fEditPass').type = 'password';
+  const svg = document.getElementById('eyeIconEdit');
+  svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
   document.getElementById('formOverlay').classList.add('open');
 }
 
@@ -1070,8 +1084,8 @@ async function saveUser() {
   const pass    = document.getElementById('fPass').value;
   const isNew   = editingId === null;
 
-  /* empresa sempre herdada do gestor logado */
-  const company = CURRENT_MANAGER.company;
+  /* empresa herdada do gestor logado (preenchida no init via /auth/me) */
+  const company = CURRENT_MANAGER.company || '';
 
   let valid = true;
 
@@ -1086,13 +1100,13 @@ async function saveUser() {
   setErr('fCpf', 'fCpfErr', cpfRaw.length !== 11 || cpfTaken);
   if (cpfRaw.length !== 11 || cpfTaken) valid = false;
 
-  // Senha obrigatória na criação; na edição valida só se preenchida
+  // Senha obrigatória na criação (mín. 6); na edição é opcional — valida só se preenchida
   if (isNew) {
-    setErr('fPass', 'fPassErr', pass.length < 8);
-    if (pass.length < 8) valid = false;
+    setErr('fPass', 'fPassErr', pass.length < 6);
+    if (pass.length < 6) valid = false;
   } else {
     const editPass = document.getElementById('fEditPass').value;
-    if (editPass.length < 8) {
+    if (editPass.length > 0 && editPass.length < 6) {
       setErr('fEditPass', 'fEditPassErr', true);
       valid = false;
     }
@@ -1119,19 +1133,14 @@ async function saveUser() {
         status_usuario: true,
       };
 
-      /* API real — POST /users/ */
-      if (USE_MOCK) {
-        users.push({ id: nextId++, status_usuario: true, ...payload });
-      } else {
-        const res = await fetch(`${API_BASE}/users/`, {
+      const res = await fetch(`${API_BASE}/users/`, {
           method: 'POST',
           headers: authHeaders(),
           body: JSON.stringify(payload),
         });
         if (!res.ok) throw new Error('Erro ao criar usuário');
         const novo = await res.json();
-        users.push({ ...novo, status_usuario: novo.status_usuario ?? true });
-      }
+        users.push(normalizarUsuario(novo));
       showToast('Usuário criado com sucesso', 'success');
 
     } else {
@@ -1141,27 +1150,23 @@ async function saveUser() {
         name,
         cpf:           cpfRaw,
         email,
-        company:       u.company,
+        company:       u.company || CURRENT_MANAGER.company,
         role,
         number:        phone.replace(/\D/g,''),
         department_id: parseInt(dept),
-        password:      editPass,
         status_usuario: u.status_usuario,
       };
+      // Só envia senha se o campo foi preenchido
+      if (editPass.length >= 6) payload.password = editPass;
 
-      /* API real — PUT /users/:id */
-      if (USE_MOCK) {
-        Object.assign(u, payload);
-      } else {
-        const res = await fetch(`${API_BASE}/users/${editingId}`, {
+      const res = await fetch(`${API_BASE}/users/${editingId}`, {
           method: 'PUT',
           headers: authHeaders(),
           body: JSON.stringify(payload),
         });
         if (!res.ok) throw new Error('Erro ao atualizar usuário');
         const atualizado = await res.json();
-        Object.assign(u, atualizado);
-      }
+        Object.assign(u, normalizarUsuario(atualizado));
       showToast('Usuário atualizado', 'success');
     }
 
@@ -1198,14 +1203,11 @@ async function confirmDelete() {
   const u = users.find(u => u.id === deletingId);
 
   try {
-    /* API real — DELETE /users/:id */
-    if (!USE_MOCK) {
-      const res = await fetch(`${API_BASE}/users/${deletingId}`, {
-        method: 'DELETE',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao excluir usuário');
-    }
+    const res = await fetch(`${API_BASE}/users/${deletingId}`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+    if (!res.ok) throw new Error('Erro ao excluir usuário');
 
     users = users.filter(u => u.id !== deletingId);
     closeDelete();
@@ -1229,19 +1231,27 @@ function togglePw() {
 
 function togglePwEdit() {
   const input = document.getElementById('fEditPass');
-  input.type = input.type === 'password' ? 'text' : 'password';
-}
-
-function toggleChangePass() {
-  const show = document.getElementById('changePassToggle').checked;
-  document.getElementById('changePassFields').style.display = show ? '' : 'none';
-  if (!show) {
-    document.getElementById('fNewPass').value = '';
-    document.getElementById('fConfPass').value = '';
-    ['fNewPass','fConfPass'].forEach(id => document.getElementById(id).classList.remove('err'));
-    ['fNewPassErr','fConfPassErr'].forEach(id => document.getElementById(id).classList.remove('show'));
+  const isText = input.type === 'password';
+  input.type = isText ? 'text' : 'password';
+  const svg = document.getElementById('eyeIconEdit');
+  if (isText) {
+    svg.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
   }
 }
+
+function clearEditPass() {
+  const input = document.getElementById('fEditPass');
+  input.value = '';
+  input.type = 'password';
+  const svg = document.getElementById('eyeIconEdit');
+  svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  input.focus();
+  document.getElementById('fEditPass').classList.remove('err');
+  document.getElementById('fEditPassErr').classList.remove('show');
+}
+
 
 /* ══════════════════════════════
    TOAST
@@ -1251,10 +1261,11 @@ function showToast(msg, type = 'success') {
   if (old) old.remove();
   const t = document.createElement('div');
   t.className = `toast ${type}`;
+  const icon = type === 'error'
+    ? `<svg viewBox="0 0 24 24" stroke-width="2.5" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+    : `<svg viewBox="0 0 24 24" stroke-width="2.5" fill="none"><polyline points="20 6 9 17 4 12"/></svg>`;
   t.innerHTML = `
-    <div class="toast-icon">
-      <svg viewBox="0 0 24 24" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
+    <div class="toast-icon">${icon}</div>
     <span class="toast-text">${msg}</span>`;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3000);
@@ -1265,18 +1276,7 @@ function showToast(msg, type = 'success') {
 ══════════════════════════════ */
 const sectorColors = ['#e8550a','#3b82f6','#0fb884','#a78bfa','#f59e0b','#ec4899','#14b8a6','#6366f1','#84cc16'];
 
-let sectors = [
-  { id:1, name:'Bloco Acadêmico' },
-  { id:2, name:'Escola Integrada' },
-  { id:3, name:'Laboratórios' },
-  { id:4, name:'Esportes e Lazer' },
-  { id:5, name:'Biblioteca' },
-  { id:6, name:'Pastoral e Capela' },
-  { id:7, name:'Serviços e Apoio' },
-  { id:8, name:'Administrativo' },
-  { id:9, name:'Áreas Externas' },
-];
-let nextSectorId = 10;
+let sectors = []; // preenchido via GET /departments/
 
 function openSectorModal() {
   renderSectors();
@@ -1291,6 +1291,11 @@ function closeSectorModal() {
 function renderSectors() {
   const list = document.getElementById('sectorList');
   list.innerHTML = '';
+
+  if (sectors.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:13px;text-align:center;padding:16px 0">Nenhum setor cadastrado</p>';
+    return;
+  }
 
   sectors.forEach((s, si) => {
     const color = sectorColors[si % sectorColors.length];
@@ -1315,18 +1320,31 @@ function renderSectors() {
   });
 }
 
-function deleteSector(e, id) {
+async function deleteSector(e, id) {
   e.stopPropagation();
   const s = sectors.find(s => s.id === id);
   if (!s) return;
-  if (!confirm(`Excluir o setor "${s.name}" e todas as suas áreas?`)) return;
-  sectors = sectors.filter(s => s.id !== id);
-  renderSectors();
-  syncDeptOptions();
-  showToast(`Setor "${s.name}" removido`, 'success');
+  if (!confirm(`Excluir o setor "${s.name}"? Esta ação não pode ser desfeita.`)) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/departments/${id}`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+    if (!res.ok) throw new Error('Erro ao excluir setor');
+    sectors = sectors.filter(s => s.id !== id);
+    delete deptNames[id];
+    renderSectors();
+    syncDeptOptions();
+    renderTable();
+    showToast(`Setor "${s.name}" removido`, 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('Não foi possível excluir o setor. Tente novamente.', 'error');
+  }
 }
 
-function addSector() {
+async function addSector() {
   const input = document.getElementById('newSectorInput');
   const name = input.value.trim();
   if (!name) return;
@@ -1334,11 +1352,25 @@ function addSector() {
     showToast('Já existe um setor com esse nome', 'error');
     return;
   }
-  sectors.push({ id: nextSectorId++, name });
-  input.value = '';
-  renderSectors();
-  syncDeptOptions();
-  showToast(`Setor "${name}" criado`, 'success');
+
+  try {
+    const res = await fetch(`${API_BASE}/departments/`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ name }),
+    });
+    if (!res.ok) throw new Error('Erro ao criar setor');
+    const novo = await res.json();
+    sectors.push(novo);
+    deptNames[novo.id] = novo.name;
+    input.value = '';
+    renderSectors();
+    syncDeptOptions();
+    showToast(`Setor "${name}" criado`, 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('Não foi possível criar o setor. Tente novamente.', 'error');
+  }
 }
 
 /* Sincroniza o select de departamento no modal de usuário */
@@ -1360,6 +1392,26 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('newSectorInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') addSector();
   });
+
+  /* Mostra indicador de carregamento na tabela enquanto o init busca dados */
+  const tbody = document.getElementById('userTable');
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6" style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">
+        <svg style="display:block;margin:0 auto 10px;width:24px;height:24px;stroke:var(--muted2);fill:none;animation:spin 1s linear infinite" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" stroke-width="2" stroke-dasharray="40 20"/>
+        </svg>
+        Carregando dados...
+      </td>
+    </tr>
+  `;
+  /* Adiciona animação de spin globalmente */
+  if (!document.getElementById('spinStyle')) {
+    const s = document.createElement('style');
+    s.id = 'spinStyle';
+    s.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(s);
+  }
 });
 
 /* ══════════════════════════════
@@ -1426,18 +1478,41 @@ document.getElementById('sectorOverlay').addEventListener('click', function(e) {
 }());
 
 async function init() {
+  /* 1. Carrega dados do gestor logado */
+  try {
+    const me = await fetch(`${API_BASE}/auth/me`, { headers: authHeaders() });
+    if (me.ok) {
+      const data = await me.json();
+      CURRENT_MANAGER = { id: data.id, name: data.name, company: data.company || '' };
+    }
+  } catch (err) {
+    console.error('Erro ao carregar dados do gestor:', err);
+  }
+
+  /* 2. Carrega setores/departamentos via GET /departments/ */
+  try {
+    const res = await fetch(`${API_BASE}/departments/`, { headers: authHeaders() });
+    if (!res.ok) throw new Error('Erro ao carregar setores');
+    const depts = await res.json();
+    sectors = depts;
+    deptNames = {};
+    depts.forEach(d => { deptNames[d.id] = d.name; });
+  } catch (err) {
+    console.error(err);
+    showToast('Não foi possível carregar os setores.', 'error');
+  }
+
   syncDeptOptions();
 
-  /* API real — GET /users/ carrega usuários do departamento do gestor */
-  if (!USE_MOCK) {
-    try {
-      const res = await fetch(`${API_BASE}/users/`, { headers: authHeaders() });
-      if (!res.ok) throw new Error('Erro ao carregar usuários');
-      users = await res.json();
-    } catch (err) {
-      console.error(err);
-      showToast('Não foi possível carregar os usuários.', 'error');
-    }
+  /* 3. Carrega usuários via GET /users/ */
+  try {
+    const res = await fetch(`${API_BASE}/users/`, { headers: authHeaders() });
+    if (!res.ok) throw new Error('Erro ao carregar usuários');
+    const raw = await res.json();
+    users = raw.map(normalizarUsuario);
+  } catch (err) {
+    console.error(err);
+    showToast('Não foi possível carregar os usuários.', 'error');
   }
 
   renderTable();

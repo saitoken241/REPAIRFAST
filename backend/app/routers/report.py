@@ -24,13 +24,14 @@ def get_db():
 
 @router.post("/")
 def create_report(request: UserCreateReport, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    print(f"[create_report] department_id recebido: {request.department_id}, user dept: {current_user.department_id}")
     kwargs = dict(
         title=request.title,
         description=request.description,
         attachment=request.attachment,
         category=request.category,
         user_id=current_user.id,
-        department_id=current_user.department_id
+        department_id=request.department_id if request.department_id else current_user.department_id
     )
     # occurrence_type só existe se estiver no modelo
     if request.occurrence_type and hasattr(Report, 'occurrence_type'):
@@ -67,20 +68,42 @@ def _serialize_report(r):
         "updated_at":       r.closed_at.isoformat() if r.closed_at else (r.created_at.isoformat() if r.created_at else None),
     }
 
+@router.get("/me")
+def list_my_reports(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Reportes criados pelo próprio usuário logado (analista ou funcionário)."""
+    reports = db.query(Report).options(
+        joinedload(Report.department),
+        joinedload(Report.user),
+        joinedload(Report.assignee)
+    ).filter(Report.user_id == current_user.id).order_by(Report.created_at.desc()).all()
+    return [_serialize_report(r) for r in reports]
+
 @router.get("/")
 def list_reports(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if current_user.role in ("manager", "analyst"):
         reports = db.query(Report).options(
             joinedload(Report.department),
-            joinedload(Report.user)
+            joinedload(Report.user),
+            joinedload(Report.assignee)
         ).filter(Report.department_id == current_user.department_id).order_by(Report.created_at.desc()).all()
     else:
         reports = db.query(Report).options(
             joinedload(Report.department),
-            joinedload(Report.user)
+            joinedload(Report.user),
+            joinedload(Report.assignee)
         ).filter(Report.user_id == current_user.id).order_by(Report.created_at.desc()).all()
     return [_serialize_report(r) for r in reports]
     
+@router.get("/me")
+def get_my_reports(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Reportes criados pelo usuário logado — independente do role."""
+    reports = db.query(Report).options(
+        joinedload(Report.department),
+        joinedload(Report.user),
+        joinedload(Report.assignee)
+    ).filter(Report.user_id == current_user.id).order_by(Report.created_at.desc()).all()
+    return [_serialize_report(r) for r in reports]
+
 @router.get("/me/resumo")
 def get_reports_summary(
     db: Session = Depends(get_db),
@@ -326,118 +349,29 @@ def get_department_stats(
     }
 
 
-@router.get("/company/stats")
-def get_company_stats(
-    periodo: str = "semanal",
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+@router.get("/company/resume")
+def get_company_resume(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Resumo de todos os reportes da empresa — apenas gestor."""
     if current_user.role != "manager":
-        raise HTTPException(403, "Not authorized")
+        raise HTTPException(status_code=403, detail="Not authorized")
+    total     = db.query(func.count(Report.id)).scalar() or 0
+    aberto    = db.query(func.count(Report.id)).filter(Report.status == "open").scalar() or 0
+    andamento = db.query(func.count(Report.id)).filter(Report.status == "in_progress").scalar() or 0
+    resolvido = db.query(func.count(Report.id)).filter(Report.status == "closed").scalar() or 0
+    return {"total": total, "aberto": aberto, "andamento": andamento, "resolvido": resolvido}
 
-    from datetime import datetime, timedelta
-    from sqlalchemy import extract
 
-    hoje = datetime.now()
-
-    if periodo == "semanal":
-        data_inicio = hoje - timedelta(days=7)
-    elif periodo == "anual":
-        data_inicio = hoje - timedelta(days=365)
-    else:
-        data_inicio = hoje - timedelta(days=30)
-
-    def filtro_base():
-        return [Report.created_at >= data_inicio]
-
-    # Por status
-    por_status = {"open": 0, "in_progress": 0, "closed": 0}
-    for row in db.query(Report.status, func.count(Report.id)).filter(*filtro_base()).group_by(Report.status).all():
-        if row[0] in por_status:
-            por_status[row[0]] = row[1]
-
-    # Por prioridade
-    por_prioridade = {"low": 0, "medium": 0, "high": 0}
-    for row in db.query(Report.priority, func.count(Report.id)).filter(*filtro_base()).group_by(Report.priority).all():
-        if row[0] in por_prioridade:
-            por_prioridade[row[0]] = row[1]
-
-    # Por tipo
-    por_tipo = {"failure": 0, "risk": 0, "improvement": 0}
-    for row in db.query(Report.occurrence_type, func.count(Report.id)).filter(*filtro_base()).group_by(Report.occurrence_type).all():
-        if row[0] in por_tipo:
-            por_tipo[row[0]] = row[1]
-
-    # Por categoria
-    cat_rows = db.query(Report.category, func.count(Report.id).label("total")).filter(
-        *filtro_base(), Report.category.isnot(None)
-    ).group_by(Report.category).order_by(func.count(Report.id).desc()).limit(8).all()
-    por_categoria = [{"label": r[0], "total": r[1]} for r in cat_rows]
-
-    # Prioridade x Status
-    prio_status = {
-        "high":   {"open": 0, "in_progress": 0, "closed": 0},
-        "medium": {"open": 0, "in_progress": 0, "closed": 0},
-        "low":    {"open": 0, "in_progress": 0, "closed": 0},
-    }
-    for row in db.query(Report.priority, Report.status, func.count(Report.id)).filter(*filtro_base()).group_by(Report.priority, Report.status).all():
-        if row[0] in prio_status and row[1] in prio_status[row[0]]:
-            prio_status[row[0]][row[1]] = row[2]
-
-    # Aging — todos em aberto sem filtro de período
-    aging = {"0_7": 0, "7_14": 0, "15_30": 0, "31_60": 0, "60_plus": 0}
-    for (criado_em,) in db.query(Report.created_at).filter(Report.status != "closed", Report.created_at.isnot(None)).all():
-        dias = (hoje - criado_em).days
-        if dias <= 7:     aging["0_7"] += 1
-        elif dias <= 14:  aging["7_14"] += 1
-        elif dias <= 30:  aging["15_30"] += 1
-        elif dias <= 60:  aging["31_60"] += 1
-        else:             aging["60_plus"] += 1
-
-    # Por responsável
-    resp_rows = db.query(
-        User.name,
-        func.count(Report.id).label("total"),
-        func.sum(case((Report.status == "open", 1), else_=0)).label("aberto"),
-        func.sum(case((Report.status == "in_progress", 1), else_=0)).label("andamento"),
-        func.sum(case((Report.status == "closed", 1), else_=0)).label("resolvido"),
-    ).join(User, Report.assigned_to == User.id).filter(*filtro_base()).group_by(User.id, User.name).order_by(func.count(Report.id).desc()).limit(8).all()
-    por_responsavel = [{"nome": r[0], "total": r[1], "aberto": r[2], "andamento": r[3], "resolvido": r[4]} for r in resp_rows]
-
-    # Por setor
-    dept_rows = db.query(
-        Department.name,
-        func.count(Report.id).label("total")
-    ).join(Department, Report.department_id == Department.id).filter(*filtro_base()).group_by(Department.id, Department.name).order_by(func.count(Report.id).desc()).all()
-    por_setor = [{"label": r[0], "total": r[1]} for r in dept_rows]
-
-    # Volume mensal
-    meses, abertos_m, fechados_m = [], [], []
-    if periodo == "semanal":
-        for i in range(6, -1, -1):
-            dia = hoje - timedelta(days=i)
-            ab = db.query(func.count(Report.id)).filter(extract("day", Report.created_at)==dia.day, extract("month", Report.created_at)==dia.month, extract("year", Report.created_at)==dia.year).scalar() or 0
-            fe = db.query(func.count(Report.id)).filter(Report.status=="closed", extract("day", Report.created_at)==dia.day, extract("month", Report.created_at)==dia.month, extract("year", Report.created_at)==dia.year).scalar() or 0
-            meses.append(dia.strftime("%d/%m")); abertos_m.append(ab); fechados_m.append(fe)
-    elif periodo == "anual":
-        for i in range(11, -1, -1):
-            mes = (hoje.month - i - 1) % 12 + 1; ano = hoje.year + ((hoje.month - i - 1) // 12)
-            ab = db.query(func.count(Report.id)).filter(extract("month", Report.created_at)==mes, extract("year", Report.created_at)==ano).scalar() or 0
-            fe = db.query(func.count(Report.id)).filter(Report.status=="closed", extract("month", Report.created_at)==mes, extract("year", Report.created_at)==ano).scalar() or 0
-            meses.append(f"{mes:02d}/{str(ano)[2:]}"); abertos_m.append(ab); fechados_m.append(fe)
-    else:
-        for i in range(5, -1, -1):
-            mes = (hoje.month - i - 1) % 12 + 1; ano = hoje.year + ((hoje.month - i - 1) // 12)
-            ab = db.query(func.count(Report.id)).filter(extract("month", Report.created_at)==mes, extract("year", Report.created_at)==ano).scalar() or 0
-            fe = db.query(func.count(Report.id)).filter(Report.status=="closed", extract("month", Report.created_at)==mes, extract("year", Report.created_at)==ano).scalar() or 0
-            meses.append(f"{mes:02d}/{str(ano)[2:]}"); abertos_m.append(ab); fechados_m.append(fe)
-
-    return {
-        "por_status": por_status, "por_prioridade": por_prioridade, "por_tipo": por_tipo,
-        "por_categoria": por_categoria, "prio_status": prio_status, "aging": aging,
-        "por_responsavel": por_responsavel, "por_setor": por_setor,
-        "mensal": {"labels": meses, "abertos": abertos_m, "fechados": fechados_m},
-    }
+@router.get("/company/reports")
+def get_company_reports(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Todos os reportes da empresa — apenas gestor."""
+    if current_user.role != "manager":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    reports = db.query(Report).options(
+        joinedload(Report.department),
+        joinedload(Report.user),
+        joinedload(Report.assignee)
+    ).order_by(Report.created_at.desc()).all()
+    return [_serialize_report(r) for r in reports]
 
 
 @router.get("/company/stats")
@@ -586,44 +520,12 @@ def get_company_stats(
         "mensal": {"labels": meses, "abertos": abertos_m, "fechados": fechados_m},
     }
 
-@router.get("/company/resume")
-def get_company_resume(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    if current_user.role != "manager":
-        raise HTTPException(403, "Not authorized")
-
-    result = db.query(
-        func.count(Report.id).label("total"),
-        func.sum(case((Report.status == "open", 1), else_=0)).label("aberto"),
-        func.sum(case((Report.status == "in_progress", 1), else_=0)).label("andamento"),
-        func.sum(case((Report.status == "closed", 1), else_=0)).label("resolvido"),
-    ).one()
-
-    return {
-        "total":     result.total     or 0,
-        "aberto":    result.aberto    or 0,
-        "andamento": result.andamento or 0,
-        "resolvido": result.resolvido or 0,
-    }
-
-@router.get("/company/reports")
-def list_company_reports(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    if current_user.role != "manager":
-        raise HTTPException(403, "Not authorized")
-    reports = db.query(Report).options(
-        joinedload(Report.department),
-        joinedload(Report.user),
-        joinedload(Report.assignee)
-    ).order_by(Report.created_at.desc()).all()
-    return [_serialize_report(r) for r in reports]
-
 @router.get("/{report_id}")
 def get_report(report_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     report = db.query(Report).options(
         joinedload(Report.department),
-        joinedload(Report.user)
+        joinedload(Report.user),
+        joinedload(Report.assignee)
     ).filter(Report.id == report_id).first()
 
     if not report:
@@ -697,7 +599,8 @@ def update_report(
 ):
     report = db.query(Report).options(
         joinedload(Report.department),
-        joinedload(Report.user)
+        joinedload(Report.user),
+        joinedload(Report.assignee)
     ).filter(Report.id == report_id).first()
 
     if not report:
@@ -718,7 +621,13 @@ def update_report(
             setattr(report, key, value)
 
     db.commit()
-    db.refresh(report)
+
+    # Recarrega com todos os relacionamentos para serializar corretamente
+    report = db.query(Report).options(
+        joinedload(Report.department),
+        joinedload(Report.user),
+        joinedload(Report.assignee)
+    ).filter(Report.id == report_id).first()
 
     return _serialize_report(report)
 

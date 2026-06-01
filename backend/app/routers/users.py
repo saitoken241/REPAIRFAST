@@ -58,12 +58,12 @@ def list_users(db: Session = Depends(get_db),current_user: User = Depends(requir
 
 @router.get("/analysts")
 def list_analysts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    """Retorna analistas e gestores do mesmo departamento — acessível por analyst e manager."""
+    """Retorna apenas analistas do mesmo departamento — acessível por analyst e manager."""
     if current_user.role not in ("manager", "analyst"):
         raise HTTPException(status_code=403, detail="Not authorized")
     users = db.query(User).filter(
         User.department_id == current_user.department_id,
-        User.role.in_(["analyst", "manager"])
+        User.role == "analyst"
     ).all()
     return [{"id": u.id, "name": u.name, "email": u.email, "role": u.role} for u in users]
 

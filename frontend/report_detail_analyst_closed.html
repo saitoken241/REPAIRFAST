@@ -1054,7 +1054,14 @@
           <div class="panel-title">INFORMAÇÕES</div>
         </div>
         <div>
-  
+
+          <div class="meta-row" id="row-reporter">
+            <span class="meta-key">Reportado por</span>
+            <div class="meta-person">
+              <div class="meta-av" style="background:var(--orange-dim);color:var(--orange)" id="reporter-av">—</div>
+              <span class="meta-val" id="reporter-nome">—</span>
+            </div>
+          </div>
           <div class="meta-row" id="row-responsible">
             <span class="meta-key">Responsável</span>
             <div class="meta-person">
@@ -1067,7 +1074,7 @@
             <span class="meta-val" style="font-family:var(--fm);font-size:11px" id="meta-abertura">—</span>
           </div>
           <div class="meta-row">
-            <span class="meta-key">Encerrado at</span>
+            <span class="meta-key">Encerrado em</span>
             <span class="meta-val" style="font-family:var(--fm);font-size:11px" id="meta-fechamento">—</span>
           </div>
           <div class="meta-row">
@@ -1325,7 +1332,7 @@
       /* Data de fechamento */
       el("meta-fechamento").textContent = dados.encerradoEm || "—";
       el("banner-sub").textContent = dados.encerradoEm
-        ? `Encerrado at ${dados.encerradoEm}${dados.motivo ? " · Motivo: " + dados.motivo : ""}`
+        ? `Encerrado em ${dados.encerradoEm}${dados.motivo ? " · Motivo: " + dados.motivo : ""}`
         : "Este reporte foi encerrado";
 
       /* Reporter */
@@ -1436,17 +1443,72 @@
        Init
     ══════════════════════════════════════════════════ */
     async function init() {
+      /* 1. Busca dados frescos do backend */
+      try {
+        const dadosSS = JSON.parse(sessionStorage.getItem('reporteAtual_analista') || 'null');
+        if (dadosSS && dadosSS.id) {
+          const atualizado = await getReportePorId(dadosSS.id);
+          if (atualizado) {
+            const merged = { ...dadosSS };
+            Object.keys(atualizado).forEach(k => {
+              if (atualizado[k] !== null && atualizado[k] !== undefined) {
+                merged[k] = atualizado[k];
+              }
+            });
+            sessionStorage.setItem('reporteAtual_analista', JSON.stringify(merged));
+          }
+        }
+      } catch(e) { console.warn('[CLOSED] Falha ao atualizar reporte:', e); }
+
+      /* 2. Renderiza com dados do sessionStorage */
       loadData();
+
       let dados = null;
       try { dados = JSON.parse(sessionStorage.getItem('reporteAtual_analista') || 'null'); } catch(e) {}
-      console.log('[CLOSED] dados:', dados);
-      console.log('[CLOSED] dados.id:', dados?.id);
-      if (!dados || !dados.id) { console.warn('[CLOSED] sem dados.id — abortando'); return; }
+      if (!dados || !dados.id) return;
+
+      /* 3. Histórico — usa as datas do histórico como fonte de verdade */
       try {
-        console.log('[CLOSED] chamando getHistoricoReporte(' + dados.id + ')');
         const entries = await getHistoricoReporte(dados.id);
-        console.log('[CLOSED] entries:', entries);
         renderHistorico(adaptarHistorico(entries));
+
+        const fmtData = (iso) => {
+          if (!iso) return null;
+          const d = new Date(iso);
+          return d.toLocaleDateString('pt-BR') + ' · ' +
+            d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        };
+
+        /* Data de abertura — primeira entrada do histórico ou created_at */
+        const entradaAbertura = entries.find(e =>
+          e.action && e.action.toLowerCase().includes('aberto')
+        );
+        const dataAbertura = entradaAbertura
+          ? fmtData(entradaAbertura.created_at)
+          : (dados.data || null);
+        if (dataAbertura) {
+          document.getElementById('meta-abertura').textContent = dataAbertura;
+        }
+
+        /* Data de encerramento — última entrada com "encerrado" */
+        const entradaEncerramento = [...entries].reverse().find(e =>
+          e.action && e.action.toLowerCase().includes('encerrado')
+        );
+        const encerradoEm = entradaEncerramento
+          ? fmtData(entradaEncerramento.created_at)
+          : null;
+
+        if (encerradoEm) {
+          document.getElementById('meta-fechamento').textContent = encerradoEm;
+          document.getElementById('banner-sub').textContent =
+            `Encerrado em ${encerradoEm}${dados.motivo ? ' · Motivo: ' + dados.motivo : ''}`;
+          /* Persiste */
+          try {
+            const ss = JSON.parse(sessionStorage.getItem('reporteAtual_analista') || '{}');
+            ss.encerradoEm = encerradoEm;
+            sessionStorage.setItem('reporteAtual_analista', JSON.stringify(ss));
+          } catch(e) {}
+        }
       } catch(e) { console.error('[CLOSED] erro histórico:', e); }
     }
     init();

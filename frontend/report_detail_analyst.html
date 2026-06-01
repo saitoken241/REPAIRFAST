@@ -466,9 +466,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
             <div class="status-opt" style="--c:var(--teal);--dim:var(--teal-dim)" onclick="selecionarStatus('Em andamento',this)">
               <div class="status-dot" style="background:var(--teal)"></div><span>Em andamento</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
             </div>
-            <div class="status-opt" style="--c:var(--green);--dim:var(--green-dim)" onclick="selecionarStatus('Resolvido',this)">
-              <div class="status-dot" style="background:var(--green)"></div><span>Resolvido</span><span class="status-check" style="display:flex;align-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-            </div>
           </div>
           <button class="btn-primary" style="margin-top:10px" onclick="salvarStatus()">Salvar Status</button>
         </div>
@@ -667,9 +664,13 @@ async function preencherSelects() {
       el.innerHTML = '<option value="">Nenhum usuário encontrado</option>';
       return;
     }
-    el.innerHTML = _usuariosDept.map(u => {
+    const placeholder = id === "assignSelect"
+      ? '<option value="">Selecione um responsável...</option>'
+      : '<option value="">Selecione...</option>';
+    el.innerHTML = placeholder + _usuariosDept.map(u => {
       const ini = u.name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
-      const selected = _responsavelAtual.value === u.id && id === "assignSelect" ? ' selected' : '';
+      // usa == (loose) para comparar number com string/number vindos de fontes diferentes
+      const selected = _responsavelAtual.value != null && _responsavelAtual.value == u.id && id === "assignSelect" ? ' selected' : '';
       return `<option value="${u.id}" data-ini="${ini}"${selected}>${u.name}</option>`;
     }).join('');
   });
@@ -867,10 +868,13 @@ function selecionarStatus(val, btn) {
 
 async function salvarStatus() {
   if (_statusPendente === _statusAtual) return;
+  // Resolvido só pode ser aplicado via encerramento — nunca direto pelo seletor
+  if (_statusPendente === 'Resolvido') return;
+
   const anterior = _statusAtual;
   _statusAtual   = _statusPendente;
-  const map = { "Aberto":"s-aberto", "Em andamento":"s-andamento", "Resolvido":"s-resolvido" };
-  const statusEnMap = { "Aberto":"open", "Em andamento":"in_progress", "Resolvido":"closed" };
+  const map = { "Aberto":"s-aberto", "Em andamento":"s-andamento" };
+  const statusEnMap = { "Aberto":"open", "Em andamento":"in_progress" };
   const badge = document.getElementById("rh-status-badge");
   badge.className   = `tag ${map[_statusAtual] || ''}`;
   badge.textContent = _statusAtual;
@@ -883,20 +887,14 @@ async function salvarStatus() {
   registrarHist(`Status alterado — ${_statusAtual}`, _responsavelAtual.nome, `Status anterior: ${anterior}.`, null, "var(--blue)", "var(--blue)");
   try { await registrarHistoricoReporte(parseInt(_reporteId), { action: `Status alterado — ${_statusAtual}`, description: `Status anterior: ${anterior}.`, color: 'var(--blue)' }); } catch(e) {}
 
-  /* Se status for Resolvido, habilita o botão Encerrar */
+  // Atualiza controle do botão Encerrar baseado apenas no plano
+  const pend = _plano.filter(p => !p.done).length;
   const btnEncerrar = document.getElementById("btn-encerrar");
   if (btnEncerrar) {
-    if (_statusAtual === "Resolvido") {
-      btnEncerrar.disabled = false;
-      btnEncerrar.title    = "Encerrar este reporte";
-    } else {
-      /* Volta a lógica normal baseada no plano */
-      const pend = _plano.filter(p => !p.done).length;
-      btnEncerrar.disabled = pend > 0;
-      btnEncerrar.title    = pend > 0
-        ? `Conclua ${pend} ação${pend !== 1 ? 'ões' : ''} do plano para encerrar`
-        : "Encerrar este reporte";
-    }
+    btnEncerrar.disabled = pend > 0;
+    btnEncerrar.title    = pend > 0
+      ? `Conclua ${pend} ação${pend !== 1 ? 'ões' : ''} do plano para encerrar`
+      : "Encerrar este reporte";
   }
 }
 
@@ -907,21 +905,39 @@ async function salvarAtribuicao() {
   const sel  = document.getElementById("assignSelect");
   const opt  = sel.options[sel.selectedIndex];
   const val  = parseInt(opt.value);
-  const ini  = opt.dataset.ini;
+  const ini  = opt.dataset.ini || '?';
   const nome = opt.text;
-  if (val === _responsavelAtual.value) return;
+
+  /* Sem seleção válida */
+  if (!opt.value || isNaN(val)) {
+    showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='12'/><line x1='12' y1='16' x2='12.01' y2='16'/></svg>", "Selecione um responsável", "orange");
+    return;
+  }
+
   const anterior = _responsavelAtual.nome;
   _responsavelAtual = { value: val, nome, ini };
   document.getElementById("meta-resp-av").textContent   = ini;
   document.getElementById("meta-resp-nome").textContent = nome;
+
   try {
-    await patchReporteAtribuir(parseInt(_reporteId), val);
+    const result = await patchReporteAtribuir(parseInt(_reporteId), val);
+    // Atualiza sessionStorage imediatamente para persistir entre navegações
+    try {
+      const dados = JSON.parse(sessionStorage.getItem('reporteAtual_analista') || '{}');
+      dados.assigned_to      = val;
+      dados.assigned_to_name = nome;
+      sessionStorage.setItem('reporteAtual_analista', JSON.stringify(dados));
+    } catch(e) {}
+    showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>", `Responsável alterado para ${nome}`, "blue");
+    registrarHist("Responsável alterado", "Sistema", `Reatribuído de ${anterior} para ${nome}.`, null, "var(--teal)", "var(--teal)");
+    try { await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Responsável alterado', description: `Reatribuído de ${anterior} para ${nome}.`, color: 'var(--teal)' }); } catch(e) {}
   } catch(e) {
     console.error("Erro ao atribuir responsável:", e);
+    _responsavelAtual = { value: null, nome: anterior, ini: '?' };
+    document.getElementById("meta-resp-av").textContent   = anterior.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+    document.getElementById("meta-resp-nome").textContent = anterior;
+    showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='12'/><line x1='12' y1='16' x2='12.01' y2='16'/></svg>", "Erro ao atribuir responsável. Tente novamente.", "orange");
   }
-  showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>", `Responsável alterado para ${nome}`, "blue");
-  registrarHist("Responsável alterado", "Sistema", `Reatribuído de ${anterior} para ${nome}.`, null, "var(--teal)", "var(--teal)");
-  try { await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Responsável alterado', description: `Reatribuído de ${anterior} para ${nome}.`, color: 'var(--teal)' }); } catch(e) {}
 }
 
 /* ══════════════════════════════════════════════════
@@ -1294,7 +1310,7 @@ async function confirmarReabertura() {
   badge.textContent = "Aberto";
   document.querySelectorAll('.status-opt').forEach((o, i) => {
     o.classList.remove('active');
-    if (i === 0) o.classList.add('active'); /* "Aberto" é o índice 0 */
+    if (i === 0) o.classList.add('active'); /* "Aberto" é sempre o índice 0 */
   });
 
   /* Reabilita o botão Encerrar (já vai ser desabilitado por renderPlano se houver pendências) */
@@ -1596,35 +1612,29 @@ function carregarDadosReporte() {
     const statusMap = {
       aberto:    { label: 'Aberto',       cls: 's-aberto',    idx: 0 },
       andamento: { label: 'Em andamento', cls: 's-andamento', idx: 1 },
-      resolvido: { label: 'Resolvido',    cls: 's-resolvido', idx: 2 },
     };
     const cfg = statusMap[dados.status];
-    if (cfg) {
-      if (dados.status === 'resolvido') {
-        /* Abre direto na view encerrada */
-        _statusAtual    = 'Resolvido';
-        _statusPendente = 'Resolvido';
-        const badge = document.getElementById('rh-status-badge');
-        if (badge) { badge.className = 'tag s-resolvido'; badge.textContent = 'Resolvido'; }
-        document.querySelectorAll('.status-opt').forEach((o, i) => {
-          o.classList.remove('active');
-          if (i === 2) o.classList.add('active');
-        });
-        const btnEncerrar = document.getElementById('btn-encerrar');
-        if (btnEncerrar) { btnEncerrar.disabled = false; btnEncerrar.title = 'Encerrar este reporte'; }
-        /* Aciona a view encerrada com motivo padrão */
-        setTimeout(() => ativarViewEncerrado('Problema resolvido — ação corretiva aplicada'), 0);
-      } else {
-        /* Aberto ou Em andamento — aplica no seletor e badge */
-        _statusAtual    = cfg.label;
-        _statusPendente = cfg.label;
-        const badge = document.getElementById('rh-status-badge');
-        if (badge) { badge.className = `tag ${cfg.cls}`; badge.textContent = cfg.label; }
-        document.querySelectorAll('.status-opt').forEach((o, i) => {
-          o.classList.remove('active');
-          if (i === cfg.idx) o.classList.add('active');
-        });
-      }
+    if (dados.status === 'resolvido') {
+      /* Status encerrado — vai direto para view de leitura */
+      _statusAtual    = 'Resolvido';
+      _statusPendente = 'Resolvido';
+      const badge = document.getElementById('rh-status-badge');
+      if (badge) { badge.className = 'tag s-resolvido'; badge.textContent = 'Resolvido'; }
+      // Nenhuma opção do seletor é marcada (Resolvido foi removido)
+      document.querySelectorAll('.status-opt').forEach(o => o.classList.remove('active'));
+      const btnEncerrar = document.getElementById('btn-encerrar');
+      if (btnEncerrar) { btnEncerrar.disabled = false; btnEncerrar.title = 'Encerrar este reporte'; }
+      setTimeout(() => ativarViewEncerrado('Problema resolvido — ação corretiva aplicada'), 0);
+    } else if (cfg) {
+      /* Aberto ou Em andamento */
+      _statusAtual    = cfg.label;
+      _statusPendente = cfg.label;
+      const badge = document.getElementById('rh-status-badge');
+      if (badge) { badge.className = `tag ${cfg.cls}`; badge.textContent = cfg.label; }
+      document.querySelectorAll('.status-opt').forEach((o, i) => {
+        o.classList.remove('active');
+        if (i === cfg.idx) o.classList.add('active');
+      });
     }
   }
 }
@@ -1651,40 +1661,64 @@ function adaptarHistorico(entries) {
    INIT
 ══════════════════════════════════════════════════ */
 async function init() {
-  await preencherSelects();
-  /* Busca status atualizado do backend antes de renderizar */
+  /* 1. Busca dados atualizados do backend PRIMEIRO */
   try {
     const dadosSS = JSON.parse(sessionStorage.getItem('reporteAtual_analista') || 'null');
     if (dadosSS && dadosSS.id) {
       const atualizado = await getReportePorId(dadosSS.id);
       if (atualizado) {
-        const merged = { ...dadosSS, ...atualizado };
+        // Não deixa null do backend sobrescrever dados válidos do sessionStorage
+        const merged = { ...dadosSS };
+        Object.keys(atualizado).forEach(k => {
+          if (atualizado[k] !== null && atualizado[k] !== undefined) {
+            merged[k] = atualizado[k];
+          }
+        });
         sessionStorage.setItem('reporteAtual_analista', JSON.stringify(merged));
       }
     }
   } catch(e) { console.warn('Falha ao atualizar reporte:', e); }
 
+  /* 2. Carrega dados na tela — define _responsavelAtual com o valor correto */
   carregarDadosReporte();
 
-  /* Pré-seleciona o responsável no select agora que _responsavelAtual foi definido */
-  if (_responsavelAtual.value) {
-    const sel = document.getElementById("assignSelect");
-    if (sel) sel.value = _responsavelAtual.value;
-  }
+  /* 3. Só agora popula os selects — _responsavelAtual já está preenchido */
+  await preencherSelects();
 
   const id = parseInt(JSON.parse(sessionStorage.getItem('reporteAtual_analista') || '{}').id);
 
-  /* Carrega histórico do backend */
+  /* 4. Histórico */
   try {
     if (id) {
       const entries = await getHistoricoReporte(id);
       HISTORICO.length = 0;
       adaptarHistorico(entries).forEach(e => HISTORICO.push(e));
+
+      const fmtData = (iso) => {
+        if (!iso) return null;
+        const d = new Date(iso);
+        return d.toLocaleDateString('pt-BR') + ' · ' +
+          d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      };
+
+      /* Abertura — primeira entrada do histórico */
+      const primeira = entries[0];
+      if (primeira?.created_at) {
+        const dataAbertura = fmtData(primeira.created_at);
+        if (dataAbertura) document.getElementById('meta-abertura').textContent = dataAbertura;
+      }
+
+      /* Última atualização — última entrada do histórico */
+      const ultima = entries[entries.length - 1];
+      if (ultima?.created_at) {
+        const dataUltima = fmtData(ultima.created_at);
+        if (dataUltima) document.getElementById('meta-atualizacao').textContent = dataUltima;
+      }
     }
   } catch(e) { console.warn('Histórico:', e); }
   renderHistorico();
 
-  /* Carregar plano de ação do backend */
+  /* 5. Plano de ação */
   try {
     if (id) {
       const items = await getPlanoReporte(id);

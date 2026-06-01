@@ -27,13 +27,20 @@ class UserUpdate(BaseModel):
     role: Optional[UserRole] = None
     number: Optional[str] = None
     department_id: Optional[int] = None
-    
+    status_usuario: Optional[bool] = None
+    company: Optional[str] = None
+
 
 class UserResponse(BaseModel):
     id: int
     name: str
     email: str
+    cpf: str
+    company: str
+    role: UserRole
+    number: Optional[str] = None
     department_id: int
+    status_usuario: bool
+
     class Config:
         from_attributes = True
-    
