@@ -1137,7 +1137,7 @@
       </div>
       <label class="modal-label">Motivo da reabertura</label>
       <select class="modal-select" id="reopen-reason">
-        <option>Problema recorrente — requer nova análise</option>
+        <option>Requer nova análise</option>
         <option>Ação corretiva foi insuficiente</option>
         <option>Novo risco identificado na mesma área</option>
         <option>Solicitação do colaborador</option>
@@ -1297,6 +1297,20 @@
     }
 
     /* ══════════════════════════════════════════════════
+       Parseia o campo attachment (JSON array ou URL simples)
+    ══════════════════════════════════════════════════ */
+    function _parsearAnexos(attachment) {
+      if (!attachment) return [];
+      try {
+        const parsed = JSON.parse(attachment);
+        if (Array.isArray(parsed)) return parsed;
+      } catch(e) {}
+      // fallback: string URL simples (formato antigo)
+      const nome = attachment.split('/').pop() || 'anexo';
+      return [{ name: nome, size: 0, type: '', data: attachment }];
+    }
+
+    /* ══════════════════════════════════════════════════
        Carrega dados do sessionStorage
     ══════════════════════════════════════════════════ */
     function loadData() {
@@ -1316,12 +1330,12 @@
       el("bc-id").textContent = `#${_reporteId}`;
       el("rh-id").textContent = `REPORTE #${_reporteId} · ENCERRADO`;
       el("meta-id").textContent = `#${_reporteId}`;
-      el("modal-reopen-sub").textContent = `Reporte #${_reporteId} — Confirmar reabertura`;
+      el("modal-reopen-sub").textContent = `Reporte #${_reporteId}: Confirmar reabertura`;
 
       if (dados.titulo) {
         el("rh-titulo").textContent = dados.titulo;
         el("info-titulo").textContent = dados.titulo;
-        document.title = `RepairFast — ${dados.titulo}`;
+        document.title = `RepairFast: ${dados.titulo}`;
       }
       if (dados.descricao) el("info-descricao").textContent = dados.descricao;
       if (dados.categoria) { el("info-categoria").textContent = dados.categoria; el("rh-cat-badge").textContent = dados.categoria; }
@@ -1344,7 +1358,18 @@
         el("reporter-av")?.closest(".meta-row")?.setAttribute("style", "display:none");
       }
 
-      /* Responsável */
+  /* Prioridade no header */
+  if (dados.prioridade) {
+    const prioMap   = { alta: 'p-alto', media: 'p-medio', baixa: 'p-baixo' };
+    const prioLabel = { alta: 'Alta', media: 'Média', baixa: 'Baixa' };
+    const badges = document.querySelector('.rh-badges');
+    const prioSpan = document.createElement('span');
+    prioSpan.className   = `tag ${prioMap[dados.prioridade] || ''}`;
+    prioSpan.textContent = prioLabel[dados.prioridade] || dados.prioridade;
+    if (badges) badges.insertBefore(prioSpan, badges.firstChild);
+  }
+
+        /* Responsável */
       if (dados.assigned_to_name) {
         const ini = dados.assigned_to_name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
         el("meta-resp-av").textContent = ini;
@@ -1354,12 +1379,10 @@
       }
 
       /* Anexos */
-      if (dados.attachment) {
-        const nome = dados.attachment.split("/").pop() || "attachment";
-        renderAnexos([{ name: nome, size: 0, type: "", data: dados.attachment }]);
-      } else {
-        renderAnexos([]);
-      }
+      /* Anexos — lê _attachmentTemp (injetado pelo init) ou dados.attachment */
+      const _att = sessionStorage.getItem('_attachmentTemp') ?? dados.attachment;
+      sessionStorage.removeItem('_attachmentTemp');
+      renderAnexos(_parsearAnexos(_att));
 
     }
 
@@ -1451,11 +1474,14 @@
           if (atualizado) {
             const merged = { ...dadosSS };
             Object.keys(atualizado).forEach(k => {
+              if (k === 'attachment') return; // attachment não vai para sessionStorage (base64 grande)
               if (atualizado[k] !== null && atualizado[k] !== undefined) {
                 merged[k] = atualizado[k];
               }
             });
             sessionStorage.setItem('reporteAtual_analista', JSON.stringify(merged));
+            /* Injeta attachment via temp para loadData() o consumir */
+            sessionStorage.setItem('_attachmentTemp', atualizado.attachment || '');
           }
         }
       } catch(e) { console.warn('[CLOSED] Falha ao atualizar reporte:', e); }

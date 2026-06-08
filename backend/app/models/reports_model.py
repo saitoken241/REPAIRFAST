@@ -9,7 +9,7 @@ class Report(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(100), index=True, nullable=False)
     description = Column(Text, nullable=False)
-    attachment = Column(String(255), nullable=True)
+    attachment = Column(Text, nullable=True)  # base64 data URL ou path
     category = Column(String(20), nullable=False, index=True)
     status = Column(
         Enum("open", "closed", "in_progress", name="status_enum"),

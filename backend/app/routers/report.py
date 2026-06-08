@@ -441,10 +441,10 @@ def get_department_stats(
             ).scalar() or 0
             fe = db.query(func.count(Report.id)).filter(
                 Report.department_id == dept_id,
-                Report.status == "closed",
-                extract("day",   Report.created_at) == dia.day,
-                extract("month", Report.created_at) == dia.month,
-                extract("year",  Report.created_at) == dia.year,
+                Report.closed_at.isnot(None),
+                extract("day",   Report.closed_at) == dia.day,
+                extract("month", Report.closed_at) == dia.month,
+                extract("year",  Report.closed_at) == dia.year,
             ).scalar() or 0
             meses.append(dia.strftime("%d/%m"))
             abertos_m.append(ab)
@@ -460,9 +460,9 @@ def get_department_stats(
             ).scalar() or 0
             fe = db.query(func.count(Report.id)).filter(
                 Report.department_id == dept_id,
-                Report.status == "closed",
-                extract("month", Report.created_at) == mes,
-                extract("year",  Report.created_at) == ano,
+                Report.closed_at.isnot(None),
+                extract("month", Report.closed_at) == mes,
+                extract("year",  Report.closed_at) == ano,
             ).scalar() or 0
             meses.append(f"{mes:02d}/{str(ano)[2:]}")
             abertos_m.append(ab)
@@ -478,9 +478,9 @@ def get_department_stats(
             ).scalar() or 0
             fe = db.query(func.count(Report.id)).filter(
                 Report.department_id == dept_id,
-                Report.status == "closed",
-                extract("month", Report.created_at) == mes,
-                extract("year",  Report.created_at) == ano,
+                Report.closed_at.isnot(None),
+                extract("month", Report.closed_at) == mes,
+                extract("year",  Report.closed_at) == ano,
             ).scalar() or 0
             meses.append(f"{mes:02d}/{str(ano)[2:]}")
             abertos_m.append(ab)
@@ -622,10 +622,10 @@ def get_company_stats(
                 extract("year", Report.created_at) == dia.year,
             ).scalar() or 0
             fe = db.query(func.count(Report.id)).filter(
-                Report.status == "closed",
-                extract("day", Report.created_at) == dia.day,
-                extract("month", Report.created_at) == dia.month,
-                extract("year", Report.created_at) == dia.year,
+                Report.closed_at.isnot(None),
+                extract("day", Report.closed_at) == dia.day,
+                extract("month", Report.closed_at) == dia.month,
+                extract("year", Report.closed_at) == dia.year,
             ).scalar() or 0
             meses.append(dia.strftime("%d/%m"))
             abertos_m.append(ab); fechados_m.append(fe)
@@ -639,9 +639,9 @@ def get_company_stats(
                 extract("year", Report.created_at) == ano,
             ).scalar() or 0
             fe = db.query(func.count(Report.id)).filter(
-                Report.status == "closed",
-                extract("month", Report.created_at) == mes,
-                extract("year", Report.created_at) == ano,
+                Report.closed_at.isnot(None),
+                extract("month", Report.closed_at) == mes,
+                extract("year", Report.closed_at) == ano,
             ).scalar() or 0
             meses.append(f"{mes:02d}/{str(ano)[2:]}")
             abertos_m.append(ab); fechados_m.append(fe)
@@ -769,6 +769,11 @@ def update_report(
     for key, value in data_dict.items():
         if key in allowed_fields and hasattr(report, key):
             setattr(report, key, value)
+
+    if data_dict.get("status") == "closed" and not report.closed_at:
+        report.closed_at = datetime.utcnow()
+    elif data_dict.get("status") in ("open", "in_progress"):
+        report.closed_at = None
 
     report.updated_at = datetime.utcnow()
     db.commit()

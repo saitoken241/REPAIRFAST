@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RepairFast — Reporte (Gestor)</title>
+<title>RepairFast: Reporte (Gestor)</title>
 
 <link rel="stylesheet" href="src/css/global.css">
 <link rel="stylesheet" href="src/css/components.css">
@@ -214,9 +214,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
     <div class="rh-id" id="rh-id">REPORTE #1248 · ABERTO EM 21/03/2025</div>
     <div class="rh-titulo" id="rh-titulo">Falta de sinalização em área de risco — Corredor B</div>
     <div class="rh-badges">
-      <span class="tag p-alto" id="rh-tipo">Risco</span>
+      <span class="tag" id="rh-prio" style="display:none"></span>
+      <span class="tag" id="rh-tipo" style="display:none"></span>
       <span class="tag s-aberto" id="rh-status">Aberto</span>
-      <span class="tag" style="background:var(--dark3);border:1px solid var(--border);color:var(--text-muted)" id="rh-cat">Segurança e acessibilidade</span>
+      <span class="tag" style="background:var(--dark3);border:1px solid var(--border);color:var(--text-muted)" id="rh-cat"></span>
     </div>
   </div>
   <div class="rh-actions">
@@ -301,6 +302,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
       <div class="panel-hd"><div class="panel-title">INFORMAÇÕES</div></div>
       <div>
 
+        <div class="meta-row" id="reporter-row">
+          <span class="meta-key">Reportado por</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="meta-av" style="background:var(--orange-dim);color:var(--orange)" id="reporter-av">—</div>
+            <span class="meta-val" id="reporter-nome">—</span>
+          </div>
+        </div>
         <div class="meta-row">
           <span class="meta-key">Analista responsável</span>
           <div style="display:flex;align-items:center;gap:6px">
@@ -839,6 +847,19 @@ function adaptarHistorico(entries) {
   }));
 }
 
+
+/* ── Anexos — suporte a JSON array (base64) e URL simples ── */
+function _parsearAnexos(attachment) {
+  if (!attachment) return [];
+  try {
+    const parsed = JSON.parse(attachment);
+    if (Array.isArray(parsed)) return parsed;
+  } catch(e) {}
+  // fallback: string URL simples (formato antigo)
+  const nome = attachment.split('/').pop() || 'anexo';
+  return [{ name: nome, size: 0, type: '', data: attachment }];
+}
+
 async function init() {
   /* Proteção de rota */
   const _token = sessionStorage.getItem('token');
@@ -861,8 +882,12 @@ async function init() {
   try {
     const atualizado = await getReportePorId(dados.id);
     if (atualizado) {
-      dados = { ...dados, ...atualizado };
+      const _attachment = atualizado.attachment; // guarda antes de salvar no sessionStorage
+      const _semAttachment = { ...atualizado };
+      delete _semAttachment.attachment;
+      dados = { ...dados, ..._semAttachment };
       sessionStorage.setItem('reporteAtual_gestor', JSON.stringify(dados));
+      dados.attachment = _attachment; // usa o attachment do backend em memória
     }
   } catch(e) { console.warn('Falha ao atualizar reporte:', e); }
 
@@ -878,10 +903,20 @@ async function init() {
   document.getElementById("bc-id").textContent   = `#${id}`;
   document.getElementById("rh-id").textContent   = `REPORTE #${id}${dataStr ? ' · ABERTO EM ' + dataStr : ''}`;
   document.getElementById("meta-id").textContent = `#${id}`;
-  if (dados.titulo)    { document.getElementById("rh-titulo").textContent      = dados.titulo;    document.getElementById("info-titulo").textContent    = dados.titulo;    document.title = `RepairFast — ${dados.titulo}`; }
+  if (dados.titulo)    { document.getElementById("rh-titulo").textContent      = dados.titulo;    document.getElementById("info-titulo").textContent    = dados.titulo;    document.title = `RepairFast: ${dados.titulo}`; }
   if (dados.descricao)   document.getElementById("info-descricao").textContent = dados.descricao;
-  if (dados.categoria) { document.getElementById("info-categoria").textContent = dados.categoria; document.getElementById("rh-cat").textContent          = dados.categoria; }
-  if (dados.tipo)      { document.getElementById("info-tipo").textContent      = dados.tipo;      document.getElementById("rh-tipo").textContent         = dados.tipo; }
+  if (dados.categoria) { document.getElementById("info-categoria").textContent = dados.categoria; document.getElementById("rh-cat").textContent = dados.categoria; }
+  if (dados.tipo) {
+    document.getElementById("info-tipo").textContent = dados.tipo;
+    const tipoEl = document.getElementById("rh-tipo");
+    if (tipoEl) {
+      tipoEl.textContent      = dados.tipo;
+      tipoEl.style.background = 'var(--dark3)';
+      tipoEl.style.border     = '1px solid var(--border)';
+      tipoEl.style.color      = 'var(--text-muted)';
+      tipoEl.style.display    = '';
+    }
+  }
   if (dados.setor)       document.getElementById("info-setor").textContent     = dados.setor;
   if (dados.data) {
     document.getElementById("meta-abertura").textContent    = dados.data;
@@ -891,6 +926,18 @@ async function init() {
     const fmtUpd = new Date(dados.updated_at).toLocaleDateString('pt-BR') + ' · ' +
                    new Date(dados.updated_at).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
     document.getElementById("meta-atualizacao").textContent = fmtUpd;
+  }
+
+  /* Reportado por */
+  const reporterNome = dados.reporter || dados.user_name || null;
+  const reporterRow  = document.getElementById('reporter-row');
+  if (reporterNome) {
+    const ini = reporterNome.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('reporter-av').textContent   = ini;
+    document.getElementById('reporter-nome').textContent = reporterNome;
+    if (reporterRow) reporterRow.style.display = '';
+  } else if (reporterRow) {
+    reporterRow.style.display = 'none';
   }
 
   /* Responsável */
@@ -905,23 +952,19 @@ async function init() {
   if (dados.prioridade) {
     const prioMap   = { alta:'p-alto', media:'p-medio', baixa:'p-baixo' };
     const prioLabel = { alta:'Alta',   media:'Média',   baixa:'Baixa'   };
-    const badges = document.querySelector('.rh-badges');
-    const span = document.createElement('span');
-    span.className   = `tag ${prioMap[dados.prioridade] || ''}`;
-    span.textContent = prioLabel[dados.prioridade] || dados.prioridade;
-    if (badges) badges.insertBefore(span, badges.firstChild);
+    const prioEl = document.getElementById('rh-prio');
+    if (prioEl) {
+      prioEl.className   = `tag ${prioMap[dados.prioridade] || ''}`;
+      prioEl.textContent = prioLabel[dados.prioridade] || dados.prioridade;
+      prioEl.style.display = '';
+    }
   }
 
   /* Status badge */
   renderStatus(dados.status || 'aberto');
 
-  /* Anexo — backend retorna string URL */
-  if (dados.attachment) {
-    const nome = dados.attachment.split('/').pop() || 'anexo';
-    renderAnexos([{ name: nome, size: 0, type: '', data: dados.attachment }]);
-  } else {
-    renderAnexos([]);
-  }
+  /* Anexos — suporta JSON array (base64) e URL simples */
+  renderAnexos(_parsearAnexos(dados.attachment));
 
   /* Histórico do backend */
   try {

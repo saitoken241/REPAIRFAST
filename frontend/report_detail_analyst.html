@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RepairFast — Detalhe do Reporte</title>
+<title>RepairFast: Detalhe do Reporte</title>
 
 <link rel="stylesheet" href="src/css/global.css">
 <link rel="stylesheet" href="src/css/components.css">
@@ -317,12 +317,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
         <div class="rh-id" id="rh-id">REPORTE #1248 · ABERTO EM 21/03/2025</div>
         <div class="rh-titulo" id="rh-titulo">Falta de sinalização em área de risco — Corredor B</div>
         <div class="rh-badges">
-          <!-- tipo de ocorrência (Falha / Risco / Melhoria) -->
-          <span class="tag p-alto" id="rh-tipo-badge">Risco</span>
-          <!-- status -->
+          <span class="tag" id="rh-prio-badge" style="display:none"></span>
+          <span class="tag" id="rh-tipo-badge" style="display:none"></span>
           <span class="tag s-aberto" id="rh-status-badge">Aberto</span>
-          <!-- categoria do reporte -->
-          <span class="tag" style="background:var(--dark3);border:1px solid var(--border);color:var(--text-muted)" id="rh-cat-badge">Segurança e acessibilidade</span>
+          <span class="tag" style="background:var(--dark3);border:1px solid var(--border);color:var(--text-muted)" id="rh-cat-badge"></span>
           <!-- SLA dos prazos -->
           <span class="sla-badge" id="sla-badge">
             <span class="sla-dot-sm"></span>
@@ -445,7 +443,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
               <span class="meta-val" style="font-family:var(--fm);font-size:11px" id="meta-atualizacao">25/03/2025 · 10:15</span>
             </div>
             <div class="meta-row">
-              <span class="meta-key">Prazos do plano</span>
+              <span class="meta-key">Prazo</span>
               <span class="meta-val" id="meta-sla">—</span>
             </div>
             <div class="meta-row">
@@ -549,10 +547,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
   <div class="modal">
     <button class="modal-close" onclick="fecharModal('modalEncerrar')">×</button>
     <div class="modal-title">ENCERRAR REPORTE</div>
-    <div class="modal-sub" id="modalEncerrar-sub">Reporte #1248 — Esta ação não pode ser desfeita</div>
+    <div class="modal-sub" id="modalEncerrar-sub">Reporte #1248: Esta ação não pode ser desfeita</div>
     <label class="modal-label">Motivo do encerramento</label>
     <select class="modal-select" id="enc-motivo">
-      <option>Problema resolvido — ação corretiva aplicada</option>
+      <option>Ação corretiva aplicada</option>
       <option>Duplicata de outro reporte</option>
       <option>Fora do escopo do setor</option>
       <option>Informação insuficiente para análise</option>
@@ -579,41 +577,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 </div>
 
 <div class="toast-area" id="toastArea"></div>
-
-<!-- ════ VIEW ENCERRADA (estilo colaborador, oculta por padrão) ════ -->
-<div id="viewEncerrado" style="display:none">
-  <!-- reutiliza .main mas com conteúdo de leitura -->
-</div>
-
-<!-- ════ MODAL CONFIRMAÇÃO DE REABERTURA ════ -->
-<div class="modal-overlay" id="modalReabrir">
-  <div class="modal" style="max-width:420px">
-    <button class="modal-close" onclick="fecharModal('modalReabrir')">×</button>
-    <div class="modal-title">REABRIR REPORTE</div>
-    <div class="modal-sub" id="modalReabrir-sub">Reporte #1248 — Confirme a reabertura</div>
-
-    <div style="background:var(--dark4);border:1px solid var(--yellow-b);border-radius:8px;padding:12px 14px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start">
-      <span style="flex-shrink:0;display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-      <div style="font-size:12px;color:var(--text-muted);line-height:1.6">
-        Ao reabrir, o reporte voltará ao status <strong style="color:var(--orange)">Aberto</strong> e você poderá registrar novas ações, atualizações e planos. Essa ação será registrada no histórico.
-      </div>
-    </div>
-
-    <label class="modal-label">Motivo da reabertura</label>
-    <select class="modal-select" id="reabrir-motivo">
-      <option>Problema recorrente — requer nova análise</option>
-      <option>Ação corretiva insuficiente</option>
-      <option>Novo risco identificado na mesma área</option>
-      <option>Solicitação do colaborador</option>
-      <option>Erro no encerramento anterior</option>
-    </select>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModal('modalReabrir')">Cancelar</button>
-      <button class="btn-confirm" style="background:var(--blue)" onclick="confirmarReabertura()">Reabrir Reporte</button>
-    </div>
-  </div>
-</div>
 
 <script>
 /* ══════════════════════════════════════════════════
@@ -931,12 +894,11 @@ let _prioridadePendente = null;
 let _prioridadeAtual    = null;
 
 function _aplicarPrioridadeUI(prio) {
-  const map = { low: 'prio-low', medium: 'prio-medium', high: 'prio-high' };
+  const map      = { low: 'prio-low', medium: 'prio-medium', high: 'prio-high' };
   const labelMap = { low: 'Baixa', medium: 'Média', high: 'Alta' };
-  const colorMap = { low: 'var(--green)', medium: 'var(--yellow)', high: 'var(--red)' };
-  const bgMap    = { low: 'var(--green-dim)', medium: 'var(--yellow-dim)', high: 'var(--red-dim)' };
+  const clsMap   = { low: 'p-baixo', medium: 'p-medio', high: 'p-alto' };
 
-  // Marca opção ativa — cuidado: usa classe que só tem nos prio-* opts
+  // Marca opção ativa
   ['prio-low','prio-medium','prio-high'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('active');
@@ -944,7 +906,13 @@ function _aplicarPrioridadeUI(prio) {
   const activeEl = document.getElementById(map[prio]);
   if (activeEl) activeEl.classList.add('active');
 
-  // badge removido — prioridade atual é indicada pela opção marcada
+  // Badge no header
+  const prioEl = document.getElementById('rh-prio-badge');
+  if (prioEl && prio) {
+    prioEl.className   = `tag ${clsMap[prio] || ''}`;
+    prioEl.textContent = labelMap[prio] || prio;
+    prioEl.style.display = '';
+  }
 }
 
 function selecionarPrioridade(val, btn) {
@@ -1136,309 +1104,11 @@ async function encerrarReporte() {
     if (el) el.classList.remove('active');
   });
 
-  /* Após pequeno delay para o toast aparecer, monta e exibe a view de encerrado */
-  setTimeout(() => ativarViewEncerrado(motivo), 600);
+  /* Após pequeno delay para o toast aparecer, redireciona para a página encerrada */
+  setTimeout(() => { window.location.href = "report_detail_analyst_closed.html"; }, 600);
 }
 
-/* ══════════════════════════════════════════════════
-   VIEW ENCERRADO — monta a tela de leitura (estilo colaborador)
-══════════════════════════════════════════════════ */
-function ativarViewEncerrado(motivo) {
-  /* Oculta a view de analista e mostra a de leitura */
-  document.querySelector('.app').style.display   = 'none';
-  document.getElementById('viewEncerrado').style.display = 'block';
 
-  /* Coleta dados para exibição */
-  const titulo    = document.getElementById("rh-titulo").textContent;
-  const idReporte = document.getElementById("rh-id").textContent;
-  const descricao = document.getElementById("info-descricao").textContent;
-  const categoria = document.getElementById("info-categoria").textContent;
-  const tipo      = document.getElementById("info-tipo").textContent;
-  const setor     = document.getElementById("info-setor").textContent;
-  const reporter  = document.getElementById("reporter-nome").textContent;
-  const reporterAv= document.getElementById("reporter-av").textContent;
-  const respNome  = document.getElementById("meta-resp-nome").textContent;
-  const respAv    = document.getElementById("meta-resp-av").textContent;
-  const abertura  = document.getElementById("meta-abertura").textContent;
-  const encerradoEm = agora();
-
-  /* Monta histórico para exibição na view encerrada */
-  const histHtml = HISTORICO.map((h, i) => `
-    <div class="closed-tl-item">
-      <div class="closed-tl-left">
-        <div class="closed-tl-dot" style="background:${h.dot}"></div>
-        ${i < HISTORICO.length - 1 ? '<div class="closed-tl-line"></div>' : ''}
-      </div>
-      <div class="closed-tl-body">
-        <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
-          <span class="closed-tl-action" style="color:${h.cor}">${h.acao}</span>
-          <span class="closed-tl-who">· ${h.quem}</span>
-          <span class="closed-tl-time" style="margin-left:auto">${h.tempo}</span>
-        </div>
-        ${h.desc       ? `<div class="closed-tl-desc">${h.desc}</div>`             : ''}
-        ${h.comentario ? `<div class="closed-tl-comment">"${h.comentario}"</div>` : ''}
-      </div>
-    </div>`).join('');
-
-  /* Monta plano de ação para leitura */
-  const planoHtml = _plano.length
-    ? _plano.map(p => `
-      <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-        <div style="width:14px;height:14px;border-radius:3px;background:${p.done ? 'var(--green)' : 'var(--mid)'};border:1.5px solid ${p.done ? 'var(--green)' : 'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:9px;color:white;font-weight:700">${p.done ? '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:12px;font-weight:500;">${p.desc}</div>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:2px;display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${p.resp} · <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${fmtPrazo(p.prazo)}</div>
-        </div>
-      </div>`).join('')
-    : `<div style="font-size:12px;color:var(--text-dim);text-align:center;padding:12px 0">Nenhuma ação registrada</div>`;
-
-  /* Monta evidências (imagens, vídeos, docs) usando _anexos já carregados */
-  const imagens = _anexos.filter(a => isImagem(a));
-  const videos  = _anexos.filter(a => isVideo(a));
-  const docs    = _anexos.filter(a => !isImagem(a) && !isVideo(a));
-
-  const thumbsHtml = [...imagens, ...videos].map(a => {
-    const idx = _anexos.indexOf(a);
-    if (isImagem(a)) {
-      return `
-        <div class="ev-thumb" onclick="abrirLightbox(${idx})" style="cursor:pointer">
-          <img src="${a.data}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover">
-          <div class="ev-overlay"style="display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        </div>`;
-    }
-    return `
-      <div class="ev-thumb" onclick="abrirLightbox(${idx})" style="cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px">
-        <span style="display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span>
-        <span style="font-size:10px;color:var(--text-muted);text-align:center;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px">${a.name}</span>
-        <div class="ev-overlay">▶</div>
-      </div>`;
-  }).join('');
-
-  const docsHtml = docs.map(a => {
-    const idx = _anexos.indexOf(a);
-    return `
-      <div class="ev-doc" onclick="abrirLightbox(${idx})" style="cursor:pointer">
-        <div class="ev-doc-icon">${getIconeTipo(a.type, a.name)}</div>
-        <div class="ev-doc-info">
-          <div class="ev-doc-name">${a.name}</div>
-          <div class="ev-doc-size">${formatSize(a.size)}${a.type ? ' · ' + a.type.split('/')[1]?.toUpperCase() : ''}</div>
-        </div>
-        <span style="color:var(--orange);display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
-      </div>`;
-  }).join('');
-
-  const anexoCount = _anexos.length;
-  const evidenciasHtml = anexoCount === 0
-    ? `<div class="ev-empty">Nenhuma evidência anexada</div>`
-    : `
-      ${thumbsHtml ? `<div class="evidencias-grid">${thumbsHtml}</div>` : ''}
-      ${docsHtml   ? `<div style="display:flex;flex-direction:column;gap:8px;${thumbsHtml ? 'margin-top:10px' : ''}">${docsHtml}</div>` : ''}`;
-
-  document.getElementById('viewEncerrado').innerHTML = `
-  <div style="min-height:100vh;background:var(--dark);padding:var(--pad);padding-bottom:48px">
-
-    <!-- Breadcrumb -->
-    <div class="breadcrumb" style="animation:fadeUp .25s ease both;margin-bottom:18px">
-      <a href="home_analyst.html" style="color:var(--text-muted);text-decoration:none">← Início</a>
-      <span style="color:var(--text-dim)">/</span>
-      <span style="color:var(--text-muted)">Reportes do Setor</span>
-      <span style="color:var(--text-dim)">/</span>
-      <span style="color:var(--text-dim);font-family:var(--fm)">#${_reporteId}</span>
-    </div>
-
-    <!-- Header -->
-    <div class="report-header">
-      <div class="rh-left">
-        <div style="font-family:var(--fm);font-size:12px;color:var(--text-dim);margin-bottom:6px">${idReporte}</div>
-        <div style="font-family:var(--fd);font-size:clamp(22px,3vw,32px);letter-spacing:.5px;line-height:1.15;margin-bottom:10px">${titulo}</div>
-        <div class="rh-badges">
-          <span class="tag" style="background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)">${tipo}</span>
-          <span class="tag s-resolvido">Encerrado</span>
-          <span class="tag" style="background:var(--dark3);border:1px solid var(--border);color:var(--text-muted)">${categoria}</span>
-        </div>
-      </div>
-      <div class="rh-actions">
-        <a href="home_analyst.html" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:10px;font-family:var(--fb);font-size:13px;text-decoration:none;transition:all .2s;white-space:nowrap">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-          Voltar
-        </a>
-        <button class="btn-reopen" onclick="solicitarReabertura()"style="display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg> Reabrir Reporte</button>
-      </div>
-    </div>
-
-    <!-- Banner encerrado -->
-    <div class="closed-banner">
-      <span class="closed-banner-icon" style="display:flex"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-      <div class="closed-banner-body">
-        <div class="closed-banner-title">REPORTE ENCERRADO</div>
-        <div class="closed-banner-sub">Encerrado em ${encerradoEm} · Motivo: ${motivo}</div>
-      </div>
-    </div>
-
-    <!-- Grid -->
-    <div class="closed-grid">
-
-      <!-- Coluna esquerda -->
-      <div style="display:flex;flex-direction:column;gap:16px">
-
-        <!-- Informações do reporte -->
-        <div class="panel">
-          <div class="panel-hd"><div><div class="panel-title">INFORMAÇÕES DO REPORTE</div><div class="panel-sub">Dados registrados pelo colaborador</div></div></div>
-
-          <div class="closed-info-block">
-            <div class="closed-field-label">Título</div>
-            <div class="closed-field-val" style="font-weight:500;font-size:14px">${titulo}</div>
-          </div>
-
-          <div class="closed-info-block">
-            <div class="closed-field-label">Descrição</div>
-            <div class="closed-field-val">${descricao}</div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div class="info-item"><div class="info-label">Categoria</div><div class="info-val">${categoria}</div></div>
-            <div class="info-item"><div class="info-label">Tipo de ocorrência</div><div class="info-val">${tipo}</div></div>
-            <div class="info-item"><div class="info-label">Setor</div><div class="info-val">${setor}</div></div>
-          </div>
-        </div>
-
-        <!-- Evidências (somente leitura, com lightbox) -->
-        <div class="panel">
-          <div class="panel-hd">
-            <div><div class="panel-title">EVIDÊNCIAS</div><div class="panel-sub">Anexos enviados pelo colaborador</div></div>
-            <span style="font-size:11px;color:var(--text-dim);font-family:var(--fm)">${anexoCount} arquivo${anexoCount !== 1 ? 's' : ''}</span>
-          </div>
-          ${evidenciasHtml}
-        </div>
-
-        <!-- Plano de ação (somente leitura) -->
-        <div class="panel">
-          <div class="panel-hd"><div><div class="panel-title">PLANO DE AÇÃO</div><div class="panel-sub">Todas as ações concluídas</div></div></div>
-          ${planoHtml}
-        </div>
-
-        <!-- Histórico completo -->
-        <div class="panel">
-          <div class="panel-hd"><div><div class="panel-title">HISTÓRICO</div><div class="panel-sub">Linha do tempo completa do reporte</div></div></div>
-          <div style="display:flex;flex-direction:column">${histHtml}</div>
-        </div>
-
-      </div>
-
-      <!-- Coluna direita -->
-      <div style="display:flex;flex-direction:column;gap:16px">
-
-        <!-- Resumo -->
-        <div class="panel">
-          <div class="panel-hd"><div class="panel-title">INFORMAÇÕES</div></div>
-          <div>
-            <div class="closed-meta-row">
-              <span class="closed-meta-key">Reportado por</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <div style="width:22px;height:22px;border-radius:50%;background:var(--orange-dim);color:var(--orange);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">${reporterAv}</div>
-                <span class="closed-meta-val">${reporter}</span>
-              </div>
-            </div>
-            <div class="closed-meta-row">
-              <span class="closed-meta-key">Responsável</span>
-              <div style="display:flex;align-items:center;gap:6px">
-                <div style="width:22px;height:22px;border-radius:50%;background:var(--mid);color:var(--text-muted);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">${respAv}</div>
-                <span class="closed-meta-val">${respNome}</span>
-              </div>
-            </div>
-            <div class="closed-meta-row">
-              <span class="closed-meta-key">Aberto em</span>
-              <span class="closed-meta-val" style="font-family:var(--fm);font-size:11px">${abertura}</span>
-            </div>
-            <div class="closed-meta-row">
-              <span class="closed-meta-key">Encerrado em</span>
-              <span class="closed-meta-val" style="font-family:var(--fm);font-size:11px">${encerradoEm}</span>
-            </div>
-            <div class="closed-meta-row">
-              <span class="closed-meta-key">Status</span>
-              <span class="tag s-resolvido">Encerrado</span>
-            </div>
-            <div class="closed-meta-row">
-              <span class="closed-meta-key">ID do Reporte</span>
-              <span class="closed-meta-val" style="font-family:var(--fm);color:var(--text-dim)">#${_reporteId}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Botão reabrir em destaque -->
-        <div class="panel" style="border-color:var(--blue-b)">
-          <div style="text-align:center;padding:4px 0 12px">
-            <div style="display:flex;justify-content:center;margin-bottom:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
-            <div style="font-family:var(--fd);font-size:15px;letter-spacing:.5px;margin-bottom:6px">REABRIR REPORTE</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">O reporte voltará ao status <strong style="color:var(--orange)">Aberto</strong> e poderá receber novas ações.</div>
-            <button class="btn-reopen" style="width:100%;justify-content:center" onclick="solicitarReabertura()"style="display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg> Reabrir Reporte</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>`;
-}
-
-/* ══════════════════════════════════════════════════
-   REABERTURA
-══════════════════════════════════════════════════ */
-function solicitarReabertura() {
-  document.getElementById("modalReabrir-sub").textContent =
-    `Reporte #${_reporteId} — Confirme a reabertura`;
-  abrirModal('modalReabrir');
-}
-
-async function confirmarReabertura() {
-  const motivo = document.getElementById("reabrir-motivo").value;
-  fecharModal('modalReabrir');
-
-  try {
-    await patchReporteStatus(parseInt(_reporteId), "open");
-    await registrarHistoricoReporte(parseInt(_reporteId), { action: 'Reporte reaberto', description: `Motivo: ${motivo}.`, color: 'var(--blue)' });
-  } catch(e) { console.warn('confirmarReabertura:', e); }
-
-  /* Restaura a view de analista */
-  document.querySelector('.app').style.display = 'flex';
-  document.getElementById('viewEncerrado').style.display = 'none';
-
-  /* Volta status para Aberto */
-  _statusAtual    = "Aberto";
-  _statusPendente = "Aberto";
-  const badge = document.getElementById("rh-status-badge");
-  badge.className   = "tag s-aberto";
-  badge.textContent = "Aberto";
-  ['status-aberto','status-andamento'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('active');
-  });
-  const elAberto = document.getElementById('status-aberto');
-  if (elAberto) elAberto.classList.add('active');
-
-  /* Reabilita o botão Encerrar (já vai ser desabilitado por renderPlano se houver pendências) */
-  renderPlano();
-
-  /* Registra no histórico primeiro, depois persiste tudo junto no sessionStorage */
-  registrarHist(
-    "Reporte reaberto",
-    _responsavelAtual.nome,
-    `Motivo: ${motivo}.`,
-    null,
-    "var(--blue)",
-    "var(--blue)"
-  );
-
-  /* Persiste novo status + histórico no sessionStorage */
-  try {
-    const dados = JSON.parse(sessionStorage.getItem("reporteAtual_analista") || "{}");
-    dados.status      = "aberto";
-    dados.motivo      = null;
-    dados.encerradoEm = null;
-    sessionStorage.setItem("reporteAtual_analista", JSON.stringify(dados));
-  } catch(e) {}
-
-  showToast("<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 9.9-1'/></svg>", "Reporte reaberto e em análise", "blue");
-}
 
 /* ══════════════════════════════════════════════════
    OUTRAS
@@ -1644,7 +1314,7 @@ function carregarDadosReporte() {
     document.getElementById("bc-id").textContent           = `#${dados.id}`;
     document.getElementById("meta-id").textContent         = `#${dados.id}`;
     document.getElementById("modalPlano-sub").textContent  = `Reporte #${dados.id} — Plano de ação`;
-    document.getElementById("modalEncerrar-sub").textContent = `Reporte #${dados.id} — Esta ação não pode ser desfeita`;
+    document.getElementById("modalEncerrar-sub").textContent = `Reporte #${dados.id}: Esta ação não pode ser desfeita`;
     if (dados.data) document.getElementById("meta-abertura").textContent = dados.data;
   }
 
@@ -1652,7 +1322,7 @@ function carregarDadosReporte() {
   if (dados.titulo) {
     document.getElementById("rh-titulo").textContent   = dados.titulo;
     document.getElementById("info-titulo").textContent = dados.titulo;
-    document.title = `RepairFast — ${dados.titulo}`;
+    document.title = `RepairFast: ${dados.titulo}`;
   }
 
   /* Descrição */
@@ -1668,8 +1338,15 @@ function carregarDadosReporte() {
 
   /* Tipo de ocorrência */
   if (dados.tipo) {
-    document.getElementById("info-tipo").textContent     = dados.tipo;
-    document.getElementById("rh-tipo-badge").textContent = dados.tipo;
+    document.getElementById("info-tipo").textContent = dados.tipo;
+    const tipoEl = document.getElementById("rh-tipo-badge");
+    if (tipoEl) {
+      tipoEl.textContent        = dados.tipo;
+      tipoEl.style.background   = 'var(--dark3)';
+      tipoEl.style.border       = '1px solid var(--border)';
+      tipoEl.style.color        = 'var(--text-muted)';
+      tipoEl.style.display      = '';
+    }
   }
 
   /* Setor */
@@ -1697,13 +1374,11 @@ function carregarDadosReporte() {
     if (sel) sel.value = dados.assigned_to;
   }
 
-  /* Anexos — backend retorna string URL em attachment */
-  if (dados.attachment) {
-    const nome = dados.attachment.split('/').pop() || 'anexo';
-    renderAnexos([{ name: nome, size: 0, type: '', data: dados.attachment }]);
-  } else {
-    renderAnexos([]);
-  }
+  /* Anexos — suporta JSON array (base64) e URL simples
+     Tenta _attachmentTemp (do backend) antes de dados.attachment (sessionStorage) */
+  const _att = sessionStorage.getItem('_attachmentTemp') || dados.attachment;
+  sessionStorage.removeItem('_attachmentTemp');
+  renderAnexos(_parsearAnexos(_att));
 
   /* Reporter — não existe no backend ainda */
   const reporterRow = document.getElementById("reporter-av")?.closest('.meta-row');
@@ -1717,16 +1392,9 @@ function carregarDadosReporte() {
     };
     const cfg = statusMap[dados.status];
     if (dados.status === 'resolvido') {
-      /* Status encerrado — vai direto para view de leitura */
-      _statusAtual    = 'Resolvido';
-      _statusPendente = 'Resolvido';
-      const badge = document.getElementById('rh-status-badge');
-      if (badge) { badge.className = 'tag s-resolvido'; badge.textContent = 'Resolvido'; }
-      // Nenhuma opção do seletor é marcada (Resolvido foi removido)
-      document.querySelectorAll('.status-opt').forEach(o => o.classList.remove('active'));
-      const btnEncerrar = document.getElementById('btn-encerrar');
-      if (btnEncerrar) { btnEncerrar.disabled = false; btnEncerrar.title = 'Encerrar este reporte'; }
-      setTimeout(() => ativarViewEncerrado('Problema resolvido — ação corretiva aplicada'), 0);
+      /* Status encerrado — redireciona imediatamente para a página de leitura */
+      window.location.href = 'report_detail_analyst_closed.html';
+      return;
     } else if (cfg) {
       /* Aberto ou Em andamento */
       _statusAtual    = cfg.label;
@@ -1774,26 +1442,46 @@ function adaptarHistorico(entries) {
 /* ══════════════════════════════════════════════════
    INIT
 ══════════════════════════════════════════════════ */
+
+/* ── Anexos — suporte a JSON array (base64) e URL simples ── */
+function _parsearAnexos(attachment) {
+  if (!attachment) return [];
+  try {
+    const parsed = JSON.parse(attachment);
+    if (Array.isArray(parsed)) return parsed;
+  } catch(e) {}
+  // fallback: string URL simples (formato antigo)
+  const nome = attachment.split('/').pop() || 'anexo';
+  return [{ name: nome, size: 0, type: '', data: attachment }];
+}
+
 async function init() {
   /* 1. Busca dados atualizados do backend PRIMEIRO */
+  let dadosSS = null;
   try {
-    const dadosSS = JSON.parse(sessionStorage.getItem('reporteAtual_analista') || 'null');
+    dadosSS = JSON.parse(sessionStorage.getItem('reporteAtual_analista') || 'null');
     if (dadosSS && dadosSS.id) {
       const atualizado = await getReportePorId(dadosSS.id);
       if (atualizado) {
-        // Não deixa null do backend sobrescrever dados válidos do sessionStorage
         const merged = { ...dadosSS };
         Object.keys(atualizado).forEach(k => {
+          if (k === 'attachment') return; // attachment não vai para sessionStorage (base64 grande)
           if (atualizado[k] !== null && atualizado[k] !== undefined) {
             merged[k] = atualizado[k];
           }
         });
         sessionStorage.setItem('reporteAtual_analista', JSON.stringify(merged));
+        dadosSS.attachment = atualizado.attachment; // mantém em memória
       }
     }
   } catch(e) { console.warn('Falha ao atualizar reporte:', e); }
 
-  /* 2. Carrega dados na tela — define _responsavelAtual com o valor correto */
+  /* 2. Carrega dados na tela — injeta attachment via _attachmentTemp */
+  try {
+    if (dadosSS && dadosSS.attachment !== undefined) {
+      sessionStorage.setItem('_attachmentTemp', dadosSS.attachment || '');
+    }
+  } catch(e) {}
   carregarDadosReporte();
 
   /* 3. Só agora popula os selects — _responsavelAtual já está preenchido */

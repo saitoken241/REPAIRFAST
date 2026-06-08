@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RepairFast — Reporte Encerrado (Gestor)</title>
+  <title>RepairFast: Reporte Encerrado (Gestor)</title>
 
   <link rel="stylesheet" href="src/css/global.css">
   <link rel="stylesheet" href="src/css/components.css">
@@ -1135,7 +1135,7 @@
       </div>
       <label class="modal-label">Motivo da reabertura</label>
       <select class="modal-select" id="reopen-reason">
-        <option>Problema recorrente — requer nova análise</option>
+        <option>Requer nova análise</option>
         <option>Ação corretiva foi insuficiente</option>
         <option>Novo risco identificado na mesma área</option>
         <option>Solicitação do colaborador</option>
@@ -1295,6 +1295,20 @@
     }
 
     /* ══════════════════════════════════════════════════
+       Parseia o campo attachment (JSON array ou URL simples)
+    ══════════════════════════════════════════════════ */
+    function _parsearAnexos(attachment) {
+      if (!attachment) return [];
+      try {
+        const parsed = JSON.parse(attachment);
+        if (Array.isArray(parsed)) return parsed;
+      } catch(e) {}
+      // fallback: string URL simples (formato antigo)
+      const nome = attachment.split('/').pop() || 'anexo';
+      return [{ name: nome, size: 0, type: '', data: attachment }];
+    }
+
+    /* ══════════════════════════════════════════════════
        Carrega dados do sessionStorage
     ══════════════════════════════════════════════════ */
     function loadData() {
@@ -1314,12 +1328,12 @@
       el("bc-id").textContent = `#${_reporteId}`;
       el("rh-id").textContent = `REPORTE #${_reporteId} · ENCERRADO`;
       el("meta-id").textContent = `#${_reporteId}`;
-      el("modal-reopen-sub").textContent = `Reporte #${_reporteId} — Confirmar reabertura`;
+      el("modal-reopen-sub").textContent = `Reporte #${_reporteId}: Confirmar reabertura`;
 
       if (dados.titulo) {
         el("rh-titulo").textContent = dados.titulo;
         el("info-titulo").textContent = dados.titulo;
-        document.title = `RepairFast — ${dados.titulo}`;
+        document.title = `RepairFast: ${dados.titulo}`;
       }
       if (dados.descricao) el("info-descricao").textContent = dados.descricao;
       if (dados.categoria) { el("info-categoria").textContent = dados.categoria; el("rh-cat-badge").textContent = dados.categoria; }
@@ -1330,7 +1344,7 @@
       /* Data de fechamento */
       el("meta-fechamento").textContent = dados.encerradoEm || "—";
       el("banner-sub").textContent = dados.encerradoEm
-        ? `Encerrado at ${dados.encerradoEm}${dados.motivo ? " · Motivo: " + dados.motivo : ""}`
+        ? `Encerrado em ${dados.encerradoEm}${dados.motivo ? " · Motivo: " + dados.motivo : ""}`
         : "Este reporte foi encerrado";
 
       /* Reportado por */
@@ -1343,7 +1357,18 @@
         el("reporter-av")?.closest(".meta-row")?.setAttribute("style", "display:none");
       }
 
-      /* Responsável */
+  /* Prioridade no header */
+  if (dados.prioridade) {
+    const prioMap   = { alta: 'p-alto', media: 'p-medio', baixa: 'p-baixo' };
+    const prioLabel = { alta: 'Alta', media: 'Média', baixa: 'Baixa' };
+    const badges = document.querySelector('.rh-badges');
+    const prioSpan = document.createElement('span');
+    prioSpan.className   = `tag ${prioMap[dados.prioridade] || ''}`;
+    prioSpan.textContent = prioLabel[dados.prioridade] || dados.prioridade;
+    if (badges) badges.insertBefore(prioSpan, badges.firstChild);
+  }
+
+        /* Responsável */
       if (dados.assigned_to_name) {
         const ini = dados.assigned_to_name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
         const avEl = el("meta-resp-av");
@@ -1352,12 +1377,10 @@
       }
 
       /* Anexos */
-      if (dados.attachment) {
-        const nome = dados.attachment.split("/").pop() || "attachment";
-        renderAnexos([{ name: nome, size: 0, type: "", data: dados.attachment }]);
-      } else {
-        renderAnexos([]);
-      }
+      /* Anexos — lê _attachmentTemp (injetado pelo init) ou dados.attachment */
+      const _att = sessionStorage.getItem('_attachmentTemp') ?? dados.attachment;
+      sessionStorage.removeItem('_attachmentTemp');
+      renderAnexos(_parsearAnexos(_att));
 
     }
 
@@ -1459,11 +1482,55 @@
           window.location.replace('report_detail_manager.html');
           return;
         }
+        /* Ainda encerrado — injeta attachment e re-renderiza anexos */
+        if (atualizado) {
+          sessionStorage.setItem('_attachmentTemp', atualizado.attachment || '');
+          renderAnexos(_parsearAnexos(atualizado.attachment));
+        }
       } catch(e) { console.warn('Falha ao verificar status:', e); }
 
       try {
         const entries = await getHistoricoReporte(dados.id);
         renderHistorico(adaptarHistorico(entries));
+
+        const fmtData = (iso) => {
+          if (!iso) return null;
+          const d = new Date(iso);
+          return d.toLocaleDateString('pt-BR') + ' · ' +
+            d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        };
+
+        /* Data de abertura — primeira entrada com "aberto" */
+        const entradaAbertura = entries.find(e =>
+          e.action && e.action.toLowerCase().includes('aberto')
+        );
+        const abertaEm = entradaAbertura
+          ? fmtData(entradaAbertura.created_at)
+          : null;
+
+        if (abertaEm) {
+          document.getElementById('meta-abertura').textContent = abertaEm;
+        }
+
+        /* Data de encerramento — última entrada com "encerrado" */
+        const entradaEncerramento = [...entries].reverse().find(e =>
+          e.action && e.action.toLowerCase().includes('encerrado')
+        );
+        const encerradoEm = entradaEncerramento
+          ? fmtData(entradaEncerramento.created_at)
+          : null;
+
+        if (encerradoEm) {
+          document.getElementById('meta-fechamento').textContent = encerradoEm;
+          document.getElementById('banner-sub').textContent =
+            `Encerrado em ${encerradoEm}${dados.motivo ? ' · Motivo: ' + dados.motivo : ''}`;
+          /* Persiste */
+          try {
+            const ss = JSON.parse(sessionStorage.getItem('reporteAtual_gestor') || '{}');
+            ss.encerradoEm = encerradoEm;
+            sessionStorage.setItem('reporteAtual_gestor', JSON.stringify(ss));
+          } catch(e) {}
+        }
       } catch(e) { console.warn('Histórico manager_closed:', e); }
     }
     init();

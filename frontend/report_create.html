@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RepairFast — Novo Reporte</title>
+  <title>RepairFast: Novo Reporte</title>
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap"
     rel="stylesheet">
@@ -955,12 +955,30 @@
       const tipoMap = { 'Falha': 'failure', 'Risco': 'risk', 'Melhoria': 'improvement' };
       const setorEl   = document.getElementById('setor');
       const setorNome = setorEl.options[setorEl.selectedIndex]?.text || '';
+
+      // Converte arquivos para base64 (armazena todos como JSON array)
+      let attachmentData = null;
+      if (uploadedFiles.length > 0) {
+        const toBase64 = (file) => new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload  = () => res({ name: file.name, size: file.size, type: file.type, data: r.result });
+          r.onerror = () => rej(new Error('Erro ao ler arquivo'));
+          r.readAsDataURL(file);
+        });
+        try {
+          const converted = await Promise.all(uploadedFiles.map(toBase64));
+          attachmentData = JSON.stringify(converted);
+        } catch(e) {
+          console.warn('Erro ao converter arquivos:', e);
+        }
+      }
+
       const payload = {
         title:           document.getElementById('titulo').value.trim(),
         description:     document.getElementById('descricao').value.trim(),
         category:        document.getElementById('categoria').value,
         occurrence_type: tipoMap[document.getElementById('tipo').value] || null,
-        attachment:      null,
+        attachment:      attachmentData,
         department_id:   parseInt(setorEl.value) || null,
         sector:          setorNome,  // nome do setor para o classificador Groq
       };
