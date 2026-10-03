@@ -283,6 +283,4 @@ This project is licensed under the **MIT License**.
 **ken**
 Backend Developer | Cybersecurity Enthusiast
 
-📧 []()
-🔗 []()
 
